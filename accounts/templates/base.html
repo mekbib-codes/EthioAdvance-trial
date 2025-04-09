@@ -1,0 +1,123 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}{% endblock %}</title>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <!-- Preload Swiper CSS -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"></noscript>
+</head>
+<body class="bg-gray-50 font-inter tracking-tight text-gray-900 antialiased">
+    <div class="flex min-h-screen flex-col overflow-hidden supports-[overflow:clip]:overflow-clip">
+        {% block header %}{% endblock %}
+        
+        <!-- Toast Notification Container -->
+        <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2 w-full max-w-xs">
+            {% for message in messages %}
+            <div class="toast hidden transition-opacity duration-300 ease-in-out" 
+                 data-type="{{ message.tags }}">
+                {{ message }}
+                <button class="close-btn cursor-pointer text-2xl font-bold" aria-label="Close">X</button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <main class="grow">
+            {% block content %}{% endblock %}
+        </main>
+        
+        {% include "ui/footer.html" %}
+    </div>
+
+    <!-- Load scripts with defer when possible -->
+    <script src="https://unpkg.com/htmx.org" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js" defer></script>
+    
+    <script defer>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Initialize toasts
+            initToasts();
+            
+            // Initialize Swiper
+            initSwiper();
+            
+            // HTMX setup
+            document.body.addEventListener("htmx:configRequest", (event) => {
+                event.detail.headers["X-CSRFToken"] = document.querySelector('meta[name="csrf-token"]').content;
+            });
+        });
+
+        function initToasts() {
+            const toasts = document.querySelectorAll('.toast');
+            console.log
+            toasts.forEach(toast => {
+                const type = toast.dataset.type || '';
+                const tag = type.includes('success') ? 'success' : 
+                            type.includes('error') || type.includes('danger') ? 'error' : 
+                            'info';
+
+                const typeClasses = ( type === 'error' ? 'bg-red-100 border-red-400 text-red-700' : 
+                                    type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 
+                                    'bg-blue-100 border-blue-400 text-blue-700'
+                                ).split(' ');
+
+                toast.classList.add(
+                    ...typeClasses,
+                    'border-l-4', 'p-4', 'rounded', 'shadow-lg', 'relative'
+                );
+
+                
+                // Add close button
+                const closeBtn = toast.querySelector('.close-btn');
+                closeBtn.classList.add(
+                    'absolute', 'top-0', 'right-0', 'px-2', 'py-1', 
+                    'text-lg', 'font-bold', 'opacity-50', 'hover:opacity-100'
+                );
+                
+                closeBtn.addEventListener('click', () => {
+                    toast.classList.add('opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                });
+                
+                // Show toast
+                setTimeout(() => {
+                    console.log('Before removing hidden:', toast.classList);
+                    toast.classList.remove('hidden');
+                    console.log('After removing hidden:', toast.classList);
+                    // Auto-dismiss after 5s
+                    setTimeout(() => {
+                        toast.classList.add('opacity-0');
+                        setTimeout(() => toast.remove(), 300);
+                    }, 10000);
+                }, 100);
+            });
+        }
+
+        function initSwiper() {
+            if (document.querySelector(".swiper-container") && !window.swiperInstance) {
+                window.swiperInstance = new Swiper(".swiper-container", {
+                    loop: true,
+                    autoHeight: true,
+                    navigation: {
+                        nextEl: ".swiper-button-next",
+                        prevEl: ".swiper-button-prev",
+                    },
+                    pagination: {
+                        el: ".swiper-pagination",
+                        clickable: true,
+                    },
+                    slidesPerView: 1,
+                    centeredSlides: true,
+                    spaceBetween: 0,
+                });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -6,7 +6,7 @@ from .models import User
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     # Display fields in list view
-    list_display = ('email', 'get_full_name', 'role', 'is_active', 'is_staff')
+    list_display = ('email', 'get_full_name', 'role', 'is_active', 'is_staff', "slug")
     list_filter = ('role', 'is_staff', 'is_superuser', 'is_active')
     ordering = ('-created_at',)
     
@@ -20,6 +20,7 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
         ('Important Dates', {'fields': ('last_login', 'created_at', 'updated_at')}),
+        ('Slug', {'fields': ('slug',)}),
     )
     
     # Fields when adding new user

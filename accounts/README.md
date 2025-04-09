@@ -1,4 +1,4 @@
-# base App
+# accounts App
 
 ## User Model Structure
 - **Roles**: PARENT, CHILD, TUTOR, COMPANY
@@ -13,4 +13,4 @@
 ## Testing
 Run tests with:
 ```bash
-python manage.py test base --verbosity=2
+python manage.py test accounts --verbosity=2

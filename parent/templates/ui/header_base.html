@@ -1,0 +1,65 @@
+<header class="fixed top-2 z-30 w-full md:top-6">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+      <div class="relative flex h-14 items-center justify-between gap-3 rounded-2xl bg-white/90 px-3 shadow-lg shadow-black/[0.03] backdrop-blur-xs before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(var(--color-gray-100),var(--color-gray-200))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)]">
+       
+        <!-- {/* Site branding */} -->
+        <div class="flex flex-1 items-center">
+          <!-- Logo comes here -->
+          {% include "ui/logo.html" %}
+        </div>
+
+       
+        <!-- Desktop Navigation -->
+  <ul class="hidden md:flex flex-1 items-center justify-end gap-3">
+   {% block desktop_nav %}
+   {% endblock %}
+    <li>
+      <form action="{% url 'accounts:logout' %}" method="post">
+        {% csrf_token %}
+        <button class="btn-sm bg-gray-800 text-gray-200 shadow-sm cursor-pointer hover:bg-gray-900" type="submit">
+          Logout
+        </button>
+      </form>
+    </li>
+  </ul>
+
+  <!-- Mobile Menu Button -->
+<button id="menu-btn" class="md:hidden flex flex-col space-y-1.5 w-8 h-8 justify-center items-center">
+  <span class="block h-1 w-6 bg-gray-500 rounded-full transition-transform duration-300"></span>
+  <span class="block h-1 w-6 bg-gray-500 rounded-full transition-transform duration-300"></span>
+  <span class="block h-1 w-6 bg-gray-500 rounded-full transition-transform duration-300"></span>
+</button>
+
+
+  <!-- Mobile Dropdown Menu -->
+  <div id="mobile-menu" class="fixed top-0 left-0 w-full h-screen bg-white shadow-lg md:hidden flex flex-col items-center justify-center space-y-5 z-50 origin-top scale-y-0 transition-transform duration-300 ease-in-out">
+    {% block mobile_nav %}
+    {% endblock %}
+    
+    <form action="{% url 'accounts:logout' %}" method="post" class="w-full">
+      {% csrf_token %}
+      <button class="w-full px-4 py-3 text-gray-800 text-lg font-medium text-center hover:bg-gray-100" type="submit">Logout</button>
+    </form>
+  
+    <!-- Close Button -->
+    <button id="close-menu" class="absolute top-5 right-5 text-gray-800 text-5xl font-medium">&times;</button>
+  </div>
+      </div>
+    </div>
+  </header>
+
+  <script>
+    const menu = document.getElementById("mobile-menu");
+    const openBtn = document.getElementById("menu-btn");
+    const closeBtn = document.getElementById("close-menu");
+  
+    openBtn.addEventListener("click", function () {
+      menu.classList.remove("scale-y-0");
+      menu.classList.add("scale-y-100");
+    });
+  
+    closeBtn.addEventListener("click", function () {
+      menu.classList.remove("scale-y-100");
+      menu.classList.add("scale-y-0");
+    });
+  </script>

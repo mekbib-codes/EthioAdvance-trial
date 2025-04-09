@@ -1,0 +1,45 @@
+<div class="mb-10">
+    <h1 class="text-4xl font-bold">Sign in to your account</h1>
+</div>
+
+<form method="post" action="{% url 'accounts:login' %}" class="space-y-6">
+{% csrf_token %}
+
+    <div class="space-y-4">
+        <div>
+        <label class="mb-1 block text-sm font-medium text-gray-700" for="id_username">
+            Email
+        </label>
+        <input 
+            id="id_username" 
+            name="username"
+            class="form-input w-full py-2" 
+            type="text"
+            placeholder="ethioadvance@email.com"
+            required
+        />
+        </div>
+        <div>
+        <label class="mb-1 block text-sm font-medium text-gray-700" for="id_password">
+            Password
+        </label>
+        <input 
+            id="id_password" 
+            name="password"
+            class="form-input w-full py-2" 
+            type="password" 
+            autocomplete="on"
+            placeholder="••••••••"
+            required
+        />
+        </div>
+    </div>
+
+
+
+    <div class="mt-6">
+        <button class="btn w-full bg-linear-to-t from-blue-600 to-blue-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-sm hover:bg-[length:100%_150%]" type="submit">
+        Sign In
+        </button>
+    </div>
+</form>

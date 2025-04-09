@@ -1,12 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
+from django.utils.text import slugify
 from django.utils import timezone
 
 from datetime import timedelta
+import uuid
 
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('app')
 
 class UserManager(BaseUserManager):
     """Custom manager where email is the unique identifier instead of username"""
@@ -40,6 +42,8 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
     
 class User(AbstractUser):
+    slug = models.SlugField(max_length=150, unique=True, blank=True)
+
     class Gender(models.TextChoices):
         MALE = "MALE", "Male"
         FEMALE = "FEMALE", "Female"
@@ -92,14 +96,42 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.get_full_name()} ({self.role})"
-
+    
+    def generate_slug(self):
+        """Generate SEO-friendly slug with fallback to UUID"""
+        # Base components (remove None values)
+        components = filter(None, [
+            self.first_name,
+            self.last_name,
+            str(self.pk) if self.pk else None  # Include PK for uniqueness
+        ])
+        
+        base_slug = slugify(" ".join(components)) or "user"
+        logger.debug(f"Initial slug generated: {base_slug}")
+        
+        # Ensure uniqueness
+        counter = 1
+        unique_slug = base_slug
+        while User.objects.filter(slug=unique_slug).exclude(pk=self.pk).exists():
+            unique_slug = f"{base_slug}-{counter}"
+            counter += 1
+            if counter > 100:  # Safety break
+                unique_slug = f"{base_slug}-{uuid.uuid4().hex[:6]}"
+                break
+        
+        return unique_slug
+    
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
 
-    def save_model(self, request, obj, form, change):
+    def save(self, *args, **kwargs):
         try:
-            super().save_model(request, obj, form, change)
-            logger.info(f"User {obj.email} { 'updated' if change else 'created'} by {request.user.email}")
+            if not self.slug:
+                self.slug = self.generate_slug()
+                logger.info(f"New slug assigned: {self.slug}")
+
+            super().save(*args, **kwargs)
+            # logger.info(f"User {args[1].email} { 'updated' if args[3] else 'created'} by {args[0].user.email}")
         except Exception as e:
             logger.error(f"Admin user save failed: {str(e)}")
             raise

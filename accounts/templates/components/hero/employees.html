@@ -1,0 +1,13 @@
+{% load static %}
+
+<div class="mb-6 border-y [border-image:linear-gradient(to_right,transparent,var(--color-slate-300/0.8),transparent)1]">
+    <div class="-mx-0.5 flex justify-center -space-x-3">
+        {% for i in "123456" %}
+            <img class="box-content rounded-full border-2 border-gray-50"
+                 src="{% static 'img/employees/emp' %}{{ i }}.jpg"
+                 width="32"
+                 height="32"
+                 alt="Avatar {{ i }}"/>
+        {% endfor %}
+    </div>
+</div>

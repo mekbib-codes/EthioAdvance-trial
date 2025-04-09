@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Maybee
+{% endblock %}
+
+{% block header %}
+    {% include "ui/accounts_header.html" %}
+{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="relative">
+        {% include "components/hero/stripes.html" %}
+
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
+            <div class="pb-12 pt-32 md:pb-20 md:pt-40">
+                <div class="pb-12 text-center md:pb-16">
+                    {% include "components/hero/employees.html" %}
+                    {% include "components/hero/banner.html" %}
+                </div>
+
+                {% include "components/hero/animation.html" %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Business Expansion Categories -->
+    <section class="relative before:absolute before:inset-0 before:-z-20 before:bg-gray-900">
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
+            <div class="py-12 md:py-20">
+    
+                <!-- Expansion banner -->
+                <div class="mx-auto max-w-3xl pb-16 text-center md:pb-20">
+                    <h2 class="text-3xl font-bold text-gray-200 md:text-4xl">
+                        From ABCs to AI, we’re building a future where learning never stops. 🚀 Here are our plans on expanding!
+                    </h2>
+                </div>
+                {% include "components/business_expansions/categories.html" %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section-->
+    <section>
+        <div class="mx-auto max-w-2xl px-4 sm:px-6">
+            <div class="py-12 md:py-20">
+                <div class="space-y-3">
+    
+                    {% include "components/testimonials/testimony.html" %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
+            <div class="relative overflow-hidden rounded-2xl text-center shadow-xl before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-2xl before:bg-gray-900">
+                
+                {% include "components/cta/cta.html" with text="Create your parent account and register your children under you." %}
+                
+            </div>
+        </div>
+    </section>
+{% endblock %}
