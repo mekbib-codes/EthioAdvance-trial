@@ -4,11 +4,9 @@ from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
 
 from accounts.decorators import parent_required
-from accounts.models import User
 
 import logging
-
-logger = logging.getLogger('accounts')
+logger = logging.getLogger('app')
 
 @method_decorator(parent_required, name='dispatch')
 class ParentDashboardView(LoginRequiredMixin, TemplateView):

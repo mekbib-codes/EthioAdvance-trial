@@ -87,9 +87,7 @@
                 
                 // Show toast
                 setTimeout(() => {
-                    console.log('Before removing hidden:', toast.classList);
                     toast.classList.remove('hidden');
-                    console.log('After removing hidden:', toast.classList);
                     // Auto-dismiss after 5s
                     setTimeout(() => {
                         toast.classList.add('opacity-0');

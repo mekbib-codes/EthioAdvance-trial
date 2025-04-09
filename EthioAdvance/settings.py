@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "accounts.apps.AccountsConfig",
     'parent.apps.ParentConfig',
+    'child.apps.ChildConfig',
+    'company.apps.CompanyConfig',
+    'tutor.apps.TutorConfig',
 ]
 
 MIDDLEWARE = [

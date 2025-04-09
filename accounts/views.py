@@ -22,9 +22,9 @@ class RoleBasedLoginView(LoginView):
     # Dictionary mapping for O(1) lookups
     ROLE_REDIRECTS = {
         User.Role.PARENT: ('parent:dashboard', {'parent_slug': 'user_slug'}),
-        User.Role.TUTOR: 'tutor:dashboard',
-        User.Role.CHILD: 'child:dashboard',
-        User.Role.COMPANY: 'company:dashboard',
+        User.Role.TUTOR: ('tutor:dashboard',{'tutor_slug': 'user_slug'}),
+        User.Role.CHILD: ('child:dashboard', {'child_slug': 'user_slug'}),
+        User.Role.COMPANY: ('company:dashboard', {'company_slug': 'user_slug'}),
     }
     DEFAULT_REDIRECT = 'accounts:login'
 

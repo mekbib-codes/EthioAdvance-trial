@@ -1,0 +1,15 @@
+{% extends "ui/header_base.html" %}
+
+{% block desktop_nav %}
+  <li><a href="{% url 'child:dashboard' slug %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "dashboard" %}id="selected"{% endif %}>Dashboard</a></li>
+  <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "sessions" %}id="selected"{% endif %}>Sessions</a></li>
+  <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "reports" %}id="selected"{% endif %}>Reports</a></li>
+  <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "profile" %}id="selected"{% endif %}>Profile</a></li>
+{% endblock %}
+
+{% block mobile_nav %}
+  <a href="{% url 'child:dashboard' slug %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Dashboard</a>
+  <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Sessions</a>
+  <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Reports</a>
+  <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Profile</a>
+{% endblock %}
