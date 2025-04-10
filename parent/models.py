@@ -33,7 +33,7 @@ class ParentProfile(models.Model):
         related_name='parents'
     )
     occupation = models.CharField(max_length=100, blank=True, null=True)
-    address = models.TextField(blank=True)
+    address = models.TextField(blank=True, null=True)
     emergency_contact = models.CharField(max_length=20, blank=True, null=True)
     preferred_communication = models.CharField(
         max_length=10,

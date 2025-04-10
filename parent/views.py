@@ -4,7 +4,9 @@ from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
 
 from accounts.decorators import parent_required
-
+from .forms import ParentRegistrationForm
+from accounts.views import BaseRegistrationView
+from accounts.models import User
 import logging
 logger = logging.getLogger('app')
 
@@ -42,3 +44,15 @@ class ParentDashboardView(LoginRequiredMixin, TemplateView):
         return self.request.build_absolute_uri(
             f"/parent/{self.request.user.slug}/dashboard/"
         )
+
+
+class ParentRegistrationView(BaseRegistrationView):
+    form_class = ParentRegistrationForm
+    role = User.Role.PARENT
+    template_name = 'registration/parent_register_form.html'
+    register_url = 'parent:register'
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['role'] = self.role  # Explicitly pass the role
+        return kwargs

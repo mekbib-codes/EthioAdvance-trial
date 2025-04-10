@@ -1,0 +1,48 @@
+{% extends "forms/base_form.html" %}
+
+{% block form_content %}
+    <div class="mb-10">
+        <h1 class="text-4xl font-bold">Verify Your Email Address</h1>
+    </div>
+
+    <form method="post" action="{% url 'accounts:otp_verification' %}" class="space-y-6">
+    {% csrf_token %}
+
+        <div class="space-y-4">
+            <div>
+            <p class="italic">Check your inbox to get your OTP.</p>
+            <p class="text-green-500 italic text-sm mb-4"> If you don't see new messages check in spam folder</p>
+            <label class="mb-1 block text-sm font-medium text-gray-700" for="id_otp_code">
+                Enter OTP
+            </label>
+            <input 
+                id="id_otp_code" 
+                name="otp_code"
+                class="form-input w-full py-2" 
+                type="password" 
+                autocomplete="on"
+                placeholder="••••••••"
+                required
+            />
+            </div>
+            <p>We're verifying the email: <strong>{{ email }}</strong></p>
+
+        </div>
+
+
+
+        <div class="mt-6">
+            <button class="btn w-full bg-linear-to-t from-blue-600 to-blue-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-sm hover:bg-[length:100%_150%] cursor-pointer" type="submit">
+            Verify OTP
+            </button>
+        </div>
+    </form>
+
+    <div class="my-6 text-left">
+        <a 
+            class="text-md font-bold text-gray-700 hover:text-blue-500" 
+            href="#">
+            Send again
+        </a>
+    </div>
+{% endblock %}

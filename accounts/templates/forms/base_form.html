@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block header %}
+    {% include "ui/accounts_header.html" %}
+{% endblock %}
+
+{% block content %}
+    <main class="relative grow">
+
+        <div class="pointer-events-none absolute bottom-0 left-0 -translate-x-1/3" aria-hidden="true">
+          <div class="h-80 w-80 rounded-full bg-linear-to-tr from-blue-500 opacity-70 blur-[160px]"></div>
+        </div>
+
+        <div class="w-full">
+            <div class="flex h-full flex-col justify-center before:min-h-[4rem] before:flex-1 after:flex-1 md:before:min-h-[5rem]">
+              <div class="px-4 sm:px-6">
+                <div class="mx-auto w-full max-w-md">
+                  <div class="py-16 md:py-20">
+                    
+                        {% block form_content %}
+                        {% endblock %}
+                  </div>
+
+                  
+                </div>
+
+                {% block cta %}
+                {% endblock %}
+
+              </div>
+        </div>
+
+    </main>
+{% endblock %}

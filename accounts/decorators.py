@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 from .models import User
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('app')
 
 def role_required(*allowed_roles):
     """Generalized decorator for all role checks"""

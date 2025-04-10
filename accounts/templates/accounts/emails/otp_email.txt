@@ -1,0 +1,17 @@
+Hey there!
+
+You're just one step away 🚀
+
+Your One-Time Password (OTP) for {{ purpose|title }} is:
+
+🔐 {{ otp_code }}
+
+⏳ This code is valid for the next {{ expiry_minutes }} minutes.
+🕒 Expires at: {{ expires_at|time }} on {{ expires_at|date }}
+
+If you didn’t request this, no worries — just ignore this message.
+
+Thanks for trusting {{ site_name }}.
+We’ve got your back. 💪
+
+— The {{ site_name }} Team

@@ -10,12 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+from dotenv import dotenv_values
+
 from pathlib import Path
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+CREDENTIALS = dotenv_values(BASE_DIR / "EthioAdvance/.env") 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -38,12 +40,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     "accounts.apps.AccountsConfig",
     'parent.apps.ParentConfig',
     'child.apps.ChildConfig',
     'company.apps.CompanyConfig',
     'tutor.apps.TutorConfig',
 ]
+
+SITE_ID = 1  # Usually 1 for the default site
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -175,3 +180,24 @@ LOGGING = {
 
 # Logout redirect URL
 LOGOUT_REDIRECT_URL = 'accounts:home'
+
+# Email server configuration
+EMAIL_HOST = CREDENTIALS.get('EMAIL_HOST')
+EMAIL_HOST_USER = CREDENTIALS.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = CREDENTIALS.get('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = CREDENTIALS.get('EMAIL_PORT')
+EMAIL_USE_TLS = bool(CREDENTIALS.get('EMAIL_USE_TLS'))
+DEFAULT_FROM_EMAIL = CREDENTIALS.get('DEFAULT_FROM_EMAIL')
+
+# OTP Configuration
+OTP_LENGTH = int(CREDENTIALS.get('OTP_LENGTH'))
+OTP_EXPIRY_MINUTES = int(CREDENTIALS.get('OTP_EXPIRY_MINUTES'))
+OTP_RESEND_TIMEOUT = int(CREDENTIALS.get('OTP_RESEND_TIMEOUT'))
+
+# settings.py
+# Minimum required for your OTP flow:
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 3600  # 1 hour expiration
+SESSION_SAVE_EVERY_REQUEST = True  # Critical!
+SESSION_COOKIE_SECURE = False  # For development, True in production
+SESSION_COOKIE_SAMESITE = 'Lax'

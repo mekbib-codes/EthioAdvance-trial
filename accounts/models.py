@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.utils.text import slugify
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+from django.conf import settings
 
 from datetime import timedelta
 import uuid
@@ -140,3 +142,81 @@ class User(AbstractUser):
         ordering = ['-created_at']
         verbose_name = 'User'
         verbose_name_plural = 'Users'
+
+class OTP(models.Model):
+    class Purpose(models.TextChoices):
+        REGISTRATION = "REGISTRATION", "Registration"
+        PASSWORD_RESET = "PASSWORD_RESET", "Password Reset"
+        EMAIL_CHANGE = "EMAIL_CHANGE", "Email Change"
+    
+    email = models.EmailField(db_index=True)
+    otp_code = models.CharField(max_length=settings.OTP_LENGTH, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(editable=False, null=True, blank=True)
+    is_used = models.BooleanField(default=False)
+    purpose = models.CharField(
+        max_length=20,
+        choices=Purpose.choices,
+        default=Purpose.REGISTRATION
+    )
+    
+    class Meta:
+        verbose_name = "OTP Code"
+        verbose_name_plural = "OTP Codes"
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['email', 'purpose']),
+        ]
+    
+    def __str__(self):
+        return f"OTP for {self.email} ({self.purpose})"
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Only set expiration on creation
+            self.expires_at = timezone.now() + timedelta(minutes=settings.OTP_EXPIRY_MINUTES)
+        super().save(*args, **kwargs)
+    
+    def is_still_valid(self):
+        """
+        Check if OTP is still valid (not expired and not used)
+        """
+        now = timezone.now()
+        
+        if self.is_used:
+            logger.debug(f"OTP {self.id} already used")
+            return False
+            
+        if self.expires_at is None:
+            logger.warning(f"OTP {self.id} has no expiration date - marking as invalid")
+            return False
+            
+        if now > self.expires_at:
+            logger.debug(f"OTP {self.id} expired at {self.expires_at}")
+            return False
+            
+        return True
+    
+    def mark_as_used(self):
+        """
+        Mark OTP as used to prevent reuse
+        """
+        self.is_used = True
+        self.save()
+        logger.info(f"OTP {self.id} marked as used")
+        return True
+    
+    @classmethod
+    def purge_expired_otps(cls):
+        """
+        Clean up expired OTPs from database
+        Returns count of deleted OTPs
+        """
+        now = timezone.now()
+        expired = cls.objects.filter(expires_at__lt=now)
+        count = expired.count()  # Get count before deletion
+        expired.delete()
+        logger.info(f"Purged {count} expired OTPs")
+        return count
+    
+    def __repr__(self):
+        return f"<OTP {self.otp_code} for {self.email} ({self.purpose})>"
