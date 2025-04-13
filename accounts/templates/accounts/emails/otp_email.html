@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your OTP for {{ purpose }}</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 8px;">
+        <h1 style="text-align: center; color: #4c8bf5;">You're just one step away 🚀</h1>
+
+        <p style="font-size: 16px; line-height: 1.5; text-align: center;">Your One-Time Password (OTP) for <strong>{{ purpose|title }}</strong> is:</p>
+
+        <div style="text-align: center; margin: 20px 0;">
+            <span style="font-size: 32px; font-weight: bold; color: #4c8bf5; padding: 10px 20px; border-radius: 5px; background-color: #f0f4f8;">{{ otp_code }}</span>
+        </div>
+
+        <p style="font-size: 16px; line-height: 1.5; text-align: center;">This code is valid for the next <strong>{{ expiry_minutes }}</strong> minutes.</p>
+        <p style="font-size: 16px; line-height: 1.5; text-align: center;">🕒 Expires at: <strong>{{ expires_at|time }}</strong> on <strong>{{ expires_at|date }}</strong></p>
+
+        <p style="font-size: 16px; line-height: 1.5; text-align: center;">If you didn’t request this, no worries — just ignore this message.</p>
+
+        <div style="text-align: center; margin-top: 30px; padding: 10px; background-color: #4c8bf5; border-radius: 5px;">
+            <p style="color: #ffffff; font-size: 16px;">Thanks for trusting <strong>{{ site_name }}</strong>. We've got your back. 💪</p>
+        </div>
+
+        <footer style="margin-top: 20px; text-align: center; font-size: 12px; color: #777;">
+            <p>— The <strong>{{ site_name }}</strong> Team</p>
+        </footer>
+    </div>
+</body>
+</html>

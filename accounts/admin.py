@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User
-
+from .models import User, OTP
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -37,3 +36,9 @@ class CustomUserAdmin(UserAdmin):
     
     # Enable search by email and names
     search_fields = ('email', 'first_name', 'last_name')
+
+@admin.register(OTP)
+class OTPAdmin(admin.ModelAdmin):
+    list_display = ['email', 'otp_code', 'purpose', 'expires_at', 'is_used']
+    list_filter = ('purpose', 'is_used')
+    ordering = ('-created_at',)

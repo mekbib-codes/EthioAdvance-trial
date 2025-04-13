@@ -1,14 +1,13 @@
-import logging
-import random
-import string
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.utils import timezone
 from django.contrib.sites.models import Site
-from django.contrib import messages
-
+import logging
+import random
+import string
 from datetime import timedelta     
+
 from accounts.models import OTP
 
 logger = logging.getLogger('app')
@@ -63,6 +62,7 @@ class OTPService:
 
             subject = f"Your OTP for {purpose}"
             message = render_to_string('accounts/emails/otp_email.txt', context)
+            html_message = render_to_string('accounts/emails/otp_email.html', context)
             
             send_mail(
                 subject=subject,
@@ -70,6 +70,7 @@ class OTPService:
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[email],
                 fail_silently=False,
+                html_message=html_message
             )
             logger.info(f"OTP email sent to {email}")
             return True
@@ -106,3 +107,6 @@ class OTPService:
         except Exception as e:
             logger.error(f"OTP verification failed for {email}: {str(e)}", exc_info=True)
             return False, None
+
+
+

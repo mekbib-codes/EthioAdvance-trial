@@ -41,7 +41,7 @@
 
 
         <div class="mt-6">
-            <button class="btn w-full bg-linear-to-t from-blue-600 to-blue-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-sm hover:bg-[length:100%_150%]" type="submit">
+            <button class="btn w-full bg-linear-to-t from-blue-600 to-blue-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-sm hover:bg-[length:100%_150%] cursor-pointer" type="submit">
             Sign In
             </button>
         </div>
@@ -50,7 +50,7 @@
     <div class="my-6 text-left">
         <a 
             class="text-md font-bold text-gray-700 hover:text-blue-500" 
-            href="#">
+            href="{% url 'accounts:reset_password' %}">
             Forgot password
         </a>
     </div>

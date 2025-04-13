@@ -1,0 +1,23 @@
+Hey {{ user.get_full_name|default:"there" }}!
+
+We're absolutely thrilled to welcome you to the {{ site_name }} family — your place for growth, learning, and leveling up! 🚀
+
+You've successfully joined as part of our community, and we couldn’t be happier to have you onboard.
+
+💡 What’s next?
+You can now log in anytime and start exploring all the opportunities waiting for you.
+👉 You can log in anytime using this link:
+🔗 [Log In Now]({{ login_url }})
+
+If you have any questions or hit a bump — we’re just one message away! 💌
+Your success is our priority.
+
+Thanks for choosing {{ site_name }}.
+We’re here to grow with you, every step of the way. 🌱✨
+
+See you on the inside!
+
+— The {{ site_name }} Team
+Your future favorite support squad.
+
+Need help? Contact us at support@{{ site_domain }}
