@@ -30,5 +30,4 @@ def role_required(*allowed_roles):
 # Specific convenience decorators
 parent_required = role_required(User.Role.PARENT)
 tutor_required = role_required(User.Role.TUTOR)
-child_required = role_required(User.Role.CHILD)
 company_required = role_required(User.Role.COMPANY)

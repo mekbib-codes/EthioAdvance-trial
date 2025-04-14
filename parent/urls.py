@@ -5,6 +5,6 @@ from .views import ( ParentDashboardView,
 app_name = "parent"
 
 urlpatterns = [
-    path('<slug:parent_slug>/dashboard/', ParentDashboardView.as_view(), name='dashboard'),
+    path('dashboard/', ParentDashboardView.as_view(), name='dashboard'),
     path('register/', ParentRegistrationView.as_view(), name='register'),
 ]

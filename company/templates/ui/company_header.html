@@ -1,7 +1,7 @@
 {% extends "ui/header_base.html" %}
 
 {% block desktop_nav %}
-  <li><a href="{% url 'child:dashboard' slug %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "dashboard" %}id="selected"{% endif %}>Dashboard</a></li>
+  <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "dashboard" %}id="selected"{% endif %}>Dashboard</a></li>
   <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "parents" %}id="selected"{% endif %}>Parents</a></li>
   <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "children" %}id="selected"{% endif %}>Children</a></li>
   <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "tutors" %}id="selected"{% endif %}>Tutors</a></li>
@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block mobile_nav %}
-  <a href="{% url 'child:dashboard' slug %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Dashboard</a>
+  <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Dashboard</a>
   <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Parents</a>
   <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Children</a>
   <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Tutors</a>

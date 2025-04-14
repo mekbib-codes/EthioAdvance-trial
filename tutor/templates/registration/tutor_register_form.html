@@ -1,0 +1,48 @@
+{% extends "registration/base_registration_form.html" %}
+
+{% block title %}Tutor Registration{% endblock %}
+
+{% block action %}
+    action="{% url 'tutor:register' %}"
+{% endblock %}
+
+{% block form_header %}
+    Fill Your Information
+{% endblock %}
+
+{% block profile_form %}
+    <div class="bg-gray-200 shadow-md rounded-lg p-5 mb-4 space-y-4">
+
+        <h2 class="text-2xl font-bold">Profile Information</h2>
+        <p class="text-sm text-gray-600">The following fields are used to complete your profile</p>
+
+        <div>
+            <label class="mb-1 block text-sm font-bold text-gray-700" for="id_qualification">
+                Qualification
+            </label>
+            <input id="id_qualification" class="form-input w-full py-2" type="text" name="qualification" placeholder="Add your line of work or qualification" required/>
+        </div>
+
+        <div>
+            <label class="mb-1 block text-sm font-bold text-gray-700" for="id_years_of_experience">
+                Years Of Experience
+            </label>
+            <input id="id_years_of_experience" class="form-input w-full py-2" type="number" name="years_of_experience" placeholder="2" required/>
+        </div>
+
+        <div>
+            <label class="mb-1 block text-sm font-bold text-gray-700" for="id_address">
+                Address
+            </label>
+            <input id="id_address" class="form-input w-full py-2" type="address" name="address" placeholder="Add an approximated address"/>
+        </div>
+
+        <div>
+            <label class="mb-1 block text-sm font-bold text-gray-700" for="id_bio">
+                Bio
+            </label>
+            <textarea id="id_bio" rows="5" class="form-input w-full py-2" name="bio" placeholder="Add a short bio about yourself" required></textarea>
+        </div>
+
+    </div>
+{% endblock %}

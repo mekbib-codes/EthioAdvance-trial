@@ -1,11 +1,13 @@
 from django.urls import path
-from .views import (home,
-                    RoleBasedLoginView,
-                    OTPVerificationView,
-                    OTPResendView,
-                    PasswordResetRequestedView,
-                    PasswordResetOTPVerificationView,
-                    SetNewPasswordView)
+
+from .views.home import home
+from .views.role_based_login import RoleBasedLoginView
+from .views.otp_verification import OTPVerificationView, OTPResendView
+from .views.password_reset import (
+    PasswordResetRequestedView,
+    PasswordResetOTPVerificationView,
+    SetNewPasswordView,
+)
 from django.contrib.auth.views import LogoutView
 
 app_name = "accounts"

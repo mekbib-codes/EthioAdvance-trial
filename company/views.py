@@ -17,13 +17,10 @@ class CompanyDashboardView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         try:
             company = self.request.user
-            slug = company.slug
 
             context.update({
                 'company': company,
-                'slug': slug,
                 'active_section': 'dashboard',
-                'canonical_url': self.get_canonical_url(),
             })
             
             logger.info(
@@ -38,8 +35,3 @@ class CompanyDashboardView(LoginRequiredMixin, TemplateView):
                 exc_info=True
             )
             raise PermissionDenied("Error loading dashboard")
-
-    def get_canonical_url(self):
-        return self.request.build_absolute_uri(
-            f"/company/{self.request.user.slug}/dashboard/"
-        )

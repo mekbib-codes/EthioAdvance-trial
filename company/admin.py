@@ -19,7 +19,7 @@ class CompanyAdmin(admin.ModelAdmin):
     list_display = ('email', 'phone_number', 'get_company_name')
     search_fields = ('email', 'company_profile__company_name')
     inlines = [CompanyProfileInline]
-    readonly_fields = ('slug', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
     
     def get_company_name(self, obj):
         return obj.profile.company_name

@@ -5,7 +5,7 @@ from django.core.exceptions import PermissionDenied
 
 from accounts.decorators import parent_required
 from .forms import ParentRegistrationForm
-from accounts.views import BaseRegistrationView
+from accounts.views.base_registration import BaseRegistrationView
 from accounts.models import User
 import logging
 logger = logging.getLogger('app')
@@ -18,13 +18,10 @@ class ParentDashboardView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         try:
             parent = self.request.user
-            slug = parent.slug
 
             context.update({
                 'parent': parent,
-                'slug': slug,
                 'active_section': 'dashboard',
-                'canonical_url': self.get_canonical_url(),
             })
             
             logger.info(
@@ -39,11 +36,6 @@ class ParentDashboardView(LoginRequiredMixin, TemplateView):
                 exc_info=True
             )
             raise PermissionDenied("Error loading dashboard")
-
-    def get_canonical_url(self):
-        return self.request.build_absolute_uri(
-            f"/parent/{self.request.user.slug}/dashboard/"
-        )
 
 
 class ParentRegistrationView(BaseRegistrationView):

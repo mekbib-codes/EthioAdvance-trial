@@ -3,7 +3,10 @@ from django.views.generic import TemplateView
 from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
 
-from accounts.decorators import tutor_required
+from accounts.decorators import tutor_required, company_required
+from accounts.views.base_registration import BaseRegistrationView
+from accounts.models import User
+from .forms import TutorRegistrationForm
 
 
 import logging
@@ -17,13 +20,10 @@ class TutorDashboardView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         try:
             tutor = self.request.user
-            slug = tutor.slug
 
             context.update({
                 'tutor': tutor,
-                'slug': slug,
                 'active_section': 'dashboard',
-                'canonical_url': self.get_canonical_url(),
             })
             
             logger.info(
@@ -39,7 +39,10 @@ class TutorDashboardView(LoginRequiredMixin, TemplateView):
             )
             raise PermissionDenied("Error loading dashboard")
 
-    def get_canonical_url(self):
-        return self.request.build_absolute_uri(
-            f"/Tutor/{self.request.user.slug}/dashboard/"
-        )
+
+@method_decorator(company_required, name='dispatch')
+class TutorRegistrationView(BaseRegistrationView):
+    form_class = TutorRegistrationForm # Replace with actual form class
+    role = User.Role.TUTOR 
+    template_name = 'registration/tutor_register_form.html'
+    register_url = 'tutor:register'

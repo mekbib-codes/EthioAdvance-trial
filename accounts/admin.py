@@ -5,7 +5,7 @@ from .models import User, OTP
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     # Display fields in list view
-    list_display = ('email', 'get_full_name', 'role', 'is_active', 'is_staff', "slug",)
+    list_display = ('email', 'get_full_name', 'role', 'is_active', 'is_staff')
     list_filter = ('role', 'is_staff', 'is_superuser', 'is_active')
     ordering = ('-created_at',)
     

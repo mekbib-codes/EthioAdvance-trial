@@ -25,7 +25,7 @@ class TutorAdmin(admin.ModelAdmin):
     search_fields = ('email', 'first_name', 'last_name')
     list_filter = ('gender',)
     inlines = [TutorProfileInline]
-    readonly_fields = ('slug', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
     
     def get_full_name(self, obj):
         return obj.get_full_name()

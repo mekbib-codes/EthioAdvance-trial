@@ -97,26 +97,6 @@
                 }, 100);
             });
         }
-
-        function initSwiper() {
-            if (document.querySelector(".swiper-container") && !window.swiperInstance) {
-                window.swiperInstance = new Swiper(".swiper-container", {
-                    loop: true,
-                    autoHeight: true,
-                    navigation: {
-                        nextEl: ".swiper-button-next",
-                        prevEl: ".swiper-button-prev",
-                    },
-                    pagination: {
-                        el: ".swiper-pagination",
-                        clickable: true,
-                    },
-                    slidesPerView: 1,
-                    centeredSlides: true,
-                    spaceBetween: 0,
-                });
-            }
-        }
     </script>
 </body>
 </html>

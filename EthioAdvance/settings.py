@@ -201,3 +201,7 @@ SESSION_COOKIE_AGE = 3600  # 1 hour expiration
 SESSION_SAVE_EVERY_REQUEST = True  # Critical!
 SESSION_COOKIE_SECURE = False  # For development, True in production
 SESSION_COOKIE_SAMESITE = 'Lax'
+
+# Media configuration
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
