@@ -36,11 +36,50 @@
                             {% if child.status %}
                                 <p class="text-gray-700 font-bold">Attendance: {{ child.status.attendance_rate }}%</p>
                                 <p class="mt-2 text-gray-600">{{ child.status.sessions_summary|truncatechars:200 }}</p>
-                                <p class="text-sm italic text-gray-400 mt-2">Updated: {{ child.status.updated_at|date:"M d, Y" }}</p>
+                                <p class="text-right font-bold text-sm italic text-gray-400 mt-2">Updated: {{ child.status.updated_at|date:"M d, Y" }}</p>
                             {% else %}
-                                <p class="font-bold italic text-lg text-gray-600">No Enough Data To Display Child Status.</p>
+                                <div class="bg-gray-100 p-4 rounded-lg shadow text-center">
+                                    <p class="text-gray-500">No status recorded yet.</p>
+                                </div>
                             {% endif %}
                         </div>
+                        
+                        <div class="mt-5">
+                            {% if child.latest_sessions %}
+                                {% with child.latest_sessions.0 as latest_session %}
+                                    <!-- Dynamic Background Color Based on Status -->
+                                    <div class="{% if latest_session.status == 'approved' %}bg-green-100{% elif latest_session.status == 'rejected' %}bg-red-100{% else %}bg-yellow-100{% endif %} p-4 rounded-lg shadow relative">
+                                        
+                                        <!-- Status Icon -->
+                                        <div class="absolute top-2 right-2">
+                                            {% if latest_session.status == 'approved' %}
+                                                <svg class="w-6 h-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            {% elif latest_session.status == 'rejected' %}
+                                                <svg class="w-6 h-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            {% else %}
+                                                <svg class="w-6 h-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+                                                </svg>
+                                            {% endif %}
+                                        </div>
+                        
+                                        <!-- Session Details -->
+                                        <p class="text-gray-700 font-bold">Latest Session - <span class="italic text-gray-400 text-right">{{ latest_session.created_at|date:"M d, Y" }}</span></p>
+                                        <p class="mt-2 text-gray-600">{{ latest_session.session_summary|truncatechars:200 }}</p>
+                                        <p class="mt-2 text-xl">Duration: {{ latest_session.formatted_duration }}</p>
+                                    </div>
+                                {% endwith %}
+                            {% else %}
+                                <div class="bg-gray-100 p-4 rounded-lg shadow text-center">
+                                    <p class="text-gray-500">No sessions recorded yet.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+
                 
                     </div>
                 </a>
@@ -56,20 +95,22 @@
         {% endif %}
 
         {% if is_paginated %}
-<div class="flex justify-center mt-8 space-x-2">
-    {% if page_obj.has_previous %}
-        <a href="?page=1" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">&laquo; First</a>
-        <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Prev</a>
-    {% endif %}
+            <div class="flex justify-center my-8 space-x-2">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition duration-300">&laquo; First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition duration-300">Prev</a>
+                {% endif %}
 
-    <span class="px-4 py-2 bg-blue-500 text-white rounded">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                <span class="px-4 py-2 bg-gray-100 text-blue-500 font-semibold rounded-lg shadow">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
 
-    {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Next</a>
-        <a href="?page={{ page_obj.paginator.num_pages }}" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Last &raquo;</a>
-    {% endif %}
-</div>
-{% endif %}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition duration-300">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition duration-300">Last &raquo;</a>
+                {% endif %}
+            </div>
+        {% endif %}
 
     </section>
 

@@ -1,0 +1,68 @@
+<div id="session-{{ session.id }}-container" class="{% if session.status == 'approved' %}bg-green-100{% elif session.status == 'rejected' %}bg-red-100{% else %}bg-yellow-100{% endif %} p-4 rounded-lg shadow relative">
+    <!-- Status Icon and Text -->
+    <div class="absolute top-2 right-2 flex items-center space-x-2">
+        {% if session.status == 'approved' %}
+            <svg class="w-6 h-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span class="text-green-600 font-semibold">Approved</span>
+        {% elif session.status == 'rejected' %}
+            <svg class="w-6 h-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span class="text-red-600 font-semibold">Rejected</span>
+        {% else %}
+            <svg class="w-6 h-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+            </svg>
+            <span class="text-yellow-600 font-semibold">Pending</span>
+        {% endif %}
+    </div>
+
+    <!-- Session Details -->
+    <div class="mt-6">
+        <h3 class="text-lg font-bold text-gray-800">{{ session.session_subject }}</h3>
+        <p class="text-sm text-gray-600 mt-2">
+            <span class="font-semibold">Duration:</span> {{ session.formatted_duration }}
+        </p>
+        <p class="text-sm text-gray-600 mt-2">
+            <span class="font-semibold">Start Time:</span> {{ session.start_time|time:"h:i A" }}
+            <span class="ml-4 font-semibold">End Time:</span> {{ session.end_time|time:"h:i A" }}
+        </p>
+        
+        <p class="text-sm text-gray-600 mt-2">
+            <span class="font-semibold">Summary:</span> {{ session.session_summary }}
+        </p>
+        <p class="text-right italic text-sm text-gray-500">
+            <span class="font-semibold text-gray-700">Date:</span> {{ session.created_at|date:"M d, Y" }}
+        </p>
+    </div>
+    <!-- Approve and Reject Buttons (Visible Only for Pending Status) -->
+    {% if session.status == "pending" %}
+    <div class="flex justify-between mt-6">
+        <button hx-post="{% url 'parent:update_session_status' session.id 'approved' %}" 
+                hx-target="#session-{{ session.id }}-container" 
+                hx-swap="outerHTML"
+                aria-label="Approve Session"
+                class="px-6 py-2 bg-gradient-to-r from-green-400 to-green-600 text-white font-semibold rounded-full shadow-lg hover:from-green-500 hover:to-green-700 hover:shadow-xl transition-transform duration-300 transform hover:scale-105 cursor-pointer">
+            Approve
+        </button>
+
+        <button hx-post="{% url 'parent:update_session_status' session.id 'rejected' %}" 
+                hx-target="#session-{{ session.id }}-container" 
+                hx-swap="outerHTML"
+                aria-label="Reject Session"
+                class="px-6 py-2 bg-gradient-to-r from-red-400 to-red-600 text-white font-semibold rounded-full shadow-lg hover:from-red-500 hover:to-red-700 hover:shadow-xl transition-transform duration-300 transform hover:scale-105 cursor-pointer">
+            Reject
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+{% block scripts %}
+    <script>
+        document.body.addEventListener("htmx:configRequest", (event) => {
+            event.detail.headers["X-CSRFToken"] = document.querySelector('meta[name="csrf-token"]').content;
+        });
+    </script>
+{% endblock %}

@@ -19,10 +19,24 @@
         <!-- Toast Notification Container -->
         <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2 w-full max-w-xs">
             {% for message in messages %}
-            <div class="toast hidden transition-opacity duration-300 ease-in-out" 
-                 data-type="{{ message.tags }}">
+            <div class="flex items-center px-4 toast transition-opacity duration-300 ease-in-out" data-type="{{ message.tags }}">
+                <!-- Icon Based on Message Type -->
+                {% if "success" in message.tags %}
+                    <svg class="w-6 h-6 text-green-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                {% elif "error" in message.tags %}
+                    <svg class="w-6 h-6 text-red-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                {% else %}
+                    <svg class="w-6 h-6 text-blue-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+                    </svg>
+                {% endif %}
+                 
                 {{ message }}
-                <button class="close-btn cursor-pointer text-2xl font-bold" aria-label="Close">X</button>
+                <button class="close-btn cursor-pointer text-3xl font-bold p-4" aria-label="Close">X</button>
             </div>
             {% endfor %}
         </div>
@@ -38,8 +52,6 @@
     {% endblock %}
     <script src="https://unpkg.com/htmx.org"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
-    
     <script defer>
         document.addEventListener("DOMContentLoaded", function() {
             // Initialize toasts

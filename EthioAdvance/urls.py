@@ -26,6 +26,7 @@ urlpatterns = [
     path('child/', include('child.urls', namespace='child')),
     path('company/', include('company.urls', namespace='company')),
     path('tutor/', include('tutor.urls', namespace='tutor')),
+    path('session/', include('session.urls', namespace='sessions')),
 ]
 
 if settings.DEBUG:

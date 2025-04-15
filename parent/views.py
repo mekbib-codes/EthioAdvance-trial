@@ -1,17 +1,21 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
-from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
+from django.views.generic.edit import View
+from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponse
+from django.contrib import messages
 
-from accounts.decorators import parent_required
+
 from .forms import ParentRegistrationForm
 from accounts.views.base_registration import BaseRegistrationView
 from accounts.models import User
+from child.views import ParentRequiredMixin
+from session.models import Session
+
 import logging
 logger = logging.getLogger('app')
 
-@method_decorator(parent_required, name='dispatch')
-class ParentDashboardView(LoginRequiredMixin, TemplateView):
+class ParentDashboardView(ParentRequiredMixin, TemplateView):
     template_name = 'parent/dashboard.html'
     
     def get_context_data(self, **kwargs):
@@ -48,3 +52,19 @@ class ParentRegistrationView(BaseRegistrationView):
         kwargs = super().get_form_kwargs()
         kwargs['role'] = self.role  # Explicitly pass the role
         return kwargs
+
+class UpdateSessionStatusView(ParentRequiredMixin, View):
+
+    def post(self, request, session_id, *args, **kwargs):
+        session = get_object_or_404(Session, id=session_id)
+
+        # Validate the status
+        status = self.kwargs.get("status")
+        if status in ["approved", "rejected"]:
+            session.status = status
+            session.save()
+            
+            # Render only the updated session block to be replaced dynamically
+            return render(request, "sessions/status_update/session_block.html", {"session": session})
+
+        return HttpResponse("Invalid status", status=400)

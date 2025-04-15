@@ -6,11 +6,13 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.views import View
 from django.utils.translation import gettext as _
+from django.db.models import OuterRef, Subquery, Prefetch
 
 
 from accounts.decorators import parent_required
 from .models import Child
 from .forms import ChildRegistrationForm
+from session.models import  Session
 
 import logging
 logger = logging.getLogger('app')
@@ -39,6 +41,26 @@ class ChildRegistrationView(ParentRequiredMixin, CreateView):
         _("Successfully registered %(child_name)s!") % {'child_name': form.instance.get_full_name()}
     )
         return response
+    
+    def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                if field == '__all__':
+                    logger.warning(f"Form error: {error}")
+                    messages.error(
+                        self.request,
+                        _(f"{error}"),
+                        extra_tags='alert-danger'
+                    )
+                else:
+                    logger.warning(f"Field error - {field}: {error}")
+                    label = form.fields[field].label
+                    messages.error(
+                        self.request,
+                        _(f"{label}: {error}"),
+                        extra_tags='alert-danger'
+                    )
+        return super().form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -49,12 +71,32 @@ class ChildrenDashboardView(ParentRequiredMixin, ListView):
     model = Child
     template_name = 'child/children_dashboard.html'
     context_object_name = 'children'
-    paginate_by = 6
+    paginate_by = 2
 
     def get_queryset(self):
-        # Only show children belonging to the logged-in parent
-        return Child.objects.select_related('parent').filter(parent=self.request.user)
+        latest_session_id = Session.objects.filter(
+            child=OuterRef('pk')
+        ).order_by('-created_at').values('id')[:1]
 
+        queryset = Child.objects.filter(
+            parent=self.request.user
+        ).annotate(
+            latest_session_id=Subquery(latest_session_id)
+        ).select_related('parent')
+
+        session_ids = [child.latest_session_id for child in queryset if child.latest_session_id]
+
+        sessions = Session.objects.filter(
+            id__in=session_ids
+        ).select_related('child')
+
+        queryset = queryset.prefetch_related(
+            Prefetch('sessions', queryset=sessions, to_attr='latest_sessions')
+        )
+
+        return queryset
+
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['parent'] = self.request.user
@@ -77,6 +119,5 @@ class ChildDashboardView(ParentRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['parent'] = self.request.user
-        # Add any additional context you need
-        context['active_section'] = 'dashboard'  # Example for tabbed interface
+        context['active_section'] = 'child_dashboard' 
         return context
