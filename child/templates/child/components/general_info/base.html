@@ -18,14 +18,6 @@
         </div>
     </div>
 
-    <!-- Tutor Info -->
-    <div class="mt-4">
-        {% if child.tutor %}
-            <p class="text-lg text-gray-700">
-                <span class="font-semibold text-blue-600">Tutor:</span> {{ child.tutor.get_full_name }}
-            </p>
-        {% else %}
-            <p class="text-lg text-gray-500 italic">No Tutor Assigned</p>
-        {% endif %}
-    </div>
+    {% block parent_or_tutor %}
+    {% endblock %}
 </div>

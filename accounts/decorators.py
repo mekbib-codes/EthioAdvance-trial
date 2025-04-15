@@ -31,3 +31,4 @@ def role_required(*allowed_roles):
 parent_required = role_required(User.Role.PARENT)
 tutor_required = role_required(User.Role.TUTOR)
 company_required = role_required(User.Role.COMPANY)
+parent_or_tutor_required = role_required(User.Role.PARENT, User.Role.TUTOR)

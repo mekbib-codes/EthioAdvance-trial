@@ -13,7 +13,11 @@
     <section class="mx-auto max-w-4xl relative pt-24 md:pt-32 bg-white p-6 rounded-lg shadow-md space-y-6">
             
             <!-- General Information -->
-            {% include 'child/general_info.html' %}
+             {% if request.user.role == 'TUTOR' %}
+                {% include 'child/components/general_info/for_tutor.html' %}
+            {% elif request.user.role == 'PARENT' %}
+                {% include 'child/components/general_info/for_parent.html' %}
+            {% endif %}
         
 
             <!-- Sessions Section -->

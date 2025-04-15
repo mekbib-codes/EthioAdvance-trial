@@ -3,7 +3,6 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 from .models import Child
-from tutor.models import Tutor  # Import your Tutor model
 
 import logging
 

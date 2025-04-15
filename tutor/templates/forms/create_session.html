@@ -1,0 +1,64 @@
+{% extends "forms/base_form.html" %}
+
+{% block title %}Create Session{% endblock %}
+
+{% block header %}
+    {% include 'ui/child_header.html' %}
+{% endblock %}
+
+{% block form_content %}
+    <div class="mb-10">
+        <h1 class="text-4xl font-bold">Add Child Information</h1>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" action="{% url 'tutor:create_session' child.id %}">
+        {% csrf_token %}
+
+        <div class="bg-gray-200 shadow-md rounded-lg p-5 mb-4 space-y-4">
+
+            <h2 class="text-2xl font-bold">Duration Information</h2>
+    
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_start_time">
+                    Start time
+                </label>
+                <input id="id_start_time" class="form-input w-full py-2" type="time" name="start_time" placeholder="Session starttime" required />
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_end_time">
+                    End time
+                </label>
+                <input id="id_end_time" class="form-input w-full py-2" type="time" name="end_time" placeholder="Session starttime" required />
+            </div>
+        
+        </div>
+
+        <div class="bg-gray-200 shadow-md rounded-lg p-5 mb-4 space-y-4">
+
+            <h2 class="text-2xl font-bold">Session Information</h2>
+    
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_session_subject">
+                    Subject
+                </label>
+                <input id="id_session_subject" class="form-input w-full py-2" type="text" name="session_subject" placeholder="Add subject studied in session" required />
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_session_summary">
+                    Summary
+                </label>
+                <textarea id="id_session_summary" rows="5" class="form-input w-full py-2" name="session_summary" placeholder="Add a brief summary about the session" required></textarea>
+            </div>
+        
+        </div>
+
+        <div class="mt-6 space-y-3">
+            <button class="btn w-full bg-linear-to-t from-blue-600 to-blue-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-sm hover:bg-[length:100%_150%] cursor-pointer">
+                Publish
+            </button>
+        </div>
+
+    </form>
+{% endblock %}

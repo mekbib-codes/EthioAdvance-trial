@@ -1,37 +1,41 @@
 from django.views.generic import ListView
 from django.core.exceptions import PermissionDenied
 
-from child.views import ParentRequiredMixin
 from child.models import Child
 from .models import Session
+from accounts.mixins import ParentorTutorRequiredMixin
 
 import logging
 
 logger = logging.getLogger('app')
 
-class ChildSessionsDashboard(ParentRequiredMixin, ListView):
-    model = Session
-    template_name = 'sessions/dashboards/child_sessions_dashboard.html'
-    context_object_name = 'sessions'
-    paginate_by = 5  # Optional: Add pagination if needed
+from django.views.generic import ListView
+from django.core.exceptions import PermissionDenied
+from child.models import Child
+from .models import Session
 
-    def get_queryset(self):
-        # Get the child object based on the URL parameter
+class BaseSessionsDashboardView(ListView):
+    model = Session
+    template_name = None # Override in subclass
+    context_object_name = 'sessions'
+    paginate_by = 5
+
+    def get_child(self):
+        """Fetch the child object based on the URL parameter."""
         child_id = self.kwargs.get('child_id')
         try:
-            child = Child.objects.get(id=child_id, parent=self.request.user)
+            child = Child.objects.get(id=child_id)
         except Child.DoesNotExist:
-            logger.warning(f"Permission denied for user {self.request.user} to access child {child_id}.")
             raise PermissionDenied("You don't have permission to view sessions for this child.")
+        return child
 
-        # Return sessions associated with the child
+    def get_queryset(self):
+        """Fetch sessions for the child."""
+        child = self.get_child()
         return Session.objects.filter(child=child).select_related('tutor', 'child').order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Add the child object to the context
-        child_id = self.kwargs.get('child_id')
-        context['child'] = Child.objects.get(id=child_id, parent=self.request.user)
-        context['parent'] = self.request.user
+        context['child'] = self.get_child()
         context['active_section'] = 'sessions'
         return context

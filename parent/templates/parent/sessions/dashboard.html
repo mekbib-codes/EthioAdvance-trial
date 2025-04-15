@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ child.first_name }} Sessions{% endblock %}
+
+{% block header %}
+    {% include "ui/child_header.html" %}
+{% endblock %}
+
+
+{% block content %}
+    <section class="mx-auto max-w-4xl relative pt-24 md:pt-32 bg-white p-6 rounded-lg shadow-md space-y-6">
+        <!-- General Information -->
+        {% include 'child/components/general_info/for_parent.html' %}
+
+        {% for session in sessions %}
+            {% include 'parent/sessions/status_update/session_block.html' %}
+        {% empty %}
+            <p class="text-gray-500 italic">No sessions recorded yet.</p>
+        {% endfor %}
+
+        <div class="text-right mt-4">
+            <p class="italic text-sm text-gray-500">
+                <span class="font-semibold text-gray-700">Prepared by: {{ child.tutor.get_full_name }}</span> 
+            </p>
+        </div>
+
+        {% if is_paginated %}
+            {% include 'child/components/pagination.html' %}
+        {% endif %}
+    </section>
+{% endblock %}

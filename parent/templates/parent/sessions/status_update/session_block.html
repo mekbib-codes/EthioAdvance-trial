@@ -37,26 +37,30 @@
             <span class="font-semibold text-gray-700">Date:</span> {{ session.created_at|date:"M d, Y" }}
         </p>
     </div>
-    <!-- Approve and Reject Buttons (Visible Only for Pending Status) -->
-    {% if session.status == "pending" %}
-    <div class="flex justify-between mt-6">
-        <button hx-post="{% url 'parent:update_session_status' session.id 'approved' %}" 
-                hx-target="#session-{{ session.id }}-container" 
-                hx-swap="outerHTML"
-                aria-label="Approve Session"
-                class="px-6 py-2 bg-gradient-to-r from-green-400 to-green-600 text-white font-semibold rounded-full shadow-lg hover:from-green-500 hover:to-green-700 hover:shadow-xl transition-transform duration-300 transform hover:scale-105 cursor-pointer">
-            Approve
-        </button>
 
-        <button hx-post="{% url 'parent:update_session_status' session.id 'rejected' %}" 
-                hx-target="#session-{{ session.id }}-container" 
-                hx-swap="outerHTML"
-                aria-label="Reject Session"
-                class="px-6 py-2 bg-gradient-to-r from-red-400 to-red-600 text-white font-semibold rounded-full shadow-lg hover:from-red-500 hover:to-red-700 hover:shadow-xl transition-transform duration-300 transform hover:scale-105 cursor-pointer">
-            Reject
-        </button>
-    </div>
+    {% if request.user.role == 'PARENT' %}
+        <!-- Approve and Reject Buttons (Visible Only for Pending Status) -->
+        {% if session.status == "pending" %}
+        <div class="flex justify-between mt-6">
+            <button hx-post="{% url 'parent:update_session_status' session.id 'approved' %}" 
+                    hx-target="#session-{{ session.id }}-container" 
+                    hx-swap="outerHTML"
+                    aria-label="Approve Session"
+                    class="px-6 py-2 bg-gradient-to-r from-green-400 to-green-600 text-white font-semibold rounded-full shadow-lg hover:from-green-500 hover:to-green-700 hover:shadow-xl transition-transform duration-300 transform hover:scale-105 cursor-pointer">
+                Approve
+            </button>
+
+            <button hx-post="{% url 'parent:update_session_status' session.id 'rejected' %}" 
+                    hx-target="#session-{{ session.id }}-container" 
+                    hx-swap="outerHTML"
+                    aria-label="Reject Session"
+                    class="px-6 py-2 bg-gradient-to-r from-red-400 to-red-600 text-white font-semibold rounded-full shadow-lg hover:from-red-500 hover:to-red-700 hover:shadow-xl transition-transform duration-300 transform hover:scale-105 cursor-pointer">
+                Reject
+            </button>
+        </div>
+        {% endif %}
     {% endif %}
+    
 </div>
 
 {% block scripts %}

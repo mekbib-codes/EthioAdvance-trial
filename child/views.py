@@ -1,25 +1,18 @@
-from django.views.generic import ListView, DetailView
-from django.utils.decorators import method_decorator
-from django.core.exceptions import PermissionDenied
+from django.views.generic import DetailView, ListView
+from django.db.models import OuterRef, Subquery, Prefetch
+
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.views import View
 from django.utils.translation import gettext as _
-from django.db.models import OuterRef, Subquery, Prefetch
 
-
-from accounts.decorators import parent_required
 from .models import Child
 from .forms import ChildRegistrationForm
-from session.models import  Session
+from accounts.mixins import ParentorTutorRequiredMixin, ParentRequiredMixin
+from session.models import Session
 
 import logging
 logger = logging.getLogger('app')
-
-@method_decorator(parent_required, name='dispatch')
-class ParentRequiredMixin(View):
-    pass
 
 class ChildRegistrationView(ParentRequiredMixin, CreateView):
     model = Child
@@ -67,25 +60,25 @@ class ChildRegistrationView(ParentRequiredMixin, CreateView):
         context['existing_children'] = Child.objects.filter(parent=self.request.user)
         return context
 
-class ChildrenDashboardView(ParentRequiredMixin, ListView):
+class BaseChildrenDashboardView(ListView):
     model = Child
-    template_name = 'child/children_dashboard.html'
+    template_name = None  # Override in subclass
     context_object_name = 'children'
     paginate_by = 2
 
     def get_queryset(self):
+        # Subquery to get the latest session ID for each child
         latest_session_id = Session.objects.filter(
             child=OuterRef('pk')
         ).order_by('-created_at').values('id')[:1]
 
-        queryset = Child.objects.filter(
-            parent=self.request.user
-        ).annotate(
+        # Base queryset for children
+        queryset = Child.objects.annotate(
             latest_session_id=Subquery(latest_session_id)
-        ).select_related('parent')
+        )
 
+        # Prefetch the latest session for each child
         session_ids = [child.latest_session_id for child in queryset if child.latest_session_id]
-
         sessions = Session.objects.filter(
             id__in=session_ids
         ).select_related('child')
@@ -96,14 +89,12 @@ class ChildrenDashboardView(ParentRequiredMixin, ListView):
 
         return queryset
 
-    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['parent'] = self.request.user
-        context['active_section'] = 'my_children'
+        context['active_section'] = 'dashboard'
         return context
-
-class ChildDashboardView(ParentRequiredMixin, DetailView):
+    
+class ChildDashboardView(ParentorTutorRequiredMixin, DetailView):
     model = Child
     template_name = 'child/child_dashboard.html'
     context_object_name = 'child'
@@ -111,13 +102,10 @@ class ChildDashboardView(ParentRequiredMixin, DetailView):
 
     def get_object(self, queryset=None):
         child = super().get_object(queryset)
-        if child.parent != self.request.user:
-            logger.warning(f"Permission denied for user {self.request.user} to access child {child.id}.")
-            raise PermissionDenied("You don't have permission to view this child")
         return child
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['parent'] = self.request.user
+        context['user'] = self.request.user
         context['active_section'] = 'child_dashboard' 
         return context

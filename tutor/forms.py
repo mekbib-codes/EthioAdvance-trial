@@ -8,6 +8,7 @@ from .models import TutorProfile
 from company.models import Company
 from accounts.models import User
 from .models import TutorProfile
+from session.models import Session
 
 logger = logging.getLogger('app')
 
@@ -57,3 +58,19 @@ class TutorRegistrationForm(BaseRegistrationForm):
                 raise ValidationError(_("Failed to create tutor profile"))
 
             return user
+
+class SessionCreationForm(forms.ModelForm):
+
+    class Meta:
+        model = Session
+        fields = ["start_time", "end_time", "session_subject", "session_summary"]  # Exclude tutor & status
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_time = cleaned_data.get("start_time")
+        end_time = cleaned_data.get("end_time")
+
+        if end_time and start_time and end_time <= start_time:
+            raise forms.ValidationError("End time must be after start time.")
+
+        return cleaned_data

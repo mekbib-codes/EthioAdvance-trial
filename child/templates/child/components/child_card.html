@@ -1,0 +1,75 @@
+<a href="{% url 'child:child_dashboard' child.id %}" class="block transform transition-transform duration-300 hover:scale-105">
+    <div class="bg-white rounded-2xl shadow p-6 flex flex-col justify-between h-full">
+        <!-- Child Name -->
+        <h1 class="text-2xl text-blue-500 font-bold mb-2">{{ child.get_full_name }}</h1>
+
+        <!-- Role-Specific Information -->
+        {% if request.user.role == 'PARENT' %}
+            {% if child.tutor %}
+                <h2 class="text-gray-700 font-bold text-xl mb-2">Tutor: {{ child.tutor.get_full_name }}</h2>
+            {% else %}
+                <p class="text-gray-500 italic mb-2">No tutor assigned yet</p>
+            {% endif %}
+        {% elif request.user.role == 'TUTOR' %}
+            <h2 class="text-gray-700 font-bold text-xl mb-2">Parent: {{ child.parent.get_full_name }}</h2>
+        {% endif %}
+
+        <!-- School and Grade -->
+        <div class="text-lg font-bold text-gray-700 mb-4">
+            <p>{{ child.school }}</p>
+            <p>Grade: {{ child.grade_level }}</p>
+        </div>
+
+        <!-- Child Status -->
+        <div class="mt-auto">
+            {% if child.status %}
+                <p class="text-gray-700 font-bold">Attendance: {{ child.status.attendance_rate }}%</p>
+                <p class="mt-2 text-gray-600">{{ child.status.sessions_summary|truncatechars:200 }}</p>
+                <p class="text-right font-bold text-sm italic text-gray-400 mt-2">Updated: {{ child.status.updated_at|date:"M d, Y" }}</p>
+            {% else %}
+                <div class="bg-gray-100 p-4 rounded-lg shadow text-center">
+                    <p class="text-gray-500">No status recorded yet.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Latest Session -->
+        <div class="mt-5">
+            {% if child.latest_sessions %}
+                {% with child.latest_sessions.0 as latest_session %}
+                    <div class="{% if latest_session.status == 'approved' %}bg-green-100{% elif latest_session.status == 'rejected' %}bg-red-100{% else %}bg-yellow-100{% endif %} p-4 rounded-lg shadow relative">
+                        <div class="absolute top-2 right-2 flex items-center space-x-2 my-4">
+                            {% if latest_session.status == 'approved' %}
+                                <svg class="w-6 h-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-green-600 font-semibold">Approved</span>
+                            {% elif latest_session.status == 'rejected' %}
+                                <svg class="w-6 h-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                <span class="text-red-600 font-semibold">Rejected</span>
+                            {% else %}
+                                <svg class="w-6 h-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+                                </svg>
+                                <span class="text-yellow-600 font-semibold">Pending</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-gray-700 font-bold">Latest Session</p>
+                        <p class="mt-2 text-xl font-bold">Duration: {{ latest_session.formatted_duration }}</p>
+                        <p class="mt-2 text-gray-600">{{ latest_session.session_summary|truncatechars:200 }}</p>
+                        <p class="text-right italic text-sm text-gray-500">
+                            <span class="font-semibold text-gray-700">Date:</span> {{ latest_session.created_at|date:"M d, Y" }}
+                        </p>
+                        
+                    </div>
+                {% endwith %}
+            {% else %}
+                <div class="bg-gray-100 p-4 rounded-lg shadow text-center">
+                    <p class="text-gray-500">No sessions recorded yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</a>
