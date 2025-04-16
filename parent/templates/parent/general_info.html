@@ -1,0 +1,26 @@
+<div class="bg-blue-50 p-6 rounded-lg shadow-md">
+    <div class="flex items-center space-x-4">
+        <!-- Icon or Avatar -->
+        <div class="flex-shrink-0">
+            <div class="w-16 h-16 bg-blue-200 rounded-full flex items-center justify-center">
+                <svg class="w-8 h-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A4.992 4.992 0 015 15V9a5 5 0 0110 0v6a4.992 4.992 0 01-.121 2.804M15 19a3 3 0 11-6 0" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Tutor Info -->
+        <div>
+            <h1 class="text-3xl font-bold text-blue-600">{{ parent.get_full_name }}</h1>
+            <div class="my-2 font-bold ml-2">
+                <p class="text-lg text-gray-700">Enrolled Children: {{ total_children }}</p>
+                <p class="text-lg text-gray-700">Total Sessions: {{ total_sessions }}</p>
+            </div>
+            <div class="mt-2 italic text-sm">
+                <p class="text-yellow-700 font-bold italic">Pending Sessions: {{ pending_sessions }}</p>
+                <p class="text-green-700 font-bold italic">Approved Sessions: {{ approved_sessions }}</p>
+                <p class="text-red-700 font-bold italic">Rejected Sessions: {{ rejected_sessions }}</p>
+            </div>
+        </div>
+    </div>
+</div>

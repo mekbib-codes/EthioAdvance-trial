@@ -25,6 +25,11 @@ class TutorDashboardView(TutorRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         try:
             tutor = self.request.user
+            total_students = tutor.students.count()
+            total_sessions = Session.objects.filter(tutor=tutor).count()
+            pending_sessions = Session.objects.filter(tutor=tutor, status=Session.Status.PENDING).count()
+            approved_sessions = Session.objects.filter(tutor=tutor, status=Session.Status.APPROVED).count()
+            rejected_sessions = Session.objects.filter(tutor=tutor, status=Session.Status.REJECTED).count()
 
             context.update({
                 'tutor': tutor,

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load parent_tags %}
 
 {% block title %}
     My Children
@@ -10,8 +11,10 @@
 
 {% block content %}
 
-    <section class="relative pt-24 flex-justify-center items-center">
+    <section class="mx-auto max-w-4xl relative pt-24 md:pt-32 bg-white p-6 rounded-lg shadow-md space-y-6">
         {% include "components/hero/stripes.html" %}
+        
+        {% parent_general_info %}
         
         {% if children %}
             <div class="mx-auto max-w-4xl grid gap-5 grid-cols-1 md:grid-cols-2 p-5">
