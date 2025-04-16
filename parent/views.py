@@ -11,6 +11,8 @@ from .forms import ParentRegistrationForm
 from session.models import Session
 from child.views import BaseChildrenDashboardView
 from session.views import BaseSessionsDashboardView
+from report.views import BaseReportsDashboardView
+from report.models import Report
 
 import logging
 logger = logging.getLogger('app')
@@ -95,3 +97,31 @@ class ParentSessionsDashboardView(ParentRequiredMixin, BaseSessionsDashboardView
         context = super().get_context_data(**kwargs)
         context['parent'] = self.request.user
         return context
+
+class ParentReportsDashboardView(ParentRequiredMixin, BaseReportsDashboardView):
+    template_name = 'parent/reports/dashboard.html'  # Parent-specific template
+
+    def get_child(self):
+        """Fetch the child object and ensure it belongs to the parent."""
+        child = super().get_child()
+        if child.parent != self.request.user:
+            raise PermissionDenied("You don't have permission to view reports for this child.")
+        return child
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['parent'] = self.request.user
+        return context
+    
+class AddReportFeedbackView(ParentRequiredMixin, View):
+    def post(self, request, report_id, *args, **kwargs):
+        report = get_object_or_404(Report, id=report_id)
+
+        # Get the feedback from the POST request
+        parent_feedback = request.POST.get("parent_feedback", "").strip()
+        if parent_feedback:
+            report.feedback_from_parent = parent_feedback
+            report.save()
+
+        # Render only the updated feedback block to be replaced dynamically
+        return render(request, "parent/reports/parent_feedback_block.html", {"report": report})

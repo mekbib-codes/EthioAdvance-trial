@@ -1,0 +1,14 @@
+{% extends 'reports/base_dashboard.html' %}
+
+{% block feedbacks %}
+    {% include 'parent/reports/parent_feedback_block.html' %}
+    {% include 'child/reports/child_feedback_block.html' %}
+{% endblock %}
+
+{% block report_footer %}
+    <div class="text-right mt-4">
+        <p class="italic text-sm text-gray-500">
+            <span class="font-semibold text-gray-700">Prepared by: {{ child.tutor.get_full_name }}</span> 
+        </p>
+    </div>
+{% endblock %}

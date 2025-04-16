@@ -3,7 +3,9 @@ from .views import ( ParentDashboardView,
                     ParentRegistrationView,
                     ChildrenDashboardView,
                     ParentSessionsDashboardView,
-                    UpdateSessionStatusView,)
+                    UpdateSessionStatusView,
+                    ParentReportsDashboardView,
+                    AddReportFeedbackView)
 
 app_name = "parent"
 
@@ -13,4 +15,6 @@ urlpatterns = [
     path('children/', ChildrenDashboardView.as_view(), name='children_dashboard'),
     path('child/<int:child_id>/sessions/', ParentSessionsDashboardView.as_view(), name='child_sessions_dashboard'),
     path('session-status/<int:session_id>/<str:status>/', UpdateSessionStatusView.as_view(), name='update_session_status'),
+    path('child/<int:child_id>/reports/', ParentReportsDashboardView.as_view(), name='child_reports_dashboard'),
+    path('add-feedback/<int:report_id>/', AddReportFeedbackView.as_view(), name='add_report_feedback'),
 ]

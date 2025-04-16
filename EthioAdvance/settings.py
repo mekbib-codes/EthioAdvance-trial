@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'company.apps.CompanyConfig',
     'tutor.apps.TutorConfig',
     'session.apps.SessionConfig',
+    'report.apps.ReportConfig',
 ]
 
 SITE_ID = 1  # Usually 1 for the default site

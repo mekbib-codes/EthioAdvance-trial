@@ -14,6 +14,7 @@ from child.views import BaseChildrenDashboardView
 from session.views import BaseSessionsDashboardView
 from session.models import Session
 from child.models import Child
+from report.views import BaseReportsDashboardView
 
 import logging
 logger = logging.getLogger('app')
@@ -141,3 +142,18 @@ class CreateSessionView(TutorRequiredMixin, CreateView):
     def get_success_url(self):
         # Redirect to the tutor's sessions dashboard or another relevant page
         return reverse_lazy('tutor:child_sessions_dashboard', kwargs={'child_id': self.child.id})
+    
+class TutorReportsDashboardView(TutorRequiredMixin, BaseReportsDashboardView):
+    template_name = 'tutor/reports/dashboard.html'  # Tutor-specific template
+
+    def get_child(self):
+        """Fetch the child object and ensure it belongs to the tutor."""
+        child = super().get_child()
+        if child.tutor != self.request.user:
+            raise PermissionDenied("You don't have permission to view reports for this child.")
+        return child
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tutor'] = self.request.user
+        return context

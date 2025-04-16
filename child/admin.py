@@ -6,7 +6,7 @@ from django.utils.html import format_html
 @admin.register(Child)
 class ChildAdmin(admin.ModelAdmin):
     # Display fields in list view
-    list_display = ('get_full_name', 'age', 'parent_link', 'tutor_link', 'grade_level', 'is_active')
+    list_display = ('id', 'get_full_name', 'age', 'parent_link', 'tutor_link', 'grade_level', 'is_active')
     list_filter = ('grade_level', 'school', 'is_active', 'gender')
     search_fields = ('first_name', 'last_name', 'parent__first_name', 'parent__last_name', 'tutor__first_name', 'tutor__last_name')
     list_editable = ('is_active',)

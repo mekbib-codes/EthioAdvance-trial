@@ -27,6 +27,7 @@ urlpatterns = [
     path('company/', include('company.urls', namespace='company')),
     path('tutor/', include('tutor.urls', namespace='tutor')),
     path('session/', include('session.urls', namespace='sessions')),
+    path('report/', include('report.urls', namespace='reports')),
 ]
 
 if settings.DEBUG:

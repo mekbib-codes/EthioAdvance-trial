@@ -1,0 +1,49 @@
+<div class="bg-white p-6 rounded-lg shadow-md space-y-6">
+    <!-- Header -->
+    <h2 class="text-2xl font-semibold text-blue-600">Quizzes and Assignments</h2>
+
+    <!-- Assignments and Quizzes -->
+    <div class="flex flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
+        <!-- Assignments Section -->
+        <div class="flex-1 bg-yellow-50 p-4 rounded-lg shadow space-y-4">
+            <!-- Title -->
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-yellow-600">Assignments</h3>
+            </div>
+
+            <p class="text-gray-700 col-span-1">
+                <span class="font-semibold text-yellow-600">Completion Notes:</span> {{ report.completion_notes|default:"No notes available." }}
+            </p>
+
+            <p class="text-gray-700 col-span-1">
+                <span class="font-semibold text-yellow-600">Completion Percentage:</span> {{ report.completion_percentage|default:"0" }}%
+            </p>
+
+            <!-- Canvas -->
+            <div class="flex justify-center items-center col-span-1">
+                {% include "child/components/pie_chart.html" with chart_id="completionScoreChart" score=report.completion_percentage|default:"0" color="#FBBF24" label="Score" %}
+            </div>
+        </div>
+
+        <!-- Quizzes Section -->
+        <div class="flex-1 bg-green-50 p-4 rounded-lg shadow space-y-4">
+            <!-- Title -->
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-green-600">Quizzes</h3>
+            </div>
+
+            <p class="text-gray-700 col-span-1">
+                <span class="font-semibold text-green-600">Average Quiz Score:</span> {{ report.average_quiz_score|default:"No data available" }}%
+            </p>
+
+            <p class="text-gray-700 col-span-1">
+                <span class="font-semibold text-green-600">Number of Quizzes:</span> {{ report.number_of_quizzes_prepared|default:"No quizzes recorded yet." }}
+            </p>
+
+            <!-- Canvas -->
+            <div class="flex justify-center items-center col-span-1">
+                {% include "child/components/pie_chart.html" with chart_id="quizScoreChart" score=report.average_quiz_score|default:"0" color="#34D399" label="Score" %}
+            </div>
+        </div>
+    </div>
+</div>

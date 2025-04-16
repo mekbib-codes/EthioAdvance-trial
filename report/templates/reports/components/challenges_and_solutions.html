@@ -1,0 +1,35 @@
+<div class="bg-white p-6 rounded-lg shadow-md space-y-6">
+    <!-- Header -->
+    <h2 class="text-2xl font-semibold text-blue-600">Challenges and Solutions</h2>
+
+    <!-- Challenges and Solutions -->
+    <div class="flex flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
+        <!-- Challenges Encountered -->
+        <div class="flex-1 bg-red-50 p-4 rounded-lg shadow space-y-4">
+            <h3 class="text-lg font-semibold text-red-600">Challenges Encountered</h3>
+            {% if report.challenges_encountered.all %}
+                <ul class="list-disc list-inside text-gray-700">
+                    {% for challenge in report.challenges_encountered.all %}
+                        <li>{{ challenge.name }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-gray-500 italic">No challenges recorded yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Suggested Solutions -->
+        <div class="flex-1 bg-green-50 p-4 rounded-lg shadow space-y-4">
+            <h3 class="text-lg font-semibold text-green-600">Suggested Solutions</h3>
+            {% if report.suggested_solutions.all %}
+                <ul class="list-disc list-inside text-gray-700">
+                    {% for solution in report.suggested_solutions.all %}
+                        <li>{{ solution.name }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-gray-500 italic">No solutions suggested yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>

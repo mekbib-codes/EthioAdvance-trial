@@ -1,0 +1,42 @@
+<div class="bg-white p-6 rounded-lg shadow-md space-y-6">
+    <!-- Header -->
+    <h2 class="text-2xl font-semibold text-blue-600">Mock Exams Overview</h2>
+
+    <!-- Mock Exam Data -->
+    <div class="flex flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
+        <!-- Number of Mock Exams -->
+        <div class="flex-1 bg-yellow-50 p-4 rounded-lg shadow space-y-4">
+            <h3 class="text-lg font-semibold text-yellow-600">Number of Mock Exams</h3>
+            <p class="text-gray-700">
+                <span class="font-semibold text-yellow-600">Total:</span> {{ report.number_of_mock_exams_prepared|default:"No data available." }}
+            </p>
+        </div>
+
+        <!-- Mock Exam Results -->
+        <div class="flex-1 bg-green-50 p-4 rounded-lg shadow space-y-4">
+            <h3 class="text-lg font-semibold text-green-600">Mock Exam Results</h3>
+            <p class="text-gray-700">
+                <span class="font-semibold text-green-600">Overview:</span> {{ report.mock_exam_result_overview|default:"No data available." }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Strengths and Improvement Areas -->
+    <div class="flex flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
+        <!-- Mock Exam Strengths -->
+        <div class="flex-1 bg-blue-50 p-4 rounded-lg shadow space-y-4">
+            <h3 class="text-lg font-semibold text-blue-600">Mock Exam Strengths</h3>
+            <p class="text-gray-700">
+                {{ report.mock_exam_strengths|default:"No strengths recorded yet." }}
+            </p>
+        </div>
+
+        <!-- Mock Exam Improvement Areas -->
+        <div class="flex-1 bg-red-50 p-4 rounded-lg shadow space-y-4">
+            <h3 class="text-lg font-semibold text-red-600">Improvement Areas</h3>
+            <p class="text-gray-700">
+                {{ report.mock_exam_improvement_areas|default:"No improvement areas recorded yet." }}
+            </p>
+        </div>
+    </div>
+</div>

@@ -51,6 +51,12 @@
     {% block scripts %}
     {% endblock %}
     <script src="https://unpkg.com/htmx.org"></script>
+    <script>
+        // HTMX setup
+            document.body.addEventListener("htmx:configRequest", (event) => {
+                event.detail.headers["X-CSRFToken"] = document.querySelector('meta[name="csrf-token"]').content;
+            });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
     <script defer>
         document.addEventListener("DOMContentLoaded", function() {
@@ -60,10 +66,6 @@
             // Initialize Swiper
             initSwiper();
             
-            // HTMX setup
-            document.body.addEventListener("htmx:configRequest", (event) => {
-                event.detail.headers["X-CSRFToken"] = document.querySelector('meta[name="csrf-token"]').content;
-            });
         });
 
         function initToasts() {
@@ -109,6 +111,48 @@
                 }, 100);
             });
         }
+    </script>
+    
+    <!-- Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('canvas[data-score]').forEach(canvas => {
+        const ctx = canvas.getContext('2d');
+        const score = parseFloat(canvas.dataset.score) || 0;
+        const remaining = 100 - score;
+        const color = canvas.dataset.color || '#34D399';
+        const label = canvas.dataset.label || 'Score';
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: [label, 'Remaining'],
+                datasets: [{
+                    data: [score, remaining],
+                    backgroundColor: [color, '#E5E7EB'],
+                    borderColor: [color, '#E5E7EB'],
+                    borderWidth: 3,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#000000',
+                        font: { weight: 'bold', size: 16 },
+                        formatter: (value, context) => context.dataIndex === 0 ? `${label}: ${value}%` : null,
+                    }
+                }
+            },
+            plugins: [ChartDataLabels],
+        });
+    });
+});
+
     </script>
 </body>
 </html>

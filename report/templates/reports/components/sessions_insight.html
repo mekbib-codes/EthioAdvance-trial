@@ -1,0 +1,74 @@
+<div class="bg-white p-6 rounded-lg shadow-md space-y-6">
+    <h2 class="text-2xl font-semibold text-blue-600">Sessions Insight</h2>
+    <!-- Strengths & Weaknesses -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Strengths -->
+        <div class="flex items-start space-x-4 bg-green-50 p-4 rounded-lg shadow">
+            <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-green-600">Strengths</h3>
+                <ul class="list-disc list-inside text-gray-700">
+                    {% for strength in report.strengths.all %}
+                        <li>{{ strength.name|title }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Weaknesses -->
+        <div class="flex items-start space-x-4 bg-red-50 p-4 rounded-lg shadow">
+            <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-red-200 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-red-600">Weaknesses</h3>
+                <ul class="list-disc list-inside text-gray-700">
+                    {% for weakness in report.weaknesses.all %}
+                        <li>{{ weakness.name|title }}</li>
+                    {% endfor %}
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Goals Achieved -->
+    <div class="bg-blue-50 p-4 rounded-lg shadow">
+        <h3 class="text-lg font-semibold text-blue-600">Goals Achieved</h3>
+        <ul class="list-disc list-inside text-gray-700">
+            {% for goal in report.goals_achieved.all %}
+                <li>{{ goal.name|title }}</li>
+            {% empty %}
+                <li class="text-gray-500 italic">No goals achieved recorded yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Learning Materials Prepared -->
+    <div class="bg-yellow-50 p-4 rounded-lg shadow">
+        <h3 class="text-lg font-semibold text-yellow-600">Learning Materials Prepared</h3>
+        <ul class="list-disc list-inside text-gray-700">
+            {% for material in report.learning_material_prepared.all %}
+                <li>{{ material.name|title }}</li>
+            {% empty %}
+                <li class="text-gray-500 italic">No learning materials prepared recorded yet.</li>
+            {% endfor %}
+        </ul>      
+    </div>
+
+    <!-- Child Participation -->
+    <div class="bg-gray-50 p-4 rounded-lg shadow">
+        <h3 class="text-lg font-semibold text-gray-600">Child Participation</h3>
+        <p class="text-gray-700">{{ report.child_participation|default:"No participation details recorded yet." }}</p>
+    </div>
+</div>

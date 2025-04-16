@@ -1,0 +1,49 @@
+{% extends 'reports/base_dashboard.html' %}
+
+{% block add_report_button %}
+    <!-- Add Session Button -->
+    <div class="flex justify-end">
+        <a href="{% url 'tutor:create_session' child.id %}" 
+           class="inline-flex items-center px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow hover:bg-blue-600 transition">
+            <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add report
+        </a>
+    </div>
+{% endblock %}
+
+{% block feedbacks %}
+    <div class="p-4 bg-blue-50 shadow-md rounded-lg text-gray-700 space-y-4">
+    <!-- Header -->
+        <h2 class="font-bold text-2xl text-blue-600">Parent Feedback</h2>
+
+        {% if report.feedback_from_parent %}
+            <!-- Display Feedback -->
+            <div id="feedback-display-{{ report.id }}" class="bg-white p-4 rounded-lg shadow">
+                <p class="text-gray-700 indent-4">{{ report.feedback_from_parent }}</p>
+            </div>
+        {% else %}
+            <div id="feedback-display-{{ report.id }}" class="bg-white p-4 rounded-lg shadow">
+                <p class="text-gray-700 indent-4">No feed back from parent yet.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="p-4 bg-blue-50 shadow-md rounded-lg text-gray-700 space-y-4">
+        <!-- Header -->
+        <h2 class="font-bold text-2xl text-blue-600">Child Feedback</h2>
+
+        {% if report.feedback_from_child %}
+            <!-- Display Feedback -->
+            <div id="feedback-display-{{ report.id }}" class="bg-white p-4 rounded-lg shadow">
+                <p class="text-gray-700 indent-4">{{ report.feedback_from_child }}</p>
+            </div>
+        {% else %}
+            <div id="feedback-display-{{ report.id }}" class="bg-white p-4 rounded-lg shadow">
+                <p class="text-gray-700 indent-4">No feedback from child yet.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+{% endblock %}

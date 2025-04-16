@@ -1,0 +1,78 @@
+{% load report_tags %}
+
+<div class="bg-white p-6 rounded-lg shadow-md space-y-4">
+    <!-- Report Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-semibold text-blue-600">Report Summary</h2>
+        <p class="text-sm text-gray-500 italic">
+            <span class="font-semibold text-gray-700">Prepared:</span> {{ report.created_at|date:"M d, Y" }}
+        </p>
+    </div>
+
+    <!-- Date Range -->
+    <div class="flex items-center space-x-4 bg-blue-50 p-4 rounded-lg shadow">
+        <div class="flex-shrink-0">
+            <div class="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center">
+                <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 4h10M5 21h14a2 2 0 002-2V7H3v12a2 2 0 002 2z" />
+                </svg>
+            </div>
+        </div>
+        <div>
+            <p class="text-lg text-gray-700">
+                <span class="font-semibold text-blue-600">From:</span> {{ report.from_date|date:"M d, Y" }}
+            </p>
+            <p class="text-lg text-gray-700">
+                <span class="font-semibold text-blue-600">To:</span> {{ report.to_date|date:"M d, Y" }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Session Details -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Total Sessions -->
+        <div class="flex items-start space-x-4 bg-green-50 p-4 rounded-lg shadow">
+            <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-green-600">Total Sessions</h3>
+                <p class="text-gray-700">{{ report.total_sessions_conducted }}</p>
+            </div>
+        </div>
+
+        <!-- Average Duration -->
+        <div class="flex items-start space-x-4 bg-yellow-50 p-4 rounded-lg shadow">
+            <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-yellow-200 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+                    </svg>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-yellow-600">Average Duration</h3>
+                <p class="text-gray-700">{{ report.average_duration_per_session|humanize_duration }}</p>
+            </div>
+        </div>
+
+        <!-- Total Duration -->
+        <div class="flex items-start space-x-4 bg-blue-50 p-4 rounded-lg shadow">
+            <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+                    </svg>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-blue-600">Total Duration</h3>
+                <p class="text-gray-700">{{ report.total_session_duration|humanize_duration }}</p>
+            </div>
+        </div>
+    </div>
+</div>
