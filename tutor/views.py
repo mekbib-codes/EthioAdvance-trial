@@ -1,12 +1,10 @@
 from django.views.generic import TemplateView
 from django.core.exceptions import PermissionDenied
 from django.views.generic.edit import CreateView
-from django.views import View
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.utils.translation import gettext as _
-from django.shortcuts import render, redirect
 from django.conf import settings
 
 from accounts.mixins import CompanyRequiredMixin, TutorRequiredMixin
@@ -17,8 +15,8 @@ from child.views import BaseChildrenDashboardView
 from session.views import BaseSessionsDashboardView
 from session.models import Session
 from child.models import Child
-from report.views import BaseReportsDashboardView
-from report.forms import ReportSummaryForm, SessionInsightForm, QuizAssignmentForm, MockExamForm
+from report.views import BaseReportsDashboardView, BaseReportStepView
+from report.forms import ReportSummaryForm, SessionInsightForm, QuizAssignmentForm, MockExamForm, ChallengesAndSolutionsForm
 
 import logging
 logger = logging.getLogger('app')
@@ -30,11 +28,6 @@ class TutorDashboardView(TutorRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         try:
             tutor = self.request.user
-            total_students = tutor.students.count()
-            total_sessions = Session.objects.filter(tutor=tutor).count()
-            pending_sessions = Session.objects.filter(tutor=tutor, status=Session.Status.PENDING).count()
-            approved_sessions = Session.objects.filter(tutor=tutor, status=Session.Status.APPROVED).count()
-            rejected_sessions = Session.objects.filter(tutor=tutor, status=Session.Status.REJECTED).count()
 
             context.update({
                 'tutor': tutor,
@@ -162,67 +155,7 @@ class TutorReportsDashboardView(TutorRequiredMixin, BaseReportsDashboardView):
         context['tutor'] = self.request.user
         return context
 
-class BaseReportStepView(TutorRequiredMixin, View):
-    template_name = None  # Must be defined in subclasses
-    form_class = None  # Must be defined in subclasses
-    success_url_name = None  # Must be defined in subclasses
 
-    def dispatch(self, request, *args, **kwargs):
-        # Fetch the child object and ensure it is assigned to the tutor
-        self.child = get_object_or_404(Child, id=self.kwargs.get('child_id'))
-        if self.child.tutor != self.request.user:
-            logger.warning(f"Unauthorized access attempt by {request.user.email} for child {self.child.id}")
-            raise PermissionDenied("You can only access reports for your assigned students.")
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        """Handle GET requests to display the form."""
-        form = self.form_class()
-        return render(request, self.template_name, {
-            'form': form,
-            'child': self.child
-        })
-
-    def post(self, request, *args, **kwargs):
-        """Handle POST requests to process the form."""
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            try:
-                self.process_form_data(form.cleaned_data)
-                logger.info(f"Data saved to session by {request.user.email} for child {self.child.id}")
-                messages.success(request, f"Data for {self.child.get_full_name()} saved successfully.")
-                return redirect(self.get_success_url())
-            except Exception as e:
-                logger.error(f"Error processing data for {request.user.email}: {str(e)}", exc_info=True)
-                messages.error(request, "An error occurred while saving the data. Please try again.")
-        else:
-            self.handle_form_errors(form)
-
-        return render(request, self.template_name, {
-            'form': form,
-            'child': self.child
-        })
-
-    def process_form_data(self, cleaned_data):
-        """Process and save form data to the session. Must be implemented in subclasses."""
-        raise NotImplementedError("Subclasses must implement the process_form_data method.")
-
-    def handle_form_errors(self, form):
-        """Handle form errors and display messages."""
-        for field, errors in form.errors.items():
-            for error in errors:
-                if field == '__all__':
-                    logger.warning(f"Form error: {error}")
-                    messages.error(self.request, _(f"{error}"), extra_tags='alert-danger')
-                else:
-                    logger.warning(f"Field error - {field}: {error}")
-                    label = form.fields[field].label
-                    messages.error(self.request, _(f"{label}: {error}"), extra_tags='alert-danger')
-
-    def get_success_url(self):
-        """Redirect to the next step in the report creation process."""
-        return reverse_lazy(self.success_url_name, kwargs={'child_id': self.child.id})
-    
 REPORT_KEY = getattr(settings, 'REPORT_KEY', 'report_draft')
 
 class ReportSummaryStepView(BaseReportStepView):
@@ -273,7 +206,7 @@ class QuizAssignmentInsightStepView(BaseReportStepView):
 class MockExamInsightStepView(BaseReportStepView):
     template_name = 'tutor/reports/create_forms/mock_exam_insight.html'
     form_class = MockExamForm
-    success_url_name = 'tutor:child_reports_dashboard'
+    success_url_name = 'tutor:create_challenges_and_solutions_step'
 
     def process_form_data(self, cleaned_data):
         report_data = self.request.session.get(REPORT_KEY, {})
@@ -286,4 +219,16 @@ class MockExamInsightStepView(BaseReportStepView):
         self.request.session[REPORT_KEY] = report_data
         self.request.session.modified = True
 
-        logger.debug(f"Report data - {self.request.session[REPORT_KEY]}")
+class ChallengesAndSolutionsStepView(BaseReportStepView):
+    template_name = 'tutor/reports/create_forms/challenges_and_solutions.html'
+    form_class = ChallengesAndSolutionsForm
+    success_url_name = 'tutor:child_reports_dashboard'  # assuming dashboard is next!
+
+    def process_form_data(self, cleaned_data):
+        report_data = self.request.session.get(REPORT_KEY, {})
+        report_data.update({
+            'challenges_encountered': cleaned_data['challenges_encountered'],
+            'suggested_solutions': cleaned_data['suggested_solutions'],
+        })
+        self.request.session[REPORT_KEY] = report_data
+        self.request.session.modified = True

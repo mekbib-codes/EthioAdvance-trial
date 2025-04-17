@@ -65,3 +65,17 @@ class MockExamForm(forms.ModelForm):
             'mock_exam_strengths',
             'mock_exam_improvement_areas'
         ]
+
+class ChallengesAndSolutionsForm(forms.Form):
+    challenges_encountered = forms.CharField()
+    suggested_solutions = forms.CharField()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        many_to_many_fields = ['challenges_encountered', 'suggested_solutions']
+
+        for field in many_to_many_fields:
+            raw_input = cleaned_data.get(field, '')
+            cleaned_data[field] = [item.strip() for item in raw_input.split(',') if item.strip()]
+
+        return cleaned_data
