@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'tutor.apps.TutorConfig',
     'session.apps.SessionConfig',
     'report.apps.ReportConfig',
+    'payment.apps.PaymentConfig',
 ]
 
 SITE_ID = 1  # Usually 1 for the default site
@@ -192,9 +193,9 @@ EMAIL_USE_TLS = bool(CREDENTIALS.get('EMAIL_USE_TLS'))
 DEFAULT_FROM_EMAIL = CREDENTIALS.get('DEFAULT_FROM_EMAIL')
 
 # OTP Configuration
-OTP_LENGTH = int(CREDENTIALS.get('OTP_LENGTH'))
-OTP_EXPIRY_MINUTES = int(CREDENTIALS.get('OTP_EXPIRY_MINUTES'))
-OTP_RESEND_TIMEOUT = int(CREDENTIALS.get('OTP_RESEND_TIMEOUT'))
+OTP_LENGTH = 6  # Length of OTP code
+OTP_EXPIRY_MINUTES = 15  # OTP validity in minutes
+OTP_RESEND_TIMEOUT = 1  # Minutes before allowing OTP resend
 
 # settings.py
 # Minimum required for your OTP flow:
