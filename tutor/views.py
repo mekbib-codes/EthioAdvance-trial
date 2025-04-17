@@ -18,7 +18,8 @@ from session.views import BaseSessionsDashboardView
 from session.models import Session
 from child.models import Child
 from report.views import BaseReportsDashboardView
-from report.forms import ReportSummaryForm
+from report.forms import ReportSummaryForm, SessionInsightForm
+from report.models import Strength, Weakness, Goal, LearningMaterial
 
 import logging
 logger = logging.getLogger('app')
@@ -228,4 +229,63 @@ class ReportSummaryStepView(TutorRequiredMixin, View):
 
     def get_success_url(self):
         """Redirect to the next step in the report creation process."""
-        return reverse_lazy('reports:sessions_insight_step', kwargs={'child_id': self.child.id})
+        return reverse_lazy('tutor:create_sessions_insight_step', kwargs={'child_id': self.child.id})
+    
+
+class SessionInsightStepView(TutorRequiredMixin, View):
+    template_name = 'tutor/reports/create_forms/sessions_insight.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.child = get_object_or_404(Child, id=self.kwargs.get('child_id'))
+        if self.child.tutor != self.request.user:
+            logger.warning(f"Unauthorized insight attempt by {request.user.email} for child {self.child.id}")
+            raise PermissionDenied("You can only add insights for your assigned students.")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        form = SessionInsightForm()
+        return render(request, self.template_name, {'form': form, 'child': self.child})
+
+    def post(self, request, *args, **kwargs):
+        form = SessionInsightForm(request.POST)
+        if form.is_valid():
+            try:
+                cleaned = form.cleaned_data
+                request.session[REPORT_KEY] = self._prepare_report_data(cleaned)
+                request.session.modified = True
+
+                logger.info(f"Session insight saved to session by {request.user.email} for child {self.child.id}")
+                logger.debug(f"Report data - {request.session[REPORT_KEY]}")
+                messages.success(request, f"Session insights for {self.child.get_full_name()} saved successfully.")
+                return redirect(self.get_success_url())
+            except Exception as e:
+                logger.error(f"Error processing insights for {request.user.email}: {str(e)}", exc_info=True)
+                messages.error(request, "An error occurred while saving the session insights. Please try again.")
+        else:
+            self._handle_form_errors(form)
+
+        return render(request, self.template_name, {'form': form, 'child': self.child})
+
+    def _prepare_report_data(self, cleaned_data):
+        # Stores plain text in the session, no PK conversions.
+        return {
+            'strengths': cleaned_data['strengths'],
+            'weaknesses': cleaned_data['weaknesses'],
+            'goals_achieved': cleaned_data['goals_achieved'],
+            'learning_material_prepared': cleaned_data['learning_material_prepared'],
+            'child_participation': cleaned_data['child_participation'],
+        }
+
+    def _handle_form_errors(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                if field == '__all__':
+                    logger.warning(f"Form error: {error}")
+                    messages.error(self.request, _(f"{error}"), extra_tags='alert-danger')
+                else:
+                    logger.warning(f"Field error - {field}: {error}")
+                    label = form.fields[field].label
+                    messages.error(self.request, _(f"{label}: {error}"), extra_tags='alert-danger')
+
+    def get_success_url(self):
+        return reverse_lazy('tutor:child_reports_dashboard', kwargs={'child_id': self.child.id})

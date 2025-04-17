@@ -1,0 +1,144 @@
+{% extends "forms/base_form.html" %}
+
+{% block title %}Create Session{% endblock %}
+
+{% block header %}
+    {% include 'ui/child_header.html' %}
+{% endblock %}
+
+{% block form_content %}
+    <div class="mb-10">
+        <h1 class="text-4xl font-bold">Sessions Insight</h1>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" action="{% url 'tutor:create_sessions_insight_step' child.id %}">
+        {% csrf_token %}
+
+        
+        <div class="bg-gray-200 shadow-md rounded-lg p-5 mb-4 space-y-4">
+
+            <p class="font-bold text-sm text-gray-600 italic p-2 rounded-lg indent-4">
+                Use comma-separated values for strengths, weaknesses, goals achieved, and learning materials prepared. Each value will be processed individually.
+            </p>
+            
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_strengths">
+                    Strengths
+                </label>
+                <input id="id_strengths" class="form-input w-full py-2" name="strengths" placeholder="e.g. Problem Solving, Quick learner">
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_weaknesses">
+                    Weaknesses
+                </label>
+                <input id="id_weaknesses" class="form-input w-full py-2" name="weaknesses" placeholder="e.g. Time management, Needs help in maths">
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_goals_achieved">
+                    Goals Achieved
+                </label>
+                <input id="id_goals_achieved" class="form-input w-full py-2" name="goals_achieved" placeholder="e.g. Improved reading skills, Completed assignments">
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_learning_material_prepared">
+                    Learning Materials Prepared
+                </label>
+                <input id="id_learning_material_prepared" class="form-input w-full py-2" name="learning_material_prepared" placeholder="e.g. Flashcards, Practice worksheets">
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_child_participation">
+                    Child Participation
+                </label>
+                <textarea 
+                    id="id_child_participation" 
+                    class="form-input w-full py-2 border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
+                    rows="5" 
+                    name="child_participation" 
+                    placeholder="Describe the child's participation during the sessions."
+                    required
+                ></textarea>
+            </div>
+
+        </div>
+
+            
+        <div class="mt-6 space-y-3">
+            <button class="btn w-full bg-linear-to-t from-blue-600 to-blue-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-sm hover:bg-[length:100%_150%] cursor-pointer">
+                Continue
+            </button>
+        </div>
+
+    </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Fields to process
+        const fields = ['strengths', 'weaknesses', 'goals_achieved', 'learning_material_prepared'];
+
+        fields.forEach(field => {
+            const input = document.getElementById(`id_${field}`);
+            const displayContainer = document.createElement('div');
+            displayContainer.className = 'mt-2 text-sm text-gray-700 bg-gray-100 p-2 rounded-lg';
+            input.parentNode.appendChild(displayContainer);
+
+            // Store entered values
+            const values = [];
+
+            // Function to update the display
+            const updateDisplay = () => {
+                displayContainer.innerHTML = values.map((v, index) => `
+                    <span class="inline-block bg-gray-400 text-gray-100 px-2 py-1 rounded-full m-2">
+                        ${v}
+                        <button 
+                            type="button" 
+                            class="ml-2 text-red-500 hover:text-red-700 focus:outline-none remove-btn" 
+                            data-field="${field}" 
+                            data-index="${index}"
+                        >
+                            &times;
+                        </button>
+                    </span>
+                `).join('');
+            };
+
+            // Event listener for removing a value
+            displayContainer.addEventListener('click', function (event) {
+                if (event.target.classList.contains('remove-btn')) {
+                    const index = parseInt(event.target.getAttribute('data-index'), 10);
+                    values.splice(index, 1); // Remove the value at the specified index
+                    updateDisplay(); // Update the display
+                }
+            });
+
+            input.addEventListener('input', function () {
+                const value = input.value.trim();
+
+                // Check if the user typed a comma
+                if (value.endsWith(',')) {
+                    const cleanedValue = value.slice(0, -1).trim(); // Remove the trailing comma
+                    if (cleanedValue) {
+                        values.push(cleanedValue); // Add to the list of values
+                        input.value = ''; // Clear the input field
+                        updateDisplay(); // Update the display
+                    }
+                }
+            });
+
+            // Ensure all values are submitted together, including the last input without a trailing comma
+            input.closest('form').addEventListener('submit', function () {
+                const finalValue = input.value.trim();
+                if (finalValue) {
+                    values.push(finalValue); // Add the last input value
+                }
+                input.value = values.join(','); // Combine all values into a single comma-separated string
+            });
+        });
+    });
+</script>
+{% endblock %}

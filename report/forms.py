@@ -35,15 +35,18 @@ class ReportSummaryForm(forms.ModelForm):
         return cleaned_data
 
 class SessionInsightForm(forms.Form):
-    strengths = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), required=False)
-    weaknesses = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), required=False)
-    goals_achieved = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), required=False)
-    learning_material_prepared = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), required=False)
+    strengths = forms.CharField()
+    weaknesses = forms.CharField()
+    goals_achieved = forms.CharField()
+    learning_material_prepared = forms.CharField()
     child_participation = forms.CharField(widget=forms.Textarea(attrs={'rows': 4}), required=True)
 
     def clean(self):
         cleaned_data = super().clean()
-        for field in ['strengths', 'weaknesses', 'goals_achieved', 'learning_material_prepared']:
-            items = cleaned_data.get(field, '')
-            cleaned_data[field] = [i.strip() for i in items.split(',') if i.strip()]
+        many_to_many_fields = ['strengths', 'weaknesses', 'goals_achieved', 'learning_material_prepared']
+
+        for field in many_to_many_fields:
+            raw_input = cleaned_data.get(field, '')
+            cleaned_data[field] = [item.strip() for item in raw_input.split(',') if item.strip()]
+
         return cleaned_data

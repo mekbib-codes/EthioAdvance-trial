@@ -5,7 +5,8 @@ from .views import ( TutorDashboardView,
                     TutorSessionsDashboardView,
                     CreateSessionView,
                     TutorReportsDashboardView,
-                    ReportSummaryStepView)
+                    ReportSummaryStepView,
+                    SessionInsightStepView,)
 
 app_name = "tutor"
 
@@ -16,5 +17,6 @@ urlpatterns = [
     path('child/<int:child_id>/sessions/', TutorSessionsDashboardView.as_view(), name='child_sessions_dashboard'),
     path('sessions/create/<int:child_id>/', CreateSessionView.as_view(), name='create_session'),
     path('child/<int:child_id>/reports/', TutorReportsDashboardView.as_view(), name='child_reports_dashboard'),
-    path('reports/create/<int:child_id>/step-1/', ReportSummaryStepView.as_view(), name='create_report_summary_step'),  
+    path('reports/create/<int:child_id>/step-1/', ReportSummaryStepView.as_view(), name='create_report_summary_step'),
+    path('reports/create/<int:child_id>/step-2/', SessionInsightStepView.as_view(), name='create_sessions_insight_step'),
 ]
