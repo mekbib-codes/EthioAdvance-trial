@@ -1,0 +1,128 @@
+{% extends "forms/base_form.html" %}
+
+{% block title %}Create Session{% endblock %}
+
+{% block header %}
+    {% include 'ui/child_header.html' %}
+{% endblock %}
+
+{% block form_content %}
+    <div class="mb-10">
+        <h1 class="text-4xl font-bold">Quiz And Assignments</h1>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" action="{% url 'tutor:create_quiz_assignment_step' child.id %}">
+        {% csrf_token %}
+
+        
+        <div class="bg-gray-200 shadow-md rounded-lg p-5 mb-4 space-y-4">
+
+            <h2 class="text-2xl font-bold">Quizzes</h2>
+            
+            <div class="relative max-w-sm">
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_number_of_quizzes_prepared">
+                    Number of quizzes prepared
+                </label>
+            
+                <input id="id_number_of_quizzes_prepared" name="number_of_quizzes_prepared" type="number" required
+                    class="form-input w-full py-2" min="1">
+            </div>
+
+            <div class="relative max-w-sm">
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_average_quiz_score">
+                    Average quiz score (in %)
+                </label>
+            
+                <input id="id_average_quiz_score" name="average_quiz_score" type="number" required
+                    class="form-input w-full py-2" min="1" max="100" placeholder="Type only the number">
+            </div>
+        
+        </div>
+
+        <div class="bg-gray-200 shadow-md rounded-lg p-5 mb-4 space-y-4">
+
+            <h2 class="text-2xl font-bold">Assignments</h2>
+    
+            <div class="relative max-w-sm">
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_completion_percentage">
+                    Completion Percentage
+                </label>
+            
+                <input id="id_completion_percentage" name="completion_percentage" type="number" required
+                    class="form-input w-full py-2" min="1" max="100">
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_completion_notes">
+                    Completion notes
+                </label>
+                <textarea 
+                    id="id_completion_notes" 
+                    class="form-input w-full py-2 border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
+                    rows="5" 
+                    name="completion_notes" 
+                    placeholder="Provide nots on child's assignment completion"
+                    required
+                ></textarea>
+            </div>
+        
+        </div>
+
+            
+        <div class="mt-6 space-y-3">
+            <button class="btn w-full bg-linear-to-t from-blue-600 to-blue-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-sm hover:bg-[length:100%_150%] cursor-pointer">
+                Continue
+            </button>
+        </div>
+
+        <div class="mt-2 ">
+            <progress id="progress-bar" value="40" max="100" class="w-full h-2 border border-gray-700 rounded-lg overflow-hidden">Progress - 20%</progress>
+            <p class="text-sm text-gray-700 italic font-bold">Progress - 40%</p>
+        </div>
+
+    </form>
+
+    <style>
+        #progress-bar {
+            /* Hide the default progress bar appearance */
+            -webkit-appearance: none;
+            appearance: none;
+        }
+    
+        /* Progress bar container */
+        #progress-bar::-webkit-progress-bar {
+            background-color: #f3f4f6; /* Tailwind's gray-200 */
+            border-radius: 0.5rem; /* Rounded corners */
+            border: 1px solid #4b5563; /* Tailwind's gray-700 */
+        }
+    
+        /* Progress bar value */
+        #progress-bar::-webkit-progress-value {
+            background: linear-gradient(to right, #2563eb, #1d4ed8); /* Tailwind's blue-600 to blue-500 */
+            border-radius: 0.5rem; /* Rounded corners */
+            transition: width 1s ease-in-out; /* Smooth animation */
+        }
+    
+        #progress-bar::-moz-progress-bar {
+            background: linear-gradient(to right, #2563eb, #1d4ed8); /* Tailwind's blue-600 to blue-500 */
+            border-radius: 0.5rem; /* Rounded corners */
+            transition: width 1s ease-in-out; /* Smooth animation */
+        }
+    </style>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const progressBar = document.getElementById('progress-bar');
+
+        // Set initial progress value
+        progressBar.value = 0;
+
+        // Animate progress to 40% after a short delay
+        setTimeout(() => {
+            progressBar.value = 40;
+        }, 500); // Delay of 500ms for fade-in effect
+    });
+</script>
+{% endblock %}

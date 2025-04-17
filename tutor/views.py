@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.utils.translation import gettext as _
+from django.conf import settings
 
 from accounts.mixins import CompanyRequiredMixin, TutorRequiredMixin
 from accounts.views.base_registration import BaseRegistrationView
@@ -14,7 +15,8 @@ from child.views import BaseChildrenDashboardView
 from session.views import BaseSessionsDashboardView
 from session.models import Session
 from child.models import Child
-from report.views import BaseReportsDashboardView
+from report.views import BaseReportsDashboardView, BaseReportStepView
+from report.forms import ReportSummaryForm, SessionInsightForm, QuizAssignmentForm, MockExamForm, ChallengesAndSolutionsForm
 
 import logging
 logger = logging.getLogger('app')
@@ -26,11 +28,6 @@ class TutorDashboardView(TutorRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         try:
             tutor = self.request.user
-            total_students = tutor.students.count()
-            total_sessions = Session.objects.filter(tutor=tutor).count()
-            pending_sessions = Session.objects.filter(tutor=tutor, status=Session.Status.PENDING).count()
-            approved_sessions = Session.objects.filter(tutor=tutor, status=Session.Status.APPROVED).count()
-            rejected_sessions = Session.objects.filter(tutor=tutor, status=Session.Status.REJECTED).count()
 
             context.update({
                 'tutor': tutor,
@@ -157,3 +154,81 @@ class TutorReportsDashboardView(TutorRequiredMixin, BaseReportsDashboardView):
         context = super().get_context_data(**kwargs)
         context['tutor'] = self.request.user
         return context
+
+
+REPORT_KEY = getattr(settings, 'REPORT_KEY', 'report_draft')
+
+class ReportSummaryStepView(BaseReportStepView):
+    template_name = 'tutor/reports/create_forms/summary.html'
+    form_class = ReportSummaryForm
+    success_url_name = 'tutor:create_sessions_insight_step'
+
+    def process_form_data(self, cleaned_data):
+        # Save the form data to the session
+        self.request.session[REPORT_KEY] = cleaned_data
+        self.request.session.modified = True
+
+class SessionInsightStepView(BaseReportStepView):
+    template_name = 'tutor/reports/create_forms/sessions_insight.html'
+    form_class = SessionInsightForm
+    success_url_name = 'tutor:create_quiz_assignment_step'
+
+    def process_form_data(self, cleaned_data):
+        # Update session data with session insights
+        report_data = self.request.session.get(REPORT_KEY, {})
+        report_data.update({
+            'strengths': cleaned_data['strengths'],
+            'weaknesses': cleaned_data['weaknesses'],
+            'goals_achieved': cleaned_data['goals_achieved'],
+            'learning_material_prepared': cleaned_data['learning_material_prepared'],
+            'child_participation': cleaned_data['child_participation'],
+        })
+        self.request.session[REPORT_KEY] = report_data
+        self.request.session.modified = True
+
+class QuizAssignmentInsightStepView(BaseReportStepView):
+    template_name = 'tutor/reports/create_forms/quiz_and_assignments.html'
+    form_class = QuizAssignmentForm
+    success_url_name = 'tutor:create_mock_exam_step'
+
+    def process_form_data(self, cleaned_data):
+        # Update session data with quiz and assignment insights
+        report_data = self.request.session.get(REPORT_KEY, {})
+        report_data.update({
+            'number_of_quizzes_prepared': cleaned_data['number_of_quizzes_prepared'],
+            'average_quiz_score': cleaned_data['average_quiz_score'],
+            'completion_percentage': cleaned_data['completion_percentage'],
+            'completion_notes': cleaned_data['completion_notes'],
+        })
+        self.request.session[REPORT_KEY] = report_data
+        self.request.session.modified = True
+
+class MockExamInsightStepView(BaseReportStepView):
+    template_name = 'tutor/reports/create_forms/mock_exam_insight.html'
+    form_class = MockExamForm
+    success_url_name = 'tutor:create_challenges_and_solutions_step'
+
+    def process_form_data(self, cleaned_data):
+        report_data = self.request.session.get(REPORT_KEY, {})
+        report_data.update({
+            'number_of_mock_exams_prepared': cleaned_data['number_of_mock_exams_prepared'],
+            'mock_exam_result_overview': cleaned_data['mock_exam_result_overview'],
+            'mock_exam_strengths': cleaned_data['mock_exam_strengths'],
+            'mock_exam_improvement_areas': cleaned_data['mock_exam_improvement_areas'],
+        })
+        self.request.session[REPORT_KEY] = report_data
+        self.request.session.modified = True
+
+class ChallengesAndSolutionsStepView(BaseReportStepView):
+    template_name = 'tutor/reports/create_forms/challenges_and_solutions.html'
+    form_class = ChallengesAndSolutionsForm
+    success_url_name = 'report:create'
+
+    def process_form_data(self, cleaned_data):
+        report_data = self.request.session.get(REPORT_KEY, {})
+        report_data.update({
+            'challenges_encountered': cleaned_data['challenges_encountered'],
+            'suggested_solutions': cleaned_data['suggested_solutions'],
+        })
+        self.request.session[REPORT_KEY] = report_data
+        self.request.session.modified = True
