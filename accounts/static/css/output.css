@@ -508,6 +508,9 @@
   .h-1 {
     height: calc(var(--spacing) * 1);
   }
+  .h-2 {
+    height: calc(var(--spacing) * 2);
+  }
   .h-3 {
     height: calc(var(--spacing) * 3);
   }
@@ -974,6 +977,9 @@
   }
   .border-gray-300 {
     border-color: var(--color-gray-300);
+  }
+  .border-gray-700 {
+    border-color: var(--color-gray-700);
   }
   .border-green-400 {
     border-color: var(--color-green-400);

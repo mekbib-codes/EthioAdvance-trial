@@ -50,3 +50,8 @@ class SessionInsightForm(forms.Form):
             cleaned_data[field] = [item.strip() for item in raw_input.split(',') if item.strip()]
 
         return cleaned_data
+
+class QuizAssignmentForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ['number_of_quizzes_prepared', 'average_quiz_score', 'completion_percentage', 'completion_notes']

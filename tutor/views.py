@@ -18,8 +18,7 @@ from session.views import BaseSessionsDashboardView
 from session.models import Session
 from child.models import Child
 from report.views import BaseReportsDashboardView
-from report.forms import ReportSummaryForm, SessionInsightForm
-from report.models import Strength, Weakness, Goal, LearningMaterial
+from report.forms import ReportSummaryForm, SessionInsightForm, QuizAssignmentForm
 
 import logging
 logger = logging.getLogger('app')
@@ -163,22 +162,22 @@ class TutorReportsDashboardView(TutorRequiredMixin, BaseReportsDashboardView):
         context['tutor'] = self.request.user
         return context
 
-REPORT_KEY = getattr(settings, 'REPORT_KEY', 'report_draft')
-
-class ReportSummaryStepView(TutorRequiredMixin, View):
-    template_name = 'tutor/reports/create_forms/summary.html'
+class BaseReportStepView(TutorRequiredMixin, View):
+    template_name = None  # Must be defined in subclasses
+    form_class = None  # Must be defined in subclasses
+    success_url_name = None  # Must be defined in subclasses
 
     def dispatch(self, request, *args, **kwargs):
         # Fetch the child object and ensure it is assigned to the tutor
         self.child = get_object_or_404(Child, id=self.kwargs.get('child_id'))
         if self.child.tutor != self.request.user:
-            logger.warning(f"Unauthorized report creation attempt by {request.user.email} for child {self.child.id}")
-            raise PermissionDenied("You can only create reports for your assigned students.")
+            logger.warning(f"Unauthorized access attempt by {request.user.email} for child {self.child.id}")
+            raise PermissionDenied("You can only access reports for your assigned students.")
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         """Handle GET requests to display the form."""
-        form = ReportSummaryForm()
+        form = self.form_class()
         return render(request, self.template_name, {
             'form': form,
             'child': self.child
@@ -186,97 +185,30 @@ class ReportSummaryStepView(TutorRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         """Handle POST requests to process the form."""
-        form = ReportSummaryForm(request.POST)
+        form = self.form_class(request.POST)
         if form.is_valid():
             try:
-                # Save the form data to the session
-                request.session[REPORT_KEY] = form.cleaned_data
-                request.session.modified = True
-
-                # Log success and show a success message
-                logger.info(f"Report summary saved to session by {request.user.email} for child {self.child.id}")
-                messages.success(request, f"Report summary for {self.child.get_full_name()} saved successfully.")
+                self.process_form_data(form.cleaned_data)
+                logger.info(f"Data saved to session by {request.user.email} for child {self.child.id}")
+                messages.success(request, f"Data for {self.child.get_full_name()} saved successfully.")
                 return redirect(self.get_success_url())
             except Exception as e:
-                # Log error and show an error message
-                logger.error(f"Error saving report summary by {request.user.email} for child {self.child.id}: {str(e)}", exc_info=True)
-                messages.error(request, "An error occurred while saving the report summary. Please try again.")
+                logger.error(f"Error processing data for {request.user.email}: {str(e)}", exc_info=True)
+                messages.error(request, "An error occurred while saving the data. Please try again.")
         else:
-            # Handle form errors
-            for field, errors in form.errors.items():
-                for error in errors:
-                    if field == '__all__':
-                        logger.warning(f"Form error: {error}")
-                        messages.error(request, _(f"{error}"), extra_tags='alert-danger')
-                    else:
-                        logger.warning(f"Field error - {field}: {error}")
-                        label = form.fields[field].label
-                        messages.error(request, _(f"{label}: {error}"), extra_tags='alert-danger')
+            self.handle_form_errors(form)
 
-        # Render the form again with errors
         return render(request, self.template_name, {
             'form': form,
             'child': self.child
         })
 
-    def get_context_data(self, **kwargs):
-        """Add additional context data."""
-        context = {
-            'child': self.child,
-            'active_section': 'reports'
-        }
-        return context
+    def process_form_data(self, cleaned_data):
+        """Process and save form data to the session. Must be implemented in subclasses."""
+        raise NotImplementedError("Subclasses must implement the process_form_data method.")
 
-    def get_success_url(self):
-        """Redirect to the next step in the report creation process."""
-        return reverse_lazy('tutor:create_sessions_insight_step', kwargs={'child_id': self.child.id})
-    
-
-class SessionInsightStepView(TutorRequiredMixin, View):
-    template_name = 'tutor/reports/create_forms/sessions_insight.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        self.child = get_object_or_404(Child, id=self.kwargs.get('child_id'))
-        if self.child.tutor != self.request.user:
-            logger.warning(f"Unauthorized insight attempt by {request.user.email} for child {self.child.id}")
-            raise PermissionDenied("You can only add insights for your assigned students.")
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        form = SessionInsightForm()
-        return render(request, self.template_name, {'form': form, 'child': self.child})
-
-    def post(self, request, *args, **kwargs):
-        form = SessionInsightForm(request.POST)
-        if form.is_valid():
-            try:
-                cleaned = form.cleaned_data
-                request.session[REPORT_KEY] = self._prepare_report_data(cleaned)
-                request.session.modified = True
-
-                logger.info(f"Session insight saved to session by {request.user.email} for child {self.child.id}")
-                logger.debug(f"Report data - {request.session[REPORT_KEY]}")
-                messages.success(request, f"Session insights for {self.child.get_full_name()} saved successfully.")
-                return redirect(self.get_success_url())
-            except Exception as e:
-                logger.error(f"Error processing insights for {request.user.email}: {str(e)}", exc_info=True)
-                messages.error(request, "An error occurred while saving the session insights. Please try again.")
-        else:
-            self._handle_form_errors(form)
-
-        return render(request, self.template_name, {'form': form, 'child': self.child})
-
-    def _prepare_report_data(self, cleaned_data):
-        # Stores plain text in the session, no PK conversions.
-        return {
-            'strengths': cleaned_data['strengths'],
-            'weaknesses': cleaned_data['weaknesses'],
-            'goals_achieved': cleaned_data['goals_achieved'],
-            'learning_material_prepared': cleaned_data['learning_material_prepared'],
-            'child_participation': cleaned_data['child_participation'],
-        }
-
-    def _handle_form_errors(self, form):
+    def handle_form_errors(self, form):
+        """Handle form errors and display messages."""
         for field, errors in form.errors.items():
             for error in errors:
                 if field == '__all__':
@@ -288,4 +220,54 @@ class SessionInsightStepView(TutorRequiredMixin, View):
                     messages.error(self.request, _(f"{label}: {error}"), extra_tags='alert-danger')
 
     def get_success_url(self):
-        return reverse_lazy('tutor:child_reports_dashboard', kwargs={'child_id': self.child.id})
+        """Redirect to the next step in the report creation process."""
+        return reverse_lazy(self.success_url_name, kwargs={'child_id': self.child.id})
+    
+REPORT_KEY = getattr(settings, 'REPORT_KEY', 'report_draft')
+
+class ReportSummaryStepView(BaseReportStepView):
+    template_name = 'tutor/reports/create_forms/summary.html'
+    form_class = ReportSummaryForm
+    success_url_name = 'tutor:create_sessions_insight_step'
+
+    def process_form_data(self, cleaned_data):
+        # Save the form data to the session
+        self.request.session[REPORT_KEY] = cleaned_data
+        self.request.session.modified = True
+
+class SessionInsightStepView(BaseReportStepView):
+    template_name = 'tutor/reports/create_forms/sessions_insight.html'
+    form_class = SessionInsightForm
+    success_url_name = 'tutor:create_quiz_assignment_step'
+
+    def process_form_data(self, cleaned_data):
+        # Update session data with session insights
+        report_data = self.request.session.get(REPORT_KEY, {})
+        report_data.update({
+            'strengths': cleaned_data['strengths'],
+            'weaknesses': cleaned_data['weaknesses'],
+            'goals_achieved': cleaned_data['goals_achieved'],
+            'learning_material_prepared': cleaned_data['learning_material_prepared'],
+            'child_participation': cleaned_data['child_participation'],
+        })
+        self.request.session[REPORT_KEY] = report_data
+        self.request.session.modified = True
+
+class QuizAssignmentInsightStepView(BaseReportStepView):
+    template_name = 'tutor/reports/create_forms/quiz_and_assignments.html'
+    form_class = QuizAssignmentForm
+    success_url_name = 'tutor:child_reports_dashboard'
+
+    def process_form_data(self, cleaned_data):
+        # Update session data with quiz and assignment insights
+        report_data = self.request.session.get(REPORT_KEY, {})
+        report_data.update({
+            'number_of_quizzes_prepared': cleaned_data['number_of_quizzes_prepared'],
+            'average_quiz_score': cleaned_data['average_quiz_score'],
+            'completion_percentage': cleaned_data['completion_percentage'],
+            'completion_notes': cleaned_data['completion_notes'],
+        })
+        self.request.session[REPORT_KEY] = report_data
+        self.request.session.modified = True
+
+        logger.debug(f"Report data - {self.request.session[REPORT_KEY]}")
