@@ -207,3 +207,6 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 # Media configuration
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Session key to store report data during submission
+REPORT_KEY = 'report_draft'
