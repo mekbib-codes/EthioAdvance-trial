@@ -222,7 +222,7 @@ class MockExamInsightStepView(BaseReportStepView):
 class ChallengesAndSolutionsStepView(BaseReportStepView):
     template_name = 'tutor/reports/create_forms/challenges_and_solutions.html'
     form_class = ChallengesAndSolutionsForm
-    success_url_name = 'tutor:child_reports_dashboard'  # assuming dashboard is next!
+    success_url_name = 'report:create'
 
     def process_form_data(self, cleaned_data):
         report_data = self.request.session.get(REPORT_KEY, {})
