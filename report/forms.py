@@ -55,3 +55,13 @@ class QuizAssignmentForm(forms.ModelForm):
     class Meta:
         model = Report
         fields = ['number_of_quizzes_prepared', 'average_quiz_score', 'completion_percentage', 'completion_notes']
+
+class MockExamForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = [
+            'number_of_mock_exams_prepared',
+            'mock_exam_result_overview',
+            'mock_exam_strengths',
+            'mock_exam_improvement_areas'
+        ]

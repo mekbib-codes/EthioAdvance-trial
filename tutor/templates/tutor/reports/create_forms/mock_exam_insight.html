@@ -8,66 +8,67 @@
 
 {% block form_content %}
     <div class="mb-10">
-        <h1 class="text-4xl font-bold">Quiz And Assignments</h1>
+        <h1 class="text-4xl font-bold">Mock Exams</h1>
     </div>
 
-    <form method="post" enctype="multipart/form-data" action="{% url 'tutor:create_quiz_assignment_step' child.id %}">
+    <form method="post" enctype="multipart/form-data" action="{% url 'tutor:create_mock_exam_step' child.id %}">
         {% csrf_token %}
 
         
         <div class="bg-gray-200 shadow-md rounded-lg p-5 mb-4 space-y-4">
-
-            <h2 class="text-2xl font-bold">Quizzes</h2>
             
             <div class="relative max-w-sm">
-                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_number_of_quizzes_prepared">
-                    Number of quizzes prepared
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_number_of_mock_exams_prepared">
+                    Number of mock exams prepared
                 </label>
             
-                <input id="id_number_of_quizzes_prepared" name="number_of_quizzes_prepared" type="number" required
+                <input id="id_number_of_mock_exams_prepared" name="number_of_mock_exams_prepared" type="number" required
                     class="form-input w-full py-2" min="1">
             </div>
 
-            <div class="relative max-w-sm">
-                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_average_quiz_score">
-                    Average quiz score (in %)
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_mock_exam_result_overview">
+                    Result Overview
                 </label>
-            
-                <input id="id_average_quiz_score" name="average_quiz_score" type="number" required
-                    class="form-input w-full py-2" min="1" max="100" placeholder="Type only the number">
-            </div>
-        
-        </div>
-
-        <div class="bg-gray-200 shadow-md rounded-lg p-5 mb-4 space-y-4">
-
-            <h2 class="text-2xl font-bold">Assignments</h2>
-    
-            <div class="relative max-w-sm">
-                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_completion_percentage">
-                    Completion Percentage
-                </label>
-            
-                <input id="id_completion_percentage" name="completion_percentage" type="number" required
-                    class="form-input w-full py-2" min="1" max="100">
+                <textarea 
+                    id="id_mock_exam_result_overview" 
+                    class="form-input w-full py-2 border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
+                    rows="5" 
+                    name="mock_exam_result_overview" 
+                    placeholder="A brief overview on results"
+                    required
+                ></textarea>
             </div>
 
             <div>
-                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_completion_notes">
-                    Completion notes
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_mock_exam_strengths">
+                    Mock Exam Strengths
                 </label>
                 <textarea 
-                    id="id_completion_notes" 
+                    id="id_mock_exam_strengths" 
                     class="form-input w-full py-2 border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
                     rows="5" 
-                    name="completion_notes" 
-                    placeholder="Provide nots on child's assignment completion"
+                    name="mock_exam_strengths" 
+                    placeholder="Strength areas on the exams"
+                    required
+                ></textarea>
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_mock_exam_improvement_areas">
+                    Improvement Areas
+                </label>
+                <textarea 
+                    id="id_mock_exam_improvement_areas" 
+                    class="form-input w-full py-2 border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
+                    rows="5" 
+                    name="mock_exam_improvement_areas" 
+                    placeholder="Imporovement areas or weaknesses based on exam result"
                     required
                 ></textarea>
             </div>
         
         </div>
-
             
         <div class="mt-6 space-y-3">
             <button class="btn w-full bg-linear-to-t from-blue-600 to-blue-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-sm hover:bg-[length:100%_150%] cursor-pointer">
@@ -76,8 +77,8 @@
         </div>
 
         <div class="mt-2 ">
-            <progress id="progress-bar" value="40" max="100" class="w-full h-2 border border-gray-700 rounded-lg overflow-hidden">Progress - 20%</progress>
-            <p class="text-sm text-gray-700 italic font-bold">Progress - 40%</p>
+            <progress id="progress-bar" value="60" max="100" class="w-full h-2 border border-gray-700 rounded-lg overflow-hidden">Progress - 20%</progress>
+            <p class="text-sm text-gray-700 italic font-bold">Progress - 60%</p>
         </div>
 
     </form>

@@ -18,7 +18,7 @@ from session.views import BaseSessionsDashboardView
 from session.models import Session
 from child.models import Child
 from report.views import BaseReportsDashboardView
-from report.forms import ReportSummaryForm, SessionInsightForm, QuizAssignmentForm
+from report.forms import ReportSummaryForm, SessionInsightForm, QuizAssignmentForm, MockExamForm
 
 import logging
 logger = logging.getLogger('app')
@@ -256,7 +256,7 @@ class SessionInsightStepView(BaseReportStepView):
 class QuizAssignmentInsightStepView(BaseReportStepView):
     template_name = 'tutor/reports/create_forms/quiz_and_assignments.html'
     form_class = QuizAssignmentForm
-    success_url_name = 'tutor:child_reports_dashboard'
+    success_url_name = 'tutor:create_mock_exam_step'
 
     def process_form_data(self, cleaned_data):
         # Update session data with quiz and assignment insights
@@ -266,6 +266,22 @@ class QuizAssignmentInsightStepView(BaseReportStepView):
             'average_quiz_score': cleaned_data['average_quiz_score'],
             'completion_percentage': cleaned_data['completion_percentage'],
             'completion_notes': cleaned_data['completion_notes'],
+        })
+        self.request.session[REPORT_KEY] = report_data
+        self.request.session.modified = True
+
+class MockExamInsightStepView(BaseReportStepView):
+    template_name = 'tutor/reports/create_forms/mock_exam_insight.html'
+    form_class = MockExamForm
+    success_url_name = 'tutor:child_reports_dashboard'
+
+    def process_form_data(self, cleaned_data):
+        report_data = self.request.session.get(REPORT_KEY, {})
+        report_data.update({
+            'number_of_mock_exams_prepared': cleaned_data['number_of_mock_exams_prepared'],
+            'mock_exam_result_overview': cleaned_data['mock_exam_result_overview'],
+            'mock_exam_strengths': cleaned_data['mock_exam_strengths'],
+            'mock_exam_improvement_areas': cleaned_data['mock_exam_improvement_areas'],
         })
         self.request.session[REPORT_KEY] = report_data
         self.request.session.modified = True

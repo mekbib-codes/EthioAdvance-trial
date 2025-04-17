@@ -7,7 +7,8 @@ from .views import ( TutorDashboardView,
                     TutorReportsDashboardView,
                     ReportSummaryStepView,
                     SessionInsightStepView,
-                    QuizAssignmentInsightStepView)
+                    QuizAssignmentInsightStepView,
+                    MockExamInsightStepView,)
 
 app_name = "tutor"
 
@@ -21,4 +22,5 @@ urlpatterns = [
     path('reports/create/<int:child_id>/step-1/', ReportSummaryStepView.as_view(), name='create_report_summary_step'),
     path('reports/create/<int:child_id>/step-2/', SessionInsightStepView.as_view(), name='create_sessions_insight_step'),
     path('report/create/<int:child_id>/step-3/', QuizAssignmentInsightStepView.as_view(), name='create_quiz_assignment_step'),
+    path('report/create/<int:child_id>/step-4/', MockExamInsightStepView.as_view(), name='create_mock_exam_step'),
 ]
