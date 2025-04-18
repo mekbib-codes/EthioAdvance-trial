@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'session.apps.SessionConfig',
     'report.apps.ReportConfig',
     'payment.apps.PaymentConfig',
+    'django.contrib.humanize',
 ]
 
 SITE_ID = 1  # Usually 1 for the default site

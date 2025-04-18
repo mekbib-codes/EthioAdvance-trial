@@ -9,10 +9,11 @@ from accounts.views.base_registration import BaseRegistrationView
 from accounts.models import User
 from .forms import ParentRegistrationForm
 from session.models import Session
-from child.views import BaseChildrenDashboardView
+from child.views import BaseChildrenDashboardView, PaymentDashboardView
 from session.views import BaseSessionsDashboardView
 from report.views import BaseReportsDashboardView
 from report.models import Report
+from payment.models import Payment
 
 import logging
 logger = logging.getLogger('app')
@@ -31,14 +32,13 @@ class ParentDashboardView(ParentRequiredMixin, TemplateView):
             })
             
             logger.info(
-                f"Parent dashboard accessed by {parent.email} "
-                f"(ID: {parent.pk})"
+                f"Parent dashboard accessed by {parent.get_full_name()} "
             )
             return context
             
         except Exception as e:
             logger.error(
-                f"Parent dashboard error for {self.request.user.email}: {str(e)}",
+                f"Parent dashboard error for {parent.get_full_name()}: {str(e)}",
                 exc_info=True
             )
             raise PermissionDenied("Error loading dashboard")
@@ -125,3 +125,30 @@ class AddReportFeedbackView(ParentRequiredMixin, View):
 
         # Render only the updated feedback block to be replaced dynamically
         return render(request, "parent/reports/parent_feedback_block.html", {"report": report})
+    
+class ParentPaymentDashboardView(ParentRequiredMixin, PaymentDashboardView):
+    template_name = 'parent/payment/dashboard.html'
+    paginate_by = 2
+
+    def get_queryset(self):
+        parent = self.request.user
+        children = parent.children.all()
+
+        return children
+    
+    def get_context_data(self, **kwargs):
+        """
+        Add additional context data for the payment dashboard.
+        """
+        context = super().get_context_data(**kwargs)
+        parent = self.request.user
+        children = parent.children.all()
+
+        context.update({
+            'parent': parent,
+            'children': children,
+            'active_section': 'payment',
+        })
+
+        logger.info(f"Parent Payment dashboard accessed by {parent.get_full_name()}")
+        return context
