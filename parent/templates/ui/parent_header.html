@@ -9,7 +9,7 @@
 
 {% block mobile_nav %}
   <a href="{% url 'parent:dashboard' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Dashboard</a>
-  <a href="{% url 'parent:payment_dashboard' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">My children</a>
-  <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Payment</a>
+  <a href="{% url 'parent:children_dashboard' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">My children</a>
+  <a href="{% url 'parent:payment_dashboard' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Payment</a>
   <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Profile</a>
 {% endblock %}

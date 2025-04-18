@@ -9,7 +9,9 @@ from .views import ( TutorDashboardView,
                     SessionInsightStepView,
                     QuizAssignmentInsightStepView,
                     MockExamInsightStepView,
-                    ChallengesAndSolutionsStepView,)
+                    ChallengesAndSolutionsStepView,
+                    TutorPaymentDashboardView,
+                    TutorRequestPaymentView,)
 
 app_name = "tutor"
 
@@ -25,4 +27,6 @@ urlpatterns = [
     path('report/create/<int:child_id>/step-3/', QuizAssignmentInsightStepView.as_view(), name='create_quiz_assignment_step'),
     path('report/create/<int:child_id>/step-4/', MockExamInsightStepView.as_view(), name='create_mock_exam_step'),
     path('report/create/<int:child_id>/step-5/', ChallengesAndSolutionsStepView.as_view(), name='create_challenges_and_solutions_step'),
+    path('payment/dashboard/', TutorPaymentDashboardView.as_view(), name='payment_dashboard'),
+    path('payment/request/<int:child_id>/', TutorRequestPaymentView.as_view(), name='tutor_request_payment'),
 ]

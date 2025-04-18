@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load tutor_tags %}
+
+{% block title %}
+    Payment
+{% endblock %}
+
+{% block header %}
+    {% include "ui/tutor_header.html" %}
+{% endblock %}
+
+{% block content %}
+
+    <section class="mx-auto max-w-4xl relative pt-24 md:pt-32 bg-white p-6 rounded-lg shadow-md space-y-6">
+        {% include "components/hero/stripes.html" %}
+        
+        {% tutor_general_info %}
+        
+        {% if children %}
+            <div class="mx-auto max-w-4xl grid gap-5 grid-cols-1 md:grid-cols-2 p-5">
+                {% for child in children %}
+                    {% include 'payments/payment_card.html' %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white shadow-md rounded-lg p-5 mb-4 space-y-4">
+                <h2 class="text-2xl font-bold">No Children Found</h2>
+                <p class="text-gray-600">You have assigned children, please wait patiently while we match you.</p>
+            </div>
+        {% endif %}
+
+        {% if is_paginated %}
+            {% include 'child/components/pagination.html' %}
+        {% endif %}
+    </section>
+
+{% endblock %}

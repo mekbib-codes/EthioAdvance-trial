@@ -66,7 +66,6 @@ class BaseChildrenDashboardView(ListView):
     model = Child
     template_name = None  # Override in subclass
     context_object_name = 'children'
-    paginate_by = 2
 
     def get_queryset(self):
         # Subquery to get the latest session ID for each child

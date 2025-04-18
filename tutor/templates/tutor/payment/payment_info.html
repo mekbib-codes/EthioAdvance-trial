@@ -1,6 +1,5 @@
 {% load humanize %}
 
-
 <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 mt-4">
     <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-purple-500" viewBox="0 0 20 20" fill="currentColor">
@@ -19,8 +18,8 @@
                 </svg>
             </div>
             <div>
-                <p class="text-xs font-medium text-purple-800/80">TOTAL DUE</p>
-                <p class="text-lg font-bold text-gray-900">{{ total_due|intcomma }} ETB</p>
+                <p class="text-xs font-medium text-purple-800/80">Avaliable</p>
+                <p class="text-lg font-bold text-gray-900">{{ payout|intcomma }} ETB</p>
             </div>
         </div>
 
@@ -31,8 +30,8 @@
                 </svg>
             </div>
             <div>
-                <p class="text-xs font-medium text-emerald-800/80">TOTAL PAID</p>
-                <p class="text-lg font-bold text-gray-900">{{ total_paid|intcomma }} ETB</p>
+                <p class="text-xs font-medium text-emerald-800/80">TOTAL Earned</p>
+                <p class="text-lg font-bold text-gray-900">{{ total_earned|intcomma }} ETB</p>
             </div>
         </div>
 
@@ -55,17 +54,40 @@
             </div>
         </div>
 
+        <!-- Requested Amount -->
+        {% if pending_payment %}
+        <div class="bg-yellow-50/50 p-3 rounded-lg border border-yellow-100 flex items-start">
+            <div class="bg-yellow-100 text-yellow-800 p-2 rounded-lg mr-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 6a1 1 0 011-1h12a1 1 0 011 1v8a1 1 0 01-1 1H4a1 1 0 01-1-1V9z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-xs font-medium text-yellow-800/80">Requested Amount</p>
+                <p class="text-lg font-bold text-gray-900">{{ requested_amount|intcomma }} ETB</p>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Pay Now Button (Conditional) -->
-        {% if unpaid_sessions and unpaid_sessions.count > 0 %}
+        {% if payout and payout >= 1000 and not pending_payment %}
             <div class="pt-2">
-                <form action="{% url 'payment:initialize' child.id %}" method="POST" class="w-full">
+                <form action="{% url 'tutor:tutor_request_payment' child.id %}" method="POST" class="w-full">
                     {% csrf_token %}
+                    <!-- Hidden field for payout -->
+                    <input type="hidden" name="amount" value="{{ payout }}">
+                    
+                    <!-- Hidden field for unpaid sessions -->
+                    {% for session in unpaid_sessions %}
+                        <input type="hidden" name="sessions" value="{{ session.id }}">
+                    {% endfor %}
+
                     <button type="submit" class="w-full cursor-pointer flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd" />
                         </svg>
-                        Pay Now ({{ total_due }} ETB)
+                        Request Payment
                     </button>
                 </form>
             </div>

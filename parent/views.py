@@ -3,6 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.views.generic.edit import View
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
+from django.db.models import Count, Sum, Q
 
 from accounts.mixins import ParentRequiredMixin
 from accounts.views.base_registration import BaseRegistrationView
@@ -13,7 +14,7 @@ from child.views import BaseChildrenDashboardView, PaymentDashboardView
 from session.views import BaseSessionsDashboardView
 from report.views import BaseReportsDashboardView
 from report.models import Report
-from payment.models import Payment
+from payment.models import SessionRate
 
 import logging
 logger = logging.getLogger('app')
@@ -56,6 +57,7 @@ class ParentRegistrationView(BaseRegistrationView):
 
 class ChildrenDashboardView(ParentRequiredMixin, BaseChildrenDashboardView):
     template_name = 'parent/children/dashboard.html'  # Parent-specific template
+    paginate_by = 6
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -128,12 +130,13 @@ class AddReportFeedbackView(ParentRequiredMixin, View):
     
 class ParentPaymentDashboardView(ParentRequiredMixin, PaymentDashboardView):
     template_name = 'parent/payment/dashboard.html'
-    paginate_by = 2
+    paginate_by = 6
 
     def get_queryset(self):
         parent = self.request.user
+        # Annotate children with total_due and unpaid_sessions
         children = parent.children.all()
-
+        
         return children
     
     def get_context_data(self, **kwargs):
@@ -142,7 +145,7 @@ class ParentPaymentDashboardView(ParentRequiredMixin, PaymentDashboardView):
         """
         context = super().get_context_data(**kwargs)
         parent = self.request.user
-        children = parent.children.all()
+        children = self.get_queryset()
 
         context.update({
             'parent': parent,
