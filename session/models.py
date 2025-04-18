@@ -27,6 +27,8 @@ class Session(models.Model):
     # The field below is used to indicate whether the session has been paid for or not.
     
     is_paid = models.BooleanField(default=False)
+    paid_to_tutor = models.BooleanField(default=False)
+    overdue = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-created_at']

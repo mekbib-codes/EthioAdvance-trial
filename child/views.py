@@ -66,7 +66,6 @@ class BaseChildrenDashboardView(ListView):
     model = Child
     template_name = None  # Override in subclass
     context_object_name = 'children'
-    paginate_by = 2
 
     def get_queryset(self):
         # Subquery to get the latest session ID for each child
@@ -124,3 +123,28 @@ class AddReportFeedbackView(ParentRequiredMixin, View):
 
         # Render only the updated feedback block to be replaced dynamically
         return render(request, "child/reports/child_feedback_block.html", {"report": report})
+
+from django.views.generic import ListView
+from child.models import Child
+from payment.models import Payment
+
+import logging
+logger = logging.getLogger('app')
+
+class PaymentDashboardView(ListView):
+    model = Child  # Paginate by Child
+    template_name = None
+    context_object_name = 'children'
+    
+    def get_context_data(self, **kwargs):
+        """
+        Add additional context data for the payment dashboard.
+        """
+        context = super().get_context_data(**kwargs)
+
+        context.update({
+            'active_section': 'payment',
+        })
+
+        logger.info(f"Payment dashboard accessed by {self.request.user.get_full_name()}")
+        return context

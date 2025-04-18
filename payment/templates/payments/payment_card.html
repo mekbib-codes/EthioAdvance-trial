@@ -1,0 +1,32 @@
+{% load child_tags %}
+{% load tutor_tags %}
+<div class="bg-white rounded-2xl shadow p-6 flex flex-col justify-between h-full">
+    <!-- Child Name -->
+    <h1 class="text-2xl text-blue-500 font-bold mb-2">{{ child.get_full_name }}</h1>
+
+    <!-- Role-Specific Information -->
+    {% if request.user.role == 'PARENT' %}
+        {% if child.tutor %}
+            <h2 class="text-gray-700 font-bold text-xl mb-2">Tutor: {{ child.tutor.get_full_name }}</h2>
+        {% else %}
+            <p class="text-gray-500 italic mb-2">No tutor assigned yet</p>
+        {% endif %}
+    {% elif request.user.role == 'TUTOR' %}
+        <h2 class="text-gray-700 font-bold text-xl mb-2">Parent: {{ child.parent.get_full_name }}</h2>
+    {% endif %}
+
+    <!-- Sessions And Payment Info -->
+    {% if child.sessions %}
+        {% child_session_info child %}
+        {% if request.user.role == 'PARENT' %}
+            {% child_payment_info child %}
+        {% elif request.user.role == 'TUTOR' %}
+            {% tutor_payment_info child %}
+        {% endif %}
+    {% else %}
+        <div class="bg-gray-100 p-4 rounded-lg shadow text-center">
+            <p class="text-gray-500">No sessions recorded yet.</p>
+        </div>
+    {% endif %}
+    
+</div>

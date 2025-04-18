@@ -1,6 +1,7 @@
 from django import template
 from django.db.models import Count, Q
 from session.models import Session
+from payment.utils import calculate_total_payment
 
 register = template.Library()
 
@@ -33,4 +34,16 @@ def parent_general_info(context):
         'pending_sessions': totals['pending_sessions'],
         'approved_sessions': totals['approved_sessions'],
         'rejected_sessions': totals['rejected_sessions'],
+    }
+
+@register.inclusion_tag('parent/payment/pay_now_button.html', takes_context=True)
+def pay_now_button(context, child):
+
+    # Calculate total payment due using the utility function
+    total_due, unpaid_sessions = calculate_total_payment(child)
+
+    return {
+        'child': child,
+        'total_due': total_due,
+        'unpaid_sessions': unpaid_sessions,
     }

@@ -2,7 +2,8 @@ from django.views.generic import TemplateView
 from django.core.exceptions import PermissionDenied
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
-from django.shortcuts import get_object_or_404
+from django.views import View
+from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.utils.translation import gettext as _
 from django.conf import settings
@@ -11,14 +12,17 @@ from accounts.mixins import CompanyRequiredMixin, TutorRequiredMixin
 from accounts.views.base_registration import BaseRegistrationView
 from accounts.models import User
 from .forms import TutorRegistrationForm, SessionCreationForm
-from child.views import BaseChildrenDashboardView
+from child.views import BaseChildrenDashboardView, PaymentDashboardView
 from session.views import BaseSessionsDashboardView
 from session.models import Session
 from child.models import Child
 from report.views import BaseReportsDashboardView, BaseReportStepView
 from report.forms import ReportSummaryForm, SessionInsightForm, QuizAssignmentForm, MockExamForm, ChallengesAndSolutionsForm
+from payment.models import TutorPayments
 
 import logging
+from uuid import uuid4
+
 logger = logging.getLogger('app')
 
 class TutorDashboardView(TutorRequiredMixin, TemplateView):
@@ -232,3 +236,75 @@ class ChallengesAndSolutionsStepView(BaseReportStepView):
         })
         self.request.session[REPORT_KEY] = report_data
         self.request.session.modified = True
+
+class TutorPaymentDashboardView(TutorRequiredMixin, PaymentDashboardView):
+    template_name = 'tutor/payment/dashboard.html'
+    paginate_by = 6
+
+    def get_queryset(self):
+        tutor = self.request.user
+        children = tutor.students.all()
+
+        return children
+    
+    def get_context_data(self, **kwargs):
+        """
+        Add additional context data for the payment dashboard.
+        """
+        context = super().get_context_data(**kwargs)
+        tutor = self.request.user
+        children = tutor.students.all()
+
+        context.update({
+            'tutor': tutor,
+            'children': children,
+            'active_section': 'payment',
+        })
+
+        logger.info(f"Tutor Payment dashboard accessed by {tutor.get_full_name()}")
+        return context
+    
+class TutorRequestPaymentView(View):
+    """
+    A view that allows tutors to request a payment.
+    """
+    def post(self, request, child_id, *args, **kwargs):
+        try:
+            # Fetch the child object and ensure it is assigned to the tutor
+            child = get_object_or_404(Child, id=child_id, tutor=request.user)
+
+            # Get the amount and session IDs from the request
+            amount = request.POST.get('amount')
+            session_ids = request.POST.getlist('sessions')
+
+            # Validate the amount
+            if not amount or float(amount) <= 0:
+                messages.error(request, _("Invalid amount specified."))
+                return redirect(reverse_lazy('tutor:payment_dashboard'))
+
+            # Fetch the sessions
+            sessions = Session.objects.filter(id__in=session_ids, child=child, tutor=request.user)
+
+            if not sessions.exists():
+                messages.error(request, _("No valid sessions found for this payment request."))
+                return redirect(reverse_lazy('tutor:payment_dashboard'))
+
+            # Create the TutorPayments record
+            payment = TutorPayments.objects.create(
+                tx_ref=str(uuid4()),  # Generate a unique transaction reference
+                child=child,
+                tutor=request.user,
+                amount=amount,
+                status=TutorPayments.STATUS.PENDING,  # Set status to pending
+            )
+            payment.sessions.set(sessions)  # Link the sessions to the payment
+
+            # Add a success message and redirect
+            messages.success(request, _("Payment request submitted successfully."))
+            return redirect(reverse_lazy('tutor:payment_dashboard'))  # Redirect to a success page
+
+        except Exception as e:
+            # Log the error and show an error message
+            logger.error(f"Error creating payment request: {str(e)}", exc_info=True)
+            messages.error(request, _("An error occurred while processing your payment request. Please try again."))
+            return redirect(reverse_lazy('tutor:payment_dashboard'))  # Redirect back to the dashboard

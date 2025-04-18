@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-x#4kcq!oj1ta@e5ip5(=)-0phg=ci!g2((ane*ibeyf*iwjs#k
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.2', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'tutor.apps.TutorConfig',
     'session.apps.SessionConfig',
     'report.apps.ReportConfig',
+    'payment.apps.PaymentConfig',
+    'django.contrib.humanize',
 ]
 
 SITE_ID = 1  # Usually 1 for the default site
@@ -192,9 +194,9 @@ EMAIL_USE_TLS = bool(CREDENTIALS.get('EMAIL_USE_TLS'))
 DEFAULT_FROM_EMAIL = CREDENTIALS.get('DEFAULT_FROM_EMAIL')
 
 # OTP Configuration
-OTP_LENGTH = int(CREDENTIALS.get('OTP_LENGTH'))
-OTP_EXPIRY_MINUTES = int(CREDENTIALS.get('OTP_EXPIRY_MINUTES'))
-OTP_RESEND_TIMEOUT = int(CREDENTIALS.get('OTP_RESEND_TIMEOUT'))
+OTP_LENGTH = 6  # Length of OTP code
+OTP_EXPIRY_MINUTES = 15  # OTP validity in minutes
+OTP_RESEND_TIMEOUT = 1  # Minutes before allowing OTP resend
 
 # settings.py
 # Minimum required for your OTP flow:
@@ -210,3 +212,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Session key to store report data during submission
 REPORT_KEY = 'report_draft'
+
+# Chapa Configurations
+CHAPA_BASE_URL = CREDENTIALS.get('CHAPA_BASE_URL')
+CHAPA_PUBLIC_KEY = CREDENTIALS.get('CHAPA_PUBLIC_KEY')
+CHAPA_SECRET_KEY = CREDENTIALS.get('CHAPA_SECRET_KEY')
+CHAPA_ENCRYPTION_KEY = CREDENTIALS.get('CHAPA_ENCRYPTION_KEY')
+CALL_BACK_URL = CREDENTIALS.get('CALL_BACK_URL')
+SUCCESS_URL = CREDENTIALS.get('SUCCESS_URL')

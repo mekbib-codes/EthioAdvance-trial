@@ -21,7 +21,7 @@ class TutorProfileInline(admin.StackedInline):
 
 @admin.register(Tutor)
 class TutorAdmin(admin.ModelAdmin):
-    list_display = ('email', 'get_full_name', 'phone_number', 'date_of_birth')
+    list_display = ('id', 'email', 'get_full_name', 'phone_number', 'date_of_birth')
     search_fields = ('email', 'first_name', 'last_name')
     list_filter = ('gender',)
     inlines = [TutorProfileInline]

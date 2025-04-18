@@ -3,16 +3,18 @@ from django.core.exceptions import PermissionDenied
 from django.views.generic.edit import View
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
+from django.db.models import Count, Sum, Q
 
 from accounts.mixins import ParentRequiredMixin
 from accounts.views.base_registration import BaseRegistrationView
 from accounts.models import User
 from .forms import ParentRegistrationForm
 from session.models import Session
-from child.views import BaseChildrenDashboardView
+from child.views import BaseChildrenDashboardView, PaymentDashboardView
 from session.views import BaseSessionsDashboardView
 from report.views import BaseReportsDashboardView
 from report.models import Report
+from payment.models import SessionRate
 
 import logging
 logger = logging.getLogger('app')
@@ -31,14 +33,13 @@ class ParentDashboardView(ParentRequiredMixin, TemplateView):
             })
             
             logger.info(
-                f"Parent dashboard accessed by {parent.email} "
-                f"(ID: {parent.pk})"
+                f"Parent dashboard accessed by {parent.get_full_name()} "
             )
             return context
             
         except Exception as e:
             logger.error(
-                f"Parent dashboard error for {self.request.user.email}: {str(e)}",
+                f"Parent dashboard error for {parent.get_full_name()}: {str(e)}",
                 exc_info=True
             )
             raise PermissionDenied("Error loading dashboard")
@@ -56,6 +57,7 @@ class ParentRegistrationView(BaseRegistrationView):
 
 class ChildrenDashboardView(ParentRequiredMixin, BaseChildrenDashboardView):
     template_name = 'parent/children/dashboard.html'  # Parent-specific template
+    paginate_by = 6
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -125,3 +127,31 @@ class AddReportFeedbackView(ParentRequiredMixin, View):
 
         # Render only the updated feedback block to be replaced dynamically
         return render(request, "parent/reports/parent_feedback_block.html", {"report": report})
+    
+class ParentPaymentDashboardView(ParentRequiredMixin, PaymentDashboardView):
+    template_name = 'parent/payment/dashboard.html'
+    paginate_by = 6
+
+    def get_queryset(self):
+        parent = self.request.user
+        # Annotate children with total_due and unpaid_sessions
+        children = parent.children.all()
+        
+        return children
+    
+    def get_context_data(self, **kwargs):
+        """
+        Add additional context data for the payment dashboard.
+        """
+        context = super().get_context_data(**kwargs)
+        parent = self.request.user
+        children = self.get_queryset()
+
+        context.update({
+            'parent': parent,
+            'children': children,
+            'active_section': 'payment',
+        })
+
+        logger.info(f"Parent Payment dashboard accessed by {parent.get_full_name()}")
+        return context
