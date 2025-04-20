@@ -1,10 +1,11 @@
 from django.db import models
+from django.contrib.auth.models import BaseUserManager
 from accounts.models import User
 
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-class CompanyManager(models.Manager):
+class CompanyManager(BaseUserManager):
     def get_queryset(self):
         return super().get_queryset().filter(role=User.Role.COMPANY)
     

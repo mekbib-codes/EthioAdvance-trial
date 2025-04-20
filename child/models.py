@@ -43,6 +43,8 @@ class Child(models.Model):
     school = models.CharField(max_length=100)
     special_needs = models.TextField(blank=True)
     academic_interests = models.TextField(blank=True)
+
+    avatar = models.ImageField(upload_to="child/profile/avatar/", null=True, blank=True)
     
     # Additional fields
     is_active = models.BooleanField(default=True)

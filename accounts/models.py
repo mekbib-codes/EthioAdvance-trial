@@ -1,9 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
-from django.utils.text import slugify
 from django.utils import timezone
-from django.core.exceptions import ValidationError
 from django.conf import settings
 
 from datetime import timedelta
@@ -59,16 +57,17 @@ class User(AbstractUser):
     # Personal Info
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    date_of_birth = models.DateField(
+    date_of_birth = models.DateField(blank=True, null=True,
         validators=[
             MaxValueValidator(limit_value=timezone.now().date()),
-            MinValueValidator(limit_value=timezone.now().date() - timedelta(days=150*365))  # ~150 years max age
+            MinValueValidator(limit_value=timezone.now().date() - timedelta(days=150*365)), # ~150 years max age
         ]
     )
     gender = models.CharField(
         max_length=20, 
         choices=Gender.choices,
         blank=True,
+        null=True
     )
 
     # Contact Info

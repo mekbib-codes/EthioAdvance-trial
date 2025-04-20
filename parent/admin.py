@@ -21,7 +21,7 @@ class ParentProfileInline(admin.StackedInline):
 
 @admin.register(Parent)
 class ParentAdmin(admin.ModelAdmin):
-    list_display = ('email', 'get_full_name', 'date_of_birth', 'phone_number')
+    list_display = ('email', 'get_full_name', 'date_of_birth', 'phone_number', 'profile')
     search_fields = ('email', 'first_name', 'last_name')
     list_filter = ('gender', 'date_of_birth')
     inlines = [ParentProfileInline]

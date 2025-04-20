@@ -1,20 +1,22 @@
 from django.views.generic import TemplateView
 from django.core.exceptions import PermissionDenied
-from django.views.generic.edit import View
+from django.views.generic.edit import View, UpdateView
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
-from django.db.models import Count, Sum, Q
+from django.db.models import Count, Q
+from django.urls import reverse_lazy
+from django.contrib import messages
 
 from accounts.mixins import ParentRequiredMixin
 from accounts.views.base_registration import BaseRegistrationView
 from accounts.models import User
-from .forms import ParentRegistrationForm
+from parent.models import ParentProfile, Parent
+from .forms import ParentRegistrationForm, ParentProfileUpdateForm
 from session.models import Session
 from child.views import BaseChildrenDashboardView, PaymentDashboardView
 from session.views import BaseSessionsDashboardView
 from report.views import BaseReportsDashboardView
 from report.models import Report
-from payment.models import SessionRate
 
 import logging
 logger = logging.getLogger('app')
@@ -25,7 +27,7 @@ class ParentDashboardView(ParentRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            parent = self.request.user
+            parent = Parent.objects.get(id=self.request.user.id)
 
             context.update({
                 'parent': parent,
@@ -55,13 +57,90 @@ class ParentRegistrationView(BaseRegistrationView):
         kwargs['role'] = self.role  # Explicitly pass the role
         return kwargs
 
+class ParentProfileDashboardView(ParentRequiredMixin, TemplateView):
+    template_name = "parent/profile/dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        parent = Parent.objects.select_related("parent_profile").get(id=self.request.user.id)
+
+        # Fetch the parent's profile
+        profile = getattr(parent, "parent_profile", None)
+
+        # Fetch all children associated with the parent and annotate session counts
+        children = parent.children.prefetch_related(
+            "sessions",  # Prefetch sessions for each child
+        ).annotate(
+            total_sessions=Count("sessions"),
+        )
+
+        # Fetch all sessions associated with the parent's children
+        sessions = Session.objects.filter(child__in=children).select_related("child")
+
+        # Fetch all payments made by the parent
+        payments = parent.payments.select_related("child")
+
+        # Aggregate session counts
+        session_counts = sessions.aggregate(
+            total_sessions=Count("id"),
+            pending_sessions=Count("id", filter=Q(status=Session.Status.PENDING)),
+            approved_sessions=Count("id", filter=Q(status=Session.Status.APPROVED)),
+            rejected_sessions=Count("id", filter=Q(status=Session.Status.REJECTED)),
+        )
+
+        context.update({
+            "parent": parent,
+            "profile": profile,
+            "children": children,
+            "sessions": sessions,
+            "payments": payments,
+            "session_counts": session_counts,
+            "active_section": "profile",
+        })
+
+        return context
+
+class ParentProfileUpdateView(ParentRequiredMixin, UpdateView):
+    model = ParentProfile
+    form_class = ParentProfileUpdateForm
+    template_name = "parent/profile/update.html"
+    success_url = reverse_lazy("parent:profile_dashboard")  # Redirect to the profile dashboard after update
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['parent'] = self.request.user  # Pass the parent instance to the form
+        return kwargs
+
+    def get_object(self, queryset=None):
+        # Ensure the logged-in user can only update their own profile
+        return ParentProfile.objects.get(user=self.request.user)
+
+    def form_valid(self, form):
+        try:
+            # Save the form and add a success message
+            response = super().form_valid(form)
+            messages.success(self.request, "Your profile has been updated successfully.")
+            logger.info(f"Profile updated successfully for parent: {self.request.user.get_full_name()} (ID: {self.request.user.id})")
+            return response
+        except Exception as e:
+            # Log any unexpected errors
+            logger.error(f"Error updating profile for parent: {self.request.user.get_full_name()} (ID: {self.request.user.id}): {str(e)}", exc_info=True)
+            messages.error(self.request, "An unexpected error occurred while updating your profile. Please try again later.")
+            return self.form_invalid(form)
+
+    def form_invalid(self, form):
+        # Add an error message if the form is invalid
+        messages.error(self.request, "There was an error updating your profile. Please check the form and try again.")
+        logger.warning(f"Profile update failed for parent: {self.request.user.get_full_name()} (ID: {self.request.user.id}). Validation errors: {form.errors}")
+        return super().form_invalid(form)
+    
 class ChildrenDashboardView(ParentRequiredMixin, BaseChildrenDashboardView):
     template_name = 'parent/children/dashboard.html'  # Parent-specific template
     paginate_by = 6
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        return queryset.filter(parent=self.request.user)
+        return queryset.filter(parent = Parent.objects.get(id=self.request.user.id))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -133,7 +212,7 @@ class ParentPaymentDashboardView(ParentRequiredMixin, PaymentDashboardView):
     paginate_by = 6
 
     def get_queryset(self):
-        parent = self.request.user
+        parent = Parent.objects.get(id=self.request.user.id)
         # Annotate children with total_due and unpaid_sessions
         children = parent.children.all()
         

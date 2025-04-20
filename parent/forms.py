@@ -12,15 +12,6 @@ from accounts.models import User
 logger = logging.getLogger('app')
 
 class ParentRegistrationForm(BaseRegistrationForm):
-    # Profile fields (all optional except company)
-    occupation = forms.CharField(required=False, max_length=100)
-    address = forms.CharField(required=False, widget=forms.Textarea)
-    emergency_contact = forms.CharField(required=False, max_length=20)
-    preferred_communication = forms.ChoiceField(
-        choices=ParentProfile._meta.get_field('preferred_communication').choices,
-        initial='EMAIL',
-        required=False
-    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -48,10 +39,6 @@ class ParentRegistrationForm(BaseRegistrationForm):
             profile_data = {
                 'user': user,
                 'company': self.company,
-                'occupation': self.cleaned_data.get('occupation'),
-                'address': self.cleaned_data.get('address'),
-                'emergency_contact': self.cleaned_data.get('emergency_contact'),
-                'preferred_communication': self.cleaned_data.get('preferred_communication', 'EMAIL'),
         }
 
             try:
@@ -62,3 +49,55 @@ class ParentRegistrationForm(BaseRegistrationForm):
                 raise ValidationError(_("Failed to create parent profile"))
 
             return user
+
+class ParentProfileUpdateForm(forms.ModelForm):
+    # Fields from the Parent (proxy for User) model
+    first_name = forms.CharField(max_length=255, required=True, label="First Name")
+    last_name = forms.CharField(max_length=255, required=True, label="Last Name")
+    date_of_birth = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        label="Date of Birth"
+    )
+    gender = forms.ChoiceField(
+        choices=User.Gender.choices,
+        required=False,
+        label="Gender"
+    )
+    phone_number = forms.CharField(max_length=15, required=False, label="Phone Number")
+
+    class Meta:
+        model = ParentProfile
+        fields = [
+            'avatar', 'occupation', 'address', 'emergency_contact', 'preferred_communication'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        parent = kwargs.pop('parent', None)  # Pass the parent instance explicitly
+        super().__init__(*args, **kwargs)
+
+        # Prepopulate fields from the Parent (proxy for User) model
+        if parent:
+            self.fields['first_name'].initial = parent.first_name
+            self.fields['last_name'].initial = parent.last_name
+            self.fields['date_of_birth'].initial = parent.date_of_birth
+            self.fields['gender'].initial = parent.gender
+            self.fields['phone_number'].initial = parent.phone_number
+
+    def save(self, commit=True):
+        # Save ParentProfile fields
+        profile = super().save(commit=False)
+
+        # Save Parent (proxy for User) fields
+        parent = self.instance.user
+        parent.first_name = self.cleaned_data['first_name']
+        parent.last_name = self.cleaned_data['last_name']
+        parent.date_of_birth = self.cleaned_data['date_of_birth']
+        parent.gender = self.cleaned_data['gender']
+        parent.phone_number = self.cleaned_data['phone_number']
+
+        if commit:
+            parent.save()  # Save Parent (proxy for User) model
+            profile.save()  # Save ParentProfile model
+
+        return profile
