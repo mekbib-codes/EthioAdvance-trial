@@ -20,7 +20,7 @@
     </a>
   </li>
 
-  <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "profile" %}id="selected"{% endif %}>Profile</a></li>
+  {% if request.user.role == 'PARENT' %}<li><a href="{% url 'child:profile_dashboard' child.id %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "profile" %}id="selected"{% endif %}>Profile</a></li>{% endif %}
   <li>
     {% if request.user.role == 'PARENT' %}<a href="{% url 'parent:dashboard'%}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "dashboard" %}id="selected"{% endif %}>Parent Dashboard</a>
     {% elif request.user.role == 'TUTOR' %}<a href="{% url 'tutor:dashboard'%}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "dashboard" %}id="selected"{% endif %}>Tutor Dashboard</a>
@@ -35,7 +35,7 @@
   <a {% if request.user.role == 'PARENT' %}href="{% url 'parent:child_reports_dashboard' child.id %}"
   {% elif request.user.role == 'TUTOR' %}href="{% url 'tutor:child_reports_dashboard' child.id %}"{% endif %} 
   class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Reports</a>
-  <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Profile</a>
+  {% if request.user.role == 'PARENT' %}<a href="{% url 'child:profile_dashboard' child.id %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Profile</a>{% endif %}
     {% if request.user.role == 'PARENT' %}<a href="{% url 'parent:dashboard'%}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100" {% if active_section == "dashboard" %}id="selected"{% endif %}>Parent Dashboard</a>
     {% elif request.user.role == 'TUTOR' %}<a href="{% url 'tutor:dashboard'%}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100" {% if active_section == "dashboard" %}id="selected"{% endif %}>Tutor Dashboard</a>
     {% endif %}

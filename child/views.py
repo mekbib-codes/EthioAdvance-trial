@@ -1,13 +1,15 @@
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, TemplateView
 from django.db.models import OuterRef, Subquery, Prefetch
 from django.shortcuts import get_object_or_404, render
-from django.views.generic import CreateView
+from django.views.generic import CreateView, UpdateView
 from django.views.generic.edit import View
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils.translation import gettext as _
+from django.db.models import Count, Q
 
 from .models import Child
+from parent.models import Parent
 from .forms import ChildRegistrationForm
 from accounts.mixins import ParentorTutorRequiredMixin, ParentRequiredMixin
 from session.models import Session
@@ -94,13 +96,12 @@ class BaseChildrenDashboardView(ListView):
         context = super().get_context_data(**kwargs)
         context['active_section'] = 'dashboard'
         return context
-    
+  
 class ChildDashboardView(ParentorTutorRequiredMixin, DetailView):
     model = Child
     template_name = 'child/child_dashboard.html'
     context_object_name = 'child'
-    pk_url_kwarg = 'child_id'  # Use ID instead of slug
-
+    pk_url_kwarg = 'child_id'
     def get_object(self, queryset=None):
         child = super().get_object(queryset)
         return child
@@ -110,7 +111,43 @@ class ChildDashboardView(ParentorTutorRequiredMixin, DetailView):
         context['user'] = self.request.user
         context['active_section'] = 'child_dashboard' 
         return context
-    
+
+class ChildProfileDashboardView(ParentRequiredMixin, DetailView):
+    model = Child
+    template_name = 'child/profile/dashboard.html'
+    context_object_name = 'child'
+    pk_url_kwarg = 'child_id'
+
+    def get_object(self, queryset=None):
+        child = super().get_object(queryset)
+        return child
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        child = self.get_object()
+        # Fetch related payments and sessions
+        payments = child.payments.all()
+        session_data = child.sessions.aggregate(
+        
+        total_sessions=Count('id'),
+        pending_sessions=Count('id', filter=Q(status=Session.Status.PENDING)),
+        approved_sessions=Count('id', filter=Q(status=Session.Status.APPROVED)),
+        rejected_sessions=Count('id', filter=Q(status=Session.Status.REJECTED)),
+    )
+
+        total_payment = sum([payment.amount for payment in payments])
+
+        context['user'] = self.request.user
+
+        context['payments'] = payments
+        context['total_payment'] = total_payment
+
+        context['session_data'] = session_data
+
+        context['active_section'] = 'profile' 
+        return context
+        
 class AddReportFeedbackView(ParentRequiredMixin, View):
     def post(self, request, report_id, *args, **kwargs):
         report = get_object_or_404(Report, id=report_id)
@@ -124,12 +161,6 @@ class AddReportFeedbackView(ParentRequiredMixin, View):
         # Render only the updated feedback block to be replaced dynamically
         return render(request, "child/reports/child_feedback_block.html", {"report": report})
 
-from django.views.generic import ListView
-from child.models import Child
-from payment.models import Payment
-
-import logging
-logger = logging.getLogger('app')
 
 class PaymentDashboardView(ListView):
     model = Child  # Paginate by Child
