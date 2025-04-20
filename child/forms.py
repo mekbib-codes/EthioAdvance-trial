@@ -62,3 +62,14 @@ class ChildRegistrationForm(forms.ModelForm):
         if commit:
             child.save()
         return child
+
+class ChildUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Child
+        # Exclude parent, tutor, and boolean fields
+        exclude = ['parent', 'tutor', 'is_active']
+        widgets = {
+            'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-input'}),
+            'special_needs': forms.Textarea(attrs={'rows': 3, 'class': 'form-input'}),
+            'academic_interests': forms.Textarea(attrs={'rows': 3, 'class': 'form-input'}),
+        }

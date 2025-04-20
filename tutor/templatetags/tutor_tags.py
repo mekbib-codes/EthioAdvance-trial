@@ -1,31 +1,38 @@
 from django import template
 from payment.utils import calculate_tutor_payment
 from payment.models import TutorPayments
-from django.db.models import Sum # Count, Q,
-# from session.models import Session
+from tutor.models import Tutor
+from django.db.models import Sum, Count, Q
+from session.models import Session
 
 register = template.Library()
 
 @register.inclusion_tag('tutor/general_info.html', takes_context=True)
 def tutor_general_info(context):
     request = context['request']
-    tutor = request.user
+    tutor = Tutor.objects.get(id=request.user.id)
 
     # Fetch general information about the tutor
     total_students = tutor.students.count()
 
     # # Aggregate session counts by status in a single query
-    # session_totals = Session.objects.filter(tutor=tutor).aggregate(
-    #     total_sessions=Count('id'),
-    #     pending_sessions=Count('id', filter=Q(status=Session.Status.PENDING)),
-    #     approved_sessions=Count('id', filter=Q(status=Session.Status.APPROVED)),
-    #     rejected_sessions=Count('id', filter=Q(status=Session.Status.REJECTED)),
-    # )
+    session_totals = Session.objects.filter(tutor=tutor).aggregate(
+        total_sessions=Count('id'),
+        # pending_sessions=Count('id', filter=Q(status=Session.Status.PENDING)),
+        # approved_sessions=Count('id', filter=Q(status=Session.Status.APPROVED)),
+        # rejected_sessions=Count('id', filter=Q(status=Session.Status.REJECTED)),
+    )
+
+    try:
+        profile_image = tutor.profile.avatar.url
+    except:
+        profile_image = None
 
     return {
         'tutor': tutor,
         'total_students': total_students,
-        # 'total_sessions': session_totals['total_sessions'],
+        'profile_image': profile_image,
+        'total_sessions': session_totals['total_sessions'],
         # 'pending_sessions': session_totals['pending_sessions'],
         # 'approved_sessions': session_totals['approved_sessions'],
         # 'rejected_sessions': session_totals['rejected_sessions'],

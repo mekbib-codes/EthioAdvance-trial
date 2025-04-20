@@ -1,10 +1,10 @@
 from django.db import models
 from accounts.models import User
-
+from django.contrib.auth.models import BaseUserManager
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-class ParentManager(models.Manager):
+class ParentManager(BaseUserManager):
     def get_queryset(self):
         return super().get_queryset().filter(role=User.Role.PARENT)
     
@@ -32,6 +32,7 @@ class ParentProfile(models.Model):
         on_delete=models.PROTECT,
         related_name='parents'
     )
+    avatar = models.ImageField(upload_to="parent/profile/avatar/", null=True, blank=True)
     occupation = models.CharField(max_length=100, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     emergency_contact = models.CharField(max_length=20, blank=True, null=True)

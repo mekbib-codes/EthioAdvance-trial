@@ -38,7 +38,7 @@
             {% if child.latest_sessions %}
                 {% with child.latest_sessions.0 as latest_session %}
                     <div class="{% if latest_session.status == 'approved' %}bg-green-100{% elif latest_session.status == 'rejected' %}bg-red-100{% else %}bg-yellow-100{% endif %} p-4 rounded-lg shadow relative">
-                        <div class="absolute top-2 right-2 flex items-center space-x-2 my-4">
+                        <div class="absolute right-2 flex items-center space-x-2 my-4">
                             {% if latest_session.status == 'approved' %}
                                 <svg class="w-6 h-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />

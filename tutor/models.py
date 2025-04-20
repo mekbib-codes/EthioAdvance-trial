@@ -1,10 +1,11 @@
 from django.db import models
+from django.contrib.auth.models import BaseUserManager
 from accounts.models import User
 
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-class TutorManager(models.Manager):
+class TutorManager(BaseUserManager):
     def get_queryset(self):
         return super().get_queryset().filter(role=User.Role.TUTOR)
 
@@ -35,6 +36,7 @@ class TutorProfile(models.Model):
         on_delete=models.PROTECT,
         related_name='tutors'
     )
+    avatar = models.ImageField(upload_to="tutor/profile/avatar/", null=True, blank=True)
     qualification = models.CharField(max_length=100)
     years_of_experience = models.PositiveIntegerField()
     bio = models.TextField()

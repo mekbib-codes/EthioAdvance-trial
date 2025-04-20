@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% load tutor_tags %}
+{% load humanize %}
+
+{% block title %}Profile Dashboard{% endblock %}
+
+{% block header %}
+    {% include 'ui/tutor_header.html' %}
+{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-4xl relative pt-24 md:pt-32 bg-white p-6 rounded-lg shadow-md space-y-6">
+    {% include "components/hero/stripes.html" %}
+
+    {% tutor_general_info %}
+
+    <!-- Tutor Information -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="h-10 px-5 py-2 border-b border-gray-100 bg-blue-50">
+                <h2 class="text-lg font-semibold text-blue-500">Personal Information</h2>
+            </div>
+            
+            <div class="divide-y divide-gray-100">
+                <div class="px-5 py-3">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Full Name</p>
+                    <p class="text-gray-800">{{ tutor.get_full_name }}</p>
+                </div>
+                
+                <div class="px-5 py-3">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Email</p>
+                    <p class="text-gray-800">{{ tutor.email }}</p>
+                </div>
+                
+                <div class="px-5 py-3">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Phone</p>
+                    <p class="text-gray-800">{{ tutor.phone_number }}</p>
+                </div>
+                
+                {% if tutor.date_of_birth %}
+                <div class="px-5 py-3">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Date of Birth</p>
+                    <p class="text-gray-800">{{ tutor.date_of_birth|date:"M d, Y" }}</p>
+                </div>
+                {% endif %}
+                
+                {% if tutor.gender %}
+                <div class="px-5 py-3">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Gender</p>
+                    <p class="text-gray-800">{{ tutor.gender|title }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="h-10 px-5 py-2 border-b border-gray-100 bg-blue-50">
+                <h2 class="text-lg font-semibold text-blue-500">Additional Information</h2>
+            </div>
+            
+            <div class="divide-y divide-gray-100">
+                {% if profile.address %}
+                <div class="px-5 py-3">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Address</p>
+                    <p class="text-gray-800">{{ profile.address }}</p>
+                </div>
+                {% endif %}
+                
+                {% if profile.emergency_contact %}
+                <div class="px-5 py-3">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Emergency Contact</p>
+                    <p class="text-gray-800">{{ profile.emergency_contact }}</p>
+                </div>
+                {% endif %}
+                
+                {% if profile.occupation %}
+                <div class="px-5 py-3">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Occupation</p>
+                    <p class="text-gray-800">{{ profile.occupation }}</p>
+                </div>
+                {% endif %}
+                
+                {% if profile.preferred_communication %}
+                <div class="px-5 py-3">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Preferred Communication</p>
+                    <p class="text-gray-800">{{ profile.preferred_communication|title }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Children -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="h-10 px-5 py-2 border-b border-gray-100 bg-blue-50">
+                <h2 class="text-lg font-semibold text-blue-500">Children</h2>
+            </div>
+            
+            <div class="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-white">
+                {% if children %}
+                    <ul class="divide-y divide-gray-100">
+                        {% for child in children %}
+                        <li class="px-5 py-3 flex justify-between items-center">
+                            <span class="text-gray-800">{{ child.get_full_name }}</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                {{ child.total_sessions }} session{{ child.total_sessions|pluralize }}
+                            </span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="px-5 py-4 text-gray-500 ">
+                        <p class="mb-5">No students assigned</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Earnings -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="h-10 px-5 py-2 border-b border-gray-100 bg-blue-50">
+                <h2 class="text-lg font-semibold text-blue-500">Earnings</h2>
+            </div>
+        
+            <div class="px-5 py-3 border-b border-gray-100">
+                <div class="text-sm font-medium flex justify-between items-center text-xl">
+                    <p class="text-gray-500">Total Earnings</p>
+                    <span class="bg-green-100 text-green-800 px-2.5 py-0.5 rounded">{{ total_earning|intcomma }} ETB</span>
+                </div>
+            </div>
+        
+            <div class="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-white">
+                <ul class="divide-y divide-gray-100">
+                    {% for earning in earnings|slice:":5" %}
+                    <li class="px-5 py-3">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-800">{{ earning.child.get_full_name }}</p>
+                                <p class="text-xs text-gray-500">{{ earning.timestamp|date:"Y-m-d" }}</p>
+                            </div>
+                            <span class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded">
+                                {{ earning.amount|intcomma }} ETB
+                            </span>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="px-5 py-4 text-center text-gray-500">
+                        No earning records found
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="h-10 px-5 py-2 border-b border-gray-100 bg-blue-50">
+                <h2 class="text-lg font-semibold text-blue-500">Sessions</h2>
+            </div>
+        
+            <div class="divide-y divide-gray-100">
+                <!-- Total Sessions -->
+                <div class="px-5 py-3 flex justify-between items-center">
+                    <p class="text-sm font-medium text-gray-500">Total Sessions</p>
+                    <span class="text-gray-800 font-medium">{{ session_counts.total_sessions }}</span>
+                </div>
+        
+                <!-- Pending Sessions -->
+                <div class="px-5 py-3 flex justify-between items-center">
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-amber-500 rounded-full mr-2"></span>
+                        <p class="text-sm font-medium text-gray-500">Pending</p>
+                    </div>
+                    <span class="text-gray-800 font-medium">{{ session_counts.pending_sessions }}</span>
+                </div>
+        
+                <!-- Approved Sessions -->
+                <div class="px-5 py-3 flex justify-between items-center">
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                        <p class="text-sm font-medium text-gray-500">Approved</p>
+                    </div>
+                    <span class="text-gray-800 font-medium">{{ session_counts.approved_sessions }}</span>
+                </div>
+        
+                <!-- Rejected Sessions -->
+                <div class="px-5 py-3 flex justify-between items-center">
+                    <div class="flex items-center">
+                        <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                        <p class="text-sm font-medium text-gray-500">Rejected</p>
+                    </div>
+                    <span class="text-gray-800 font-medium">{{ session_counts.rejected_sessions }}</span>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</section>
+{% endblock %}
