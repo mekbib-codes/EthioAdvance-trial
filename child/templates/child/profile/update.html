@@ -4,7 +4,7 @@
 {% block title %}Update Profile{% endblock %}
 
 {% block header %}
-    {% include 'ui/parent_header.html' %}
+    {% include 'ui/child_header.html' %}
 {% endblock %}
 
 
@@ -14,7 +14,7 @@
         <h1 class="text-4xl font-bold">Update profile</h1>
     </div>
 
-    <form method="post" enctype="multipart/form-data" action="{% url 'parent:update_profile' %}">
+    <form method="post" enctype="multipart/form-data" action="{% url 'child:update_profile' child.id %}">
         {% csrf_token %}
     <div class="bg-gray-200 shadow-md rounded-lg p-5 mb-4 space-y-4">
 
@@ -32,13 +32,6 @@
                 Last Name
             </label>
             <input id="id_last_name" class="form-input w-full py-2" type="text" name="last_name" value="{{ form.last_name.value }}" required />
-        </div>
-
-        <div>
-            <label class="mb-1 block text-sm font-bold text-gray-700" for="id_phone_number">
-                Phone Number
-            </label>
-            <input id="id_phone_number" class="form-input w-full py-2" type="text" name="phone_number"  value="{{ form.phone_number.value }}" required />
         </div>
 
         <div class="relative max-w-sm">
@@ -70,6 +63,26 @@
     </div>
 
     <div class="bg-gray-200 shadow-md rounded-lg p-5 mb-4 space-y-4">
+        <h2 class="text-2xl font-bold">Educational Information</h2>
+        
+        <div>
+            <label class="mb-1 block text-sm font-bold text-gray-700" for="id_grade_level">
+                Grade
+            </label>
+            <input id="id_grade_level" class="form-input w-full py-2" type="number" name="grade_level" value="{{ form.grade_level.value }}" placeholder="Child grade" required/>
+        </div>
+
+        <div>
+            <label class="mb-1 block text-sm font-bold text-gray-700" for="id_school">
+                School
+            </label>
+            <input id="id_school" class="form-input w-full py-2" type="text" name="school" value="{{ form.school.value }}" placeholder="Child school" required/>
+        </div>
+
+
+
+    </div>
+    <div class="bg-gray-200 shadow-md rounded-lg p-5 mb-4 space-y-4">
         <h2 class="text-2xl font-bold">Profile Information</h2>
     
         <!-- Avatar -->
@@ -99,41 +112,22 @@
             </div>
         </div>
     
-        <!-- Occupation -->
-        <div>
-            <label class="mb-1 block text-sm font-bold text-gray-700" for="id_occupation">
-                Occupation
+       <!-- Special Needs -->
+       <div>
+            <label class="mb-1 block text-sm font-bold text-gray-700" for="id_special_needs">
+                Special Needs
             </label>
-            <input id="id_occupation" class="form-input w-full py-2" type="text" name="occupation" value="{{ form.occupation.value }}" placeholder="Your occupation" />
+            <textarea id="id_special_needs" rows="5" class="form-input w-full py-2" name="special_needs" placeholder="Add any special needs your child may require">{{ form.special_needs.value }}</textarea>
         </div>
-    
-        <!-- Address -->
+
+        <!-- Academic Interests -->
         <div>
-            <label class="mb-1 block text-sm font-bold text-gray-700" for="id_address">
-                Address
+            <label class="mb-1 block text-sm font-bold text-gray-700" for="id_academic_interests">
+                Academic Interests
             </label>
-            <input id="id_address" class="form-input w-full py-2" type="text" name="address" value="{{ form.address.value }}" placeholder="Your address" />
+            <textarea id="id_academic_interests" rows="5" class="form-input w-full py-2" name="academic_interests" placeholder="Add your child's academic interests if any">{{ form.academic_interests.value }}</textarea>
         </div>
-    
-        <!-- Emergency Contact -->
-        <div>
-            <label class="mb-1 block text-sm font-bold text-gray-700" for="id_emergency_contact">
-                Emergency Contact
-            </label>
-            <input id="id_emergency_contact" class="form-input w-full py-2" type="text" name="emergency_contact" value="{{ form.emergency_contact.value }}" placeholder="Emergency contact number" />
-        </div>
-    
-        <!-- Preferred Communication -->
-        <div>
-            <label class="mb-1 block text-sm font-bold text-gray-700" for="id_preferred_communication">
-                Preferred Communication
-            </label>
-            <select id="id_preferred_communication" class="form-select w-full py-2" name="preferred_communication">
-                <option value="EMAIL" {% if form.preferred_communication.value == "EMAIL" %}selected{% endif %}>Email</option>
-                <option value="PHONE" {% if form.preferred_communication.value == "PHONE" %}selected{% endif %}>Phone</option>
-                <option value="SMS" {% if form.preferred_communication.value == "SMS" %}selected{% endif %}>SMS</option>
-            </select>
-        </div>
+
     </div>
 
     <div class="mt-6 space-y-3">

@@ -3,14 +3,13 @@ from django.db.models import OuterRef, Subquery, Prefetch
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import CreateView, UpdateView
 from django.views.generic.edit import View
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.utils.translation import gettext as _
 from django.db.models import Count, Q
 
 from .models import Child
-from parent.models import Parent
-from .forms import ChildRegistrationForm
+from .forms import ChildRegistrationForm, ChildUpdateForm
 from accounts.mixins import ParentorTutorRequiredMixin, ParentRequiredMixin
 from session.models import Session
 from report.models import Report
@@ -147,7 +146,36 @@ class ChildProfileDashboardView(ParentRequiredMixin, DetailView):
 
         context['active_section'] = 'profile' 
         return context
-        
+
+class ChildProfileUpdateView(ParentRequiredMixin, UpdateView):
+    model = Child
+    form_class = ChildUpdateForm
+    template_name = 'child/profile/update.html'
+    pk_url_kwarg = 'child_id'
+
+    def get_object(self, queryset=None):
+        # Fetch the child object using the child_id and ensure it belongs to the logged-in parent
+        child = get_object_or_404(Child, id=self.kwargs.get(self.pk_url_kwarg), parent=self.request.user)
+        logger.info(f"Child object fetched for update: {child} (ID: {child.id})")
+        return child
+
+    def get_success_url(self):
+        # Dynamically generate the success URL with the child_id
+        return reverse('child:profile_dashboard', kwargs={'child_id': self.object.id})
+
+    def form_valid(self, form):
+        # Log success and add a success message
+        response = super().form_valid(form)
+        logger.info(f"Child profile updated successfully: {self.object} (ID: {self.object.id})")
+        messages.success(self.request, "Child profile updated successfully.")
+        return response
+
+    def form_invalid(self, form):
+        # Log errors and add an error message
+        logger.warning(f"Failed to update child profile: {form.errors}")
+        messages.error(self.request, "There was an error updating the child profile. Please check the form and try again.")
+        return super().form_invalid(form)
+       
 class AddReportFeedbackView(ParentRequiredMixin, View):
     def post(self, request, report_id, *args, **kwargs):
         report = get_object_or_404(Report, id=report_id)
