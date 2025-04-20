@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.utils.translation import gettext as _
 from django.conf import settings
+from django.db.models import Count, Q
 
 from accounts.mixins import CompanyRequiredMixin, TutorRequiredMixin
 from accounts.views.base_registration import BaseRegistrationView
@@ -16,6 +17,7 @@ from child.views import BaseChildrenDashboardView, PaymentDashboardView
 from session.views import BaseSessionsDashboardView
 from session.models import Session
 from child.models import Child
+from tutor.models import Tutor
 from report.views import BaseReportsDashboardView, BaseReportStepView
 from report.forms import ReportSummaryForm, SessionInsightForm, QuizAssignmentForm, MockExamForm, ChallengesAndSolutionsForm
 from payment.models import TutorPayments
@@ -31,7 +33,7 @@ class TutorDashboardView(TutorRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            tutor = self.request.user
+            tutor = Tutor.objects.select_related("tutor_profile").get(id=self.request.user.id)
 
             context.update({
                 'tutor': tutor,
@@ -58,13 +60,57 @@ class TutorRegistrationView(CompanyRequiredMixin, BaseRegistrationView):
     template_name = 'registration/tutor_register_form.html'
     register_url = 'tutor:register'
 
+class TutorProfileDashboardView(TutorRequiredMixin, TemplateView):
+    template_name = "tutor/profile/dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tutor = Tutor.objects.select_related("tutor_profile").get(id=self.request.user.id)
+
+        # Fetch the tutor's profile
+        profile = getattr(tutor, "tutor_profile", None)
+
+        # Fetch all students associated with the tutor and annotate session counts
+        students = tutor.students.prefetch_related(
+            "sessions",  # Prefetch sessions for each child
+        ).annotate(
+            total_sessions=Count("sessions"),
+        )
+
+        # Fetch all sessions associated with the tutor's students
+        sessions = Session.objects.filter(child__in=students).select_related("child")
+
+        # Fetch all earning made by the tutor
+        earnings = tutor.tutor_payments.select_related("child")
+        total_earning = sum([earning.amount for earning in earnings])
+        # Aggregate session counts
+        session_counts = sessions.aggregate(
+            total_sessions=Count("id"),
+            pending_sessions=Count("id", filter=Q(status=Session.Status.PENDING)),
+            approved_sessions=Count("id", filter=Q(status=Session.Status.APPROVED)),
+            rejected_sessions=Count("id", filter=Q(status=Session.Status.REJECTED)),
+        )
+
+        context.update({
+            "tutor": tutor,
+            "profile": profile,
+            "children": students,
+            "sessions": sessions,
+            "earnings": earnings,
+            'total_earning': total_earning,
+            "session_counts": session_counts,
+            "active_section": "profile",
+        })
+
+        return context
+
 class StudentsDashboardView(TutorRequiredMixin, BaseChildrenDashboardView):
     template_name = 'tutor/students/dashboard.html'  # Tutor-specific template
     paginate_by = 4
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        return queryset.filter(tutor=self.request.user)
+        return queryset.filter(tutor = Tutor.objects.select_related("tutor_profile").get(id=self.request.user.id))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -84,7 +130,7 @@ class TutorSessionsDashboardView(TutorRequiredMixin, BaseSessionsDashboardView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['tutor'] = self.request.user
+        context['tutor'] = tutor = Tutor.objects.select_related("tutor_profile").get(id=self.request.user.id)
         return context
     
 class CreateSessionView(TutorRequiredMixin, CreateView):

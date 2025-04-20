@@ -79,6 +79,7 @@ class ParentProfileDashboardView(ParentRequiredMixin, TemplateView):
 
         # Fetch all payments made by the parent
         payments = parent.payments.select_related("child")
+        total_payment = sum([payment.amount for payment in payments])
 
         # Aggregate session counts
         session_counts = sessions.aggregate(
@@ -94,6 +95,7 @@ class ParentProfileDashboardView(ParentRequiredMixin, TemplateView):
             "children": children,
             "sessions": sessions,
             "payments": payments,
+            'total_payment': total_payment,
             "session_counts": session_counts,
             "active_section": "profile",
         })
