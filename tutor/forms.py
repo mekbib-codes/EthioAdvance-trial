@@ -59,6 +59,58 @@ class TutorRegistrationForm(BaseRegistrationForm):
 
             return user
 
+class TutorProfileUpdateForm(forms.ModelForm):
+    # Fields from the Parent (proxy for User) model
+    first_name = forms.CharField(max_length=255, required=True, label="First Name")
+    last_name = forms.CharField(max_length=255, required=True, label="Last Name")
+    date_of_birth = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        label="Date of Birth"
+    )
+    gender = forms.ChoiceField(
+        choices=User.Gender.choices,
+        required=False,
+        label="Gender"
+    )
+    phone_number = forms.CharField(max_length=15, required=False, label="Phone Number")
+
+    class Meta:
+        model = TutorProfile
+        fields = [
+            'avatar', 'qualification', 'years_of_experience', 'bio', 'address'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        tutor = kwargs.pop('tutor', None)  # Pass the tutor instance explicitly
+        super().__init__(*args, **kwargs)
+
+        # Prepopulate fields from the tutor (proxy for User) model
+        if tutor:
+            self.fields['first_name'].initial = tutor.first_name
+            self.fields['last_name'].initial = tutor.last_name
+            self.fields['date_of_birth'].initial = tutor.date_of_birth
+            self.fields['gender'].initial = tutor.gender
+            self.fields['phone_number'].initial = tutor.phone_number
+
+    def save(self, commit=True):
+        # Save ParentProfile fields
+        profile = super().save(commit=False)
+
+        # Save Parent (proxy for User) fields
+        tutor = self.instance.user
+        tutor.first_name = self.cleaned_data['first_name']
+        tutor.last_name = self.cleaned_data['last_name']
+        tutor.date_of_birth = self.cleaned_data['date_of_birth']
+        tutor.gender = self.cleaned_data['gender']
+        tutor.phone_number = self.cleaned_data['phone_number']
+
+        if commit:
+            tutor.save()
+            profile.save()
+
+        return profile
+    
 class SessionCreationForm(forms.ModelForm):
 
     class Meta:

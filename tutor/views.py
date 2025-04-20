@@ -1,6 +1,6 @@
 from django.views.generic import TemplateView
 from django.core.exceptions import PermissionDenied
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse_lazy
 from django.views import View
 from django.shortcuts import get_object_or_404, redirect
@@ -12,12 +12,12 @@ from django.db.models import Count, Q
 from accounts.mixins import CompanyRequiredMixin, TutorRequiredMixin
 from accounts.views.base_registration import BaseRegistrationView
 from accounts.models import User
-from .forms import TutorRegistrationForm, SessionCreationForm
+from .forms import TutorRegistrationForm, SessionCreationForm, TutorProfileUpdateForm
 from child.views import BaseChildrenDashboardView, PaymentDashboardView
 from session.views import BaseSessionsDashboardView
 from session.models import Session
 from child.models import Child
-from tutor.models import Tutor
+from tutor.models import Tutor, TutorProfile
 from report.views import BaseReportsDashboardView, BaseReportStepView
 from report.forms import ReportSummaryForm, SessionInsightForm, QuizAssignmentForm, MockExamForm, ChallengesAndSolutionsForm
 from payment.models import TutorPayments
@@ -104,6 +104,40 @@ class TutorProfileDashboardView(TutorRequiredMixin, TemplateView):
 
         return context
 
+class TutorProfileUpdateView(TutorRequiredMixin, UpdateView):
+    model = TutorProfile
+    form_class = TutorProfileUpdateForm
+    template_name = "tutor/profile/update.html"
+    success_url = reverse_lazy("tutor:profile_dashboard")  # Redirect to the profile dashboard after update
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['tutor'] = self.request.user
+        return kwargs
+
+    def get_object(self, queryset=None):
+        # Ensure the logged-in user can only update their own profile
+        return TutorProfile.objects.get(user=self.request.user)
+
+    def form_valid(self, form):
+        try:
+            # Save the form and add a success message
+            response = super().form_valid(form)
+            messages.success(self.request, "Your profile has been updated successfully.")
+            logger.info(f"Profile updated successfully for tutor: {self.request.user.get_full_name()} (ID: {self.request.user.id})")
+            return response
+        except Exception as e:
+            # Log any unexpected errors
+            logger.error(f"Error updating profile for tutor: {self.request.user.get_full_name()} (ID: {self.request.user.id}): {str(e)}", exc_info=True)
+            messages.error(self.request, "An unexpected error occurred while updating your profile. Please try again later.")
+            return self.form_invalid(form)
+
+    def form_invalid(self, form):
+        # Add an error message if the form is invalid
+        messages.error(self.request, "There was an error updating your profile. Please check the form and try again.")
+        logger.warning(f"Profile update failed for tutor: {self.request.user.get_full_name()} (ID: {self.request.user.id}). Validation errors: {form.errors}")
+        return super().form_invalid(form)
+    
 class StudentsDashboardView(TutorRequiredMixin, BaseChildrenDashboardView):
     template_name = 'tutor/students/dashboard.html'  # Tutor-specific template
     paginate_by = 4
