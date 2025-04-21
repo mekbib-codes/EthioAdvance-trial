@@ -2,13 +2,11 @@
     <div class="mx-auto max-w-6xl px-4 sm:px-6">
       <div class="relative flex h-14 items-center justify-between gap-3 rounded-2xl bg-white/90 px-3 shadow-lg shadow-black/[0.03] backdrop-blur-xs before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(var(--color-gray-100),var(--color-gray-200))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)]">
        
-        <!-- {/* Site branding */} -->
         <div class="flex flex-1 items-center">
-          <!-- Logo comes here -->
-          {% include "ui/logo.html" %}
+          <!-- Notification dropdown -->
+        {% include 'actions/notification_dropdown.html' %}
         </div>
-
-       
+      
         <!-- Desktop Navigation -->
   <ul class="hidden md:flex flex-1 items-center justify-end gap-3">
    {% block desktop_nav %}
@@ -22,6 +20,8 @@
       </form>
     </li>
   </ul>
+
+   
 
   <!-- Mobile Menu Button -->
 <button id="menu-btn" class="md:hidden flex flex-col space-y-1.5 w-8 h-8 justify-center items-center">
@@ -45,6 +45,7 @@
     <button id="close-menu" class="absolute top-5 right-5 text-gray-800 text-5xl font-medium">&times;</button>
   </div>
       </div>
+
     </div>
   </header>
 

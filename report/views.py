@@ -15,6 +15,9 @@ from accounts.mixins import TutorRequiredMixin
 import logging
 from datetime import datetime, timedelta
 
+from actions.models import Notification
+from actions.utils import create_notification
+
 logger = logging.getLogger('app')
 
 class BaseReportsDashboardView(ListView):
@@ -167,6 +170,23 @@ class CreateReportView(TutorRequiredMixin, View):
                 for item in items:
                     obj, _ = model_class.objects.get_or_create(name=item)
                     getattr(report, field_name).add(obj)
+                
+            # Create a notification for the parent and company
+            parent = child.parent
+            company = parent.profile.company
+            recipients = [parent, company]
+
+            create_notification(
+                actor=request.user,
+                verb=f'created a report for {child.get_full_name()}.',
+                content_object=report,
+                child=child,
+                recipients=recipients,
+                extra_data={
+                },
+                notification_type=Notification.NotificationTypes.INFO
+            )
+
 
             logger.info(f"Report successfully created by {request.user.email} for child {child.id}")
             messages.success(request, f"Report for {child.get_full_name()} created successfully.")

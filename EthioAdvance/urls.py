@@ -29,6 +29,7 @@ urlpatterns = [
     path('session/', include('session.urls', namespace='sessions')),
     path('report/', include('report.urls', namespace='reports')),
     path('payment/', include('payment.urls', namespace='payment')),
+    path('actions/', include('actions.urls', namespace='actions')),
 ]
 
 if settings.DEBUG:

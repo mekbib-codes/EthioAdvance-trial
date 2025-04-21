@@ -14,6 +14,11 @@ class NotificationAdmin(admin.ModelAdmin):
         """Optimize queries by selecting related fields."""
         return super().get_queryset(request).select_related('actor', 'child')
 
+class UserNotificationInline(admin.TabularInline):
+    model = UserNotification
+    extra = 0
+    readonly_fields = ('user', 'is_read', 'delivered_at', 'read_at')
+    raw_id_fields = ('user',)
 
 @admin.register(UserNotification)
 class UserNotificationAdmin(admin.ModelAdmin):

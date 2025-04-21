@@ -22,6 +22,9 @@ from report.views import BaseReportsDashboardView, BaseReportStepView
 from report.forms import ReportSummaryForm, SessionInsightForm, QuizAssignmentForm, MockExamForm, ChallengesAndSolutionsForm
 from payment.models import TutorPayments
 
+from actions.models import Notification
+from actions.utils import create_notification
+
 import logging
 from uuid import uuid4
 
@@ -186,6 +189,22 @@ class CreateSessionView(TutorRequiredMixin, CreateView):
         form.instance.tutor = self.request.user
         try:
             response = super().form_valid(form)
+
+            # Notify the parent and company
+            parent = self.child.parent
+            company = parent.profile.company
+            recipents = [parent, company]
+
+            create_notification(actor=self.request.user,
+                                verb=f'created a {form.instance.session_subject } session. \nDuration: { form.instance.formatted_duration() }.',
+                                content_object=form.instance,
+                                child=self.child,
+                                recipients=recipents,
+                                extra_data={
+                },
+                notification_type=Notification.NotificationTypes.INFO)
+            
+
             messages.success(self.request, f"Session for {self.child.get_full_name()} created successfully.")
             logger.info(f"Session created successfully by {self.request.user.email} for child {self.child.id}")
             return response
@@ -368,16 +387,32 @@ class TutorRequestPaymentView(View):
             if not sessions.exists():
                 messages.error(request, _("No valid sessions found for this payment request."))
                 return redirect(reverse_lazy('tutor:payment_dashboard'))
-
+            
+            tutor = Tutor.objects.get(id=request.user.id)
             # Create the TutorPayments record
             payment = TutorPayments.objects.create(
                 tx_ref=str(uuid4()),  # Generate a unique transaction reference
                 child=child,
-                tutor=request.user,
+                tutor=tutor,
                 amount=amount,
                 status=TutorPayments.STATUS.PENDING,  # Set status to pending
             )
             payment.sessions.set(sessions)  # Link the sessions to the payment
+
+            # Notify the company
+            company = tutor.profile.company
+            create_notification(
+                actor=tutor,
+                verb=f"requested a payment of ${amount} for {child.get_full_name()}.",
+                content_object=payment,
+                child=child,
+                recipients=[company],  # Notify only the company
+                extra_data={
+                    "payment_reference": payment.tx_ref,
+                    "payment_amount": amount,
+                },
+                notification_type=Notification.NotificationTypes.INFO
+            )
 
             # Add a success message and redirect
             messages.success(request, _("Payment request submitted successfully."))
