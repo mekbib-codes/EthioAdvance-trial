@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'report.apps.ReportConfig',
     'payment.apps.PaymentConfig',
     'django.contrib.humanize',
+    'actions.apps.ActionsConfig',
 ]
 
 SITE_ID = 1  # Usually 1 for the default site
