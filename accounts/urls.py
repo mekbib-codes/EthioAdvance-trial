@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views.home import home
+from .views.home import Home
 from .views.role_based_login import RoleBasedLoginView
 from .views.otp_verification import OTPVerificationView, OTPResendView
 from .views.password_reset import (
@@ -13,7 +13,7 @@ from django.contrib.auth.views import LogoutView
 app_name = "accounts"
 
 urlpatterns = [
-    path("", home, name="home"),
+    path("", Home.as_view(), name="home"),
     path("login/", RoleBasedLoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path('verify_otp/',OTPVerificationView.as_view(),name='otp_verification'),

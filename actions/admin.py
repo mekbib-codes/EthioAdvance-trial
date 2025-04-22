@@ -25,6 +25,7 @@ class UserNotificationAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'notification', 'is_read', 'delivered_at', 'read_at')
     list_filter = ('is_read', 'delivered_at')
     search_fields = ('user__email', 'notification__verb')
+    list_editable = ['is_read']
     raw_id_fields = ('user', 'notification')
     readonly_fields = ('delivered_at', 'read_at')
     list_select_related = ('user', 'notification')

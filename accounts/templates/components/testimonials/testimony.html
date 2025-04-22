@@ -1,11 +1,40 @@
-<!-- Temporary section until testimonials are gathered -->
-<h2 id="about-us" class="indent-2 text-4xl font-bold">About us</h2>
-<p class="text-1xl indent-1 italic text-gray-700">
-    EthioAdvance is more than just a tutoring company; it is a mission-driven initiative aimed at transforming education in Ethiopia. 
-    By leveraging technology, structured learning, and innovative teaching methods, we seeks to bridge the gap in quality education, 
-    making it accessible and engaging for students of all backgrounds. 
-    <br><br>
-    The company prioritizes personalized learning, real-time progress tracking, and AI-driven tools to enhance student performance. 
-    With a commitment to academic excellence, skill development, and future-ready education, we aspires to nurture a generation of critical thinkers, 
-    problem solvers, and innovators, ensuring students gain both knowledge and practical skills for lifelong success.
-</p>
+{% if testimonials %}
+<section class="py-12 bg-gray-50">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+        <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">What parents say about us!</h2>
+        {% for testimonial in testimonials %}
+        <div class="my-4 rounded-lg bg-white p-6 shadow-md">
+            <h3 class="text-lg font-semibold text-gray-800">
+                <span class="text-blue-600">{{ testimonial.parent.get_full_name }}</span>
+                {% if testimonial.rating %}
+                <span class="ml-2 text-yellow-500">⭐ {{ testimonial.rating }}</span>
+                {% endif %}
+            </h3>
+            {% if testimonial.parent.parent_profile.occupation %}
+                <p  class="text-xs text-gray-500 italic font-bold">{{ testimonial.parent.parent_profile.occupation }}</p>
+            {% endif %}
+            <p class="mt-4 text-gray-600 indent-5">{{ testimonial.text }}</p>
+            <p class="italic text-gray-500 text-sm text-right font-bold">{{ testimonial.created_at|timesince }} ago</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% else %}
+<section class="py-12 bg-gray-50">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+        <div class="rounded-lg bg-white p-8 shadow-md">
+            <h2 class="text-3xl font-bold text-gray-800 text-center mb-6">About Us</h2>
+            <p class="text-lg text-gray-600 leading-relaxed indent-5">
+                EthioAdvance is more than just a tutoring company; it is a mission-driven initiative aimed at transforming education in Ethiopia. 
+                By leveraging technology, structured learning, and innovative teaching methods, we seek to bridge the gap in quality education, 
+                making it accessible and engaging for students of all backgrounds.
+            </p>
+            <p class="mt-4 text-lg text-gray-600 leading-relaxed indent-5">
+                We prioritize personalized learning, real-time progress tracking, and AI-driven tools to enhance student performance. 
+                With a commitment to academic excellence, skill development, and future-ready education, we aspire to nurture a generation of critical thinkers, 
+                problem solvers, and innovators, ensuring students gain both knowledge and practical skills for lifelong success.
+            </p>
+        </div>
+    </div>
+</section>
+{% endif %}
