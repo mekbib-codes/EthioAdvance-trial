@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'payment.apps.PaymentConfig',
     'django.contrib.humanize',
     'actions.apps.ActionsConfig',
+    'testimonials.apps.TestimonialsConfig',
 ]
 
 SITE_ID = 1  # Usually 1 for the default site
