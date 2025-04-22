@@ -196,7 +196,7 @@ class CreateSessionView(TutorRequiredMixin, CreateView):
             recipents = [parent, company]
 
             create_notification(actor=self.request.user,
-                                verb=f'created a {form.instance.session_subject } session. \nDuration: { form.instance.formatted_duration() }.',
+                                verb=f'created {form.instance.session_subject } session with duration of { form.instance.formatted_duration() }.',
                                 content_object=form.instance,
                                 child=self.child,
                                 recipients=recipents,

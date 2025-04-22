@@ -9,4 +9,4 @@ def humanize_duration(value):
     total_seconds = int(value.total_seconds())
     hours = total_seconds // 3600
     minutes = (total_seconds % 3600) // 60
-    return f"{hours}h {minutes}m"
+    return f"{hours}hrs, {minutes}min" if minutes != 0 else f"{hours}hrs."

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Notification, UserNotification
+from .models import Notification, UserNotification, ActivityLog
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
@@ -33,3 +33,16 @@ class UserNotificationAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         """Optimize queries by selecting related fields."""
         return super().get_queryset(request).select_related('user', 'notification')
+
+@admin.register(ActivityLog)
+class ActivityLogAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'action', 'related_object', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('user__email', 'action')
+    raw_id_fields = ('user', 'content_type')
+    readonly_fields = ('created_at',)
+    list_select_related = ('user',)
+
+    def get_queryset(self, request):
+        """Optimize queries by selecting related fields."""
+        return super().get_queryset(request).select_related('user')

@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.views.generic.edit import View, UpdateView
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from django.urls import reverse_lazy
 from django.contrib import messages
 
@@ -17,9 +17,10 @@ from child.views import BaseChildrenDashboardView, PaymentDashboardView
 from session.views import BaseSessionsDashboardView
 from report.views import BaseReportsDashboardView
 from report.models import Report
+from payment.models import Payment, SessionRate
 
-from actions.models import Notification
-from actions.utils import create_notification
+from actions.models import Notification, ActivityLog
+from actions.utils import create_notification, create_activity_log
 
 from testimonials.models import Testimonial
 
@@ -32,11 +33,89 @@ class ParentDashboardView(ParentRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            parent = Parent.objects.prefetch_related('children').get(id=self.request.user.id)
-            testimonials = Testimonial.objects.filter(show_testimonial=True).exclude(parent=parent).select_related('parent', 'parent__parent_profile')
+            parent = Parent.objects.prefetch_related('children', 'activity_logs', 'payments').get(id=self.request.user.id)
+            
+            # Get all sessions for all the parent
+            sessions = Session.objects.filter(child__parent=parent).select_related('child')
+            
+            total_sessions = sessions.count()
+            pending_sessions = sessions.filter(status=Session.Status.PENDING)
+            approved_sessions = sessions.filter(status=Session.Status.APPROVED)
+            rejected_sessions = sessions.filter(status=Session.Status.REJECTED)
+            
+            session_data = {
+                'total_sessions': total_sessions,
+                'total_duration': sessions.aggregate(total=Sum('duration'))['total'] or 0,
+                
+                'pending_sessions': pending_sessions.count(),
+                'pending_duration': pending_sessions.aggregate(total=Sum('duration'))['total'] or 0,
+                
+                'approved_sessions': approved_sessions.count(),
+                'approved_duration': approved_sessions.aggregate(total=Sum('duration'))['total'] or 0,
+                
+                'rejected_sessions': rejected_sessions.count(),
+                'rejected_duration': rejected_sessions.aggregate(total=Sum('duration'))['total'] or 0,
+                
+                # If I need the actual session objects in the future
+                # 'all_sessions': sessions.order_by('-created_at')[:10]
+            }
+
+            # Calculate percentages
+            total = session_data['total_sessions'] or 1  # avoid division by zero
+            session_data['approved_percentage'] = round((session_data['approved_sessions'] / total) * 100)
+            session_data['pending_percentage'] = round((session_data['pending_sessions'] / total) * 100)
+            session_data['rejected_percentage'] = round((session_data['rejected_sessions'] / total) * 100)
+
+            # Get payment info
+            success_payments = parent.payments.filter(status=Payment.STATUS.SUCCESS)
+            total_paid = success_payments.aggregate(total=Sum('amount'))['total'] or 0
+
+            # Paid/Unpaid sessions
+            paid_sessions = approved_sessions.filter(is_paid=True)
+            unpaid_sessions = approved_sessions.filter(is_paid=False)
+
+            # Duration calculations
+            paid_sessions_duration = paid_sessions.aggregate(
+                total=Sum('duration')
+            )['total'] or 0
+
+            unpaid_sessions_duration = unpaid_sessions.aggregate(
+                total=Sum('duration')
+            )['total'] or 0
+
+            # Calculate amount due
+            try:
+                rate = SessionRate.objects.latest("updated_at").current_hourly_rate
+            except SessionRate.DoesNotExist:
+                rate = 0
+                logger.warning("No SessionRate found")
+
+            if unpaid_sessions_duration != 0:
+                # Convert duration to hours (assuming duration is in minutes)
+                total_unpaid_hours = unpaid_sessions_duration.total_seconds() / 3600
+                total_due = round(total_unpaid_hours * float(rate), 2)
+            else:
+                total_due = 0
+
+            payment_data = {
+                'total_paid': total_paid,
+                'total_due': total_due,
+                'paid_sessions': paid_sessions.count(),
+                'unpaid_sessions': unpaid_sessions.count(),
+                'paid_sessions_duration': paid_sessions_duration,
+                'unpaid_sessions_duration': unpaid_sessions_duration,
+                'hourly_rate': rate  # Include for transparency
+            }
+
+            testimonials = Testimonial.objects.filter(show_testimonial=True).exclude(parent=parent).select_related('parent', 'parent__parent_profile')[:3]
+            activities = ActivityLog.objects.filter(user=parent)[:5]
+            
             context.update({
                 'parent': parent,
                 'testimonials': testimonials,
+                'activities': activities,
+                'session_data': session_data,
+                'payment_data': payment_data,
                 'active_section': 'dashboard',
             })
             
@@ -127,12 +206,22 @@ class ParentProfileUpdateView(ParentRequiredMixin, UpdateView):
         try:
             # Save the form and add a success message
             response = super().form_valid(form)
+
+            # Log the activity
+            parent = self.request.user
+            create_activity_log(
+                user=parent,
+                action="Updated your profile",
+                related_object=parent,
+                link='parent:profile_dashboard'
+            )
+
             messages.success(self.request, "Your profile has been updated successfully.")
-            logger.info(f"Profile updated successfully for parent: {self.request.user.get_full_name()} (ID: {self.request.user.id})")
+            logger.info(f"Profile updated successfully for parent: {parent.get_full_name()}")
             return response
         except Exception as e:
             # Log any unexpected errors
-            logger.error(f"Error updating profile for parent: {self.request.user.get_full_name()} (ID: {self.request.user.id}): {str(e)}", exc_info=True)
+            logger.error(f"Error updating profile for parent: {self.request.user.get_full_name()}: {str(e)}", exc_info=True)
             messages.error(self.request, "An unexpected error occurred while updating your profile. Please try again later.")
             return self.form_invalid(form)
 
@@ -188,6 +277,16 @@ class UpdateSessionStatusView(ParentRequiredMixin, View):
                 extra_data={
                 },
                 notification_type=notification_type,
+            )
+
+            # Log the activity
+            parent = self.request.user
+            create_activity_log(
+                user=parent,
+                action=f"Updated session status to {status} for { session.child.first_name }",
+                related_object=session,
+                link='parent:child_sessions_dashboard',
+                kwargs={'child_id': session.child.id}
             )
             
             # Render only the updated session block to be replaced dynamically
@@ -249,6 +348,16 @@ class AddReportFeedbackView(ParentRequiredMixin, View):
                 extra_data={
                 },
                 notification_type=Notification.NotificationTypes.INFO,
+            )
+
+            # Log the activity
+            parent = self.request.user
+            create_activity_log(
+                user=parent,
+                action=f"Gave feedback on the report of { report.child.first_name }",
+                related_object=report,
+                link='parent:child_reports_dashboard',
+                kwargs={'child_id': report.child.id}
             )
 
         # Render only the updated feedback block to be replaced dynamically

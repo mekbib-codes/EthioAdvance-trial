@@ -11,7 +11,7 @@ class Home(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            testimonials = Testimonial.objects.filter(show_testimonial=True).select_related('parent', 'parent__parent_profile')
+            testimonials = Testimonial.objects.filter(show_testimonial=True).select_related('parent', 'parent__parent_profile')[:3]
             context.update({
                 'testimonials': testimonials,
             })
