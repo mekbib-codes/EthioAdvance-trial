@@ -9,10 +9,14 @@ from django.utils.translation import gettext as _
 from django.db.models import Count, Q
 
 from .models import Child
+from parent.models import Parent
 from .forms import ChildRegistrationForm, ChildUpdateForm
 from accounts.mixins import ParentorTutorRequiredMixin, ParentRequiredMixin
 from session.models import Session
 from report.models import Report
+
+from actions.models import Notification
+from actions.utils import create_notification
 
 import logging
 logger = logging.getLogger('app')
@@ -26,12 +30,29 @@ class ChildRegistrationView(ParentRequiredMixin, CreateView):
     
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['parent'] = self.request.user  # Assuming parent_profile is the OneToOne field
+        kwargs['parent'] = Parent.objects.get(id=self.request.user.id)
         return kwargs
 
     def form_valid(self, form):
         logger.info(f"Parent {self.request.user} is registering a child.")
         response = super().form_valid(form)
+
+        # Notify the company
+        parent = Parent.objects.get(id=self.request.user.id)
+        company = parent.profile.company  # Get the company from the parent's profile
+        create_notification(
+            actor=parent,
+            verb=f"registered a new child: {form.instance.get_full_name()}.",
+            content_object=form.instance,
+            child=form.instance,
+            recipients=[company],  # Notify only the company
+            extra_data={
+                "child_name": form.instance.get_full_name(),
+                "registration_date": form.instance.created_at.isoformat(),
+            },
+            notification_type=Notification.NotificationTypes.SUCCESS,
+        )
+
         messages.success(
         self.request,
         _("Successfully registered %(child_name)s!") % {'child_name': form.instance.get_full_name()}
@@ -164,8 +185,41 @@ class ChildProfileUpdateView(ParentRequiredMixin, UpdateView):
         return reverse('child:profile_dashboard', kwargs={'child_id': self.object.id})
 
     def form_valid(self, form):
-        # Log success and add a success message
+        # Get the original values before saving
+        child = self.get_object()
+        original_date_of_birth = child.date_of_birth
+        original_grade_level = child.grade_level
+        original_school = child.school
+
+        # Save the form
         response = super().form_valid(form)
+
+        # Check if any of the dob, grade or school were updated were updated
+        updated_fields = []
+        if form.cleaned_data['date_of_birth'] != original_date_of_birth:
+            updated_fields.append('date_of_birth')
+        if form.cleaned_data['grade_level'] != original_grade_level:
+            updated_fields.append('grade_level')
+        if form.cleaned_data['school'] != original_school:
+            updated_fields.append('school')
+        
+        # If any of the above fields were updated, create a notification
+        if updated_fields:
+            parent = Parent.objects.get(id=self.request.user.id)
+            company = parent.profile.company  # Get the company from the parent's profile
+            create_notification(
+                actor=self.request.user,
+                verb=f"updated the profile of {child.get_full_name()}.",
+                content_object=child,
+                child=child,
+                recipients=[company],  # Notify only the company
+                extra_data={
+                    "updated_fields": updated_fields,
+                },
+                notification_type=Notification.NotificationTypes.INFO,
+            )
+            logger.info(f"Notification created for child profile update: {updated_fields}")
+
         logger.info(f"Child profile updated successfully: {self.object} (ID: {self.object.id})")
         messages.success(self.request, "Child profile updated successfully.")
         return response
@@ -185,6 +239,24 @@ class AddReportFeedbackView(ParentRequiredMixin, View):
         if child_feedback:
             report.feedback_from_child = child_feedback
             report.save()
+
+            # Notify the tutor and company
+            tutor = report.tutor
+            company = tutor.profile.company
+            recipients = [tutor, company]
+
+            create_notification(
+                actor=request.user,
+                verb=f"provided feedback on the report for {report.child.get_full_name()}.\n( Child Feedback. )",
+                content_object=report,
+                child=report.child,
+                recipients=recipients,
+                extra_data={
+                    "feedback": child_feedback,
+                    "report_date": report.created_at.isoformat(),
+                },
+                notification_type=Notification.NotificationTypes.INFO,
+            )
 
         # Render only the updated feedback block to be replaced dynamically
         return render(request, "child/reports/child_feedback_block.html", {"report": report})

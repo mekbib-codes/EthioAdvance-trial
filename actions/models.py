@@ -30,6 +30,7 @@ class Notification(models.Model):
     
     class NotificationTypes(models.TextChoices):
         INFO = 'INFO', 'Info'
+        SUCCESS = 'SUCCESS', 'Success'
         WARNING = 'WARNING', 'Warning'
         ERROR = 'ERROR', 'Error'
 
