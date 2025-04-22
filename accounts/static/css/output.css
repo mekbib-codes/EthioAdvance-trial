@@ -21,6 +21,7 @@
     --color-yellow-50: oklch(98.7% 0.026 102.212);
     --color-yellow-100: oklch(97.3% 0.071 103.193);
     --color-yellow-200: oklch(94.5% 0.129 101.54);
+    --color-yellow-500: oklch(79.5% 0.184 86.047);
     --color-yellow-600: oklch(68.1% 0.162 75.834);
     --color-yellow-800: oklch(47.6% 0.114 61.907);
     --color-green-50: oklch(98.2% 0.018 155.826);
@@ -1333,6 +1334,9 @@
   .p-6 {
     padding: calc(var(--spacing) * 6);
   }
+  .p-8 {
+    padding: calc(var(--spacing) * 8);
+  }
   .px-1 {
     padding-inline: calc(var(--spacing) * 1);
   }
@@ -1431,6 +1435,9 @@
   }
   .indent-4 {
     text-indent: calc(var(--spacing) * 4);
+  }
+  .indent-5 {
+    text-indent: calc(var(--spacing) * 5);
   }
   .font-inter {
     font-family: var(--font-inter);
@@ -1655,6 +1662,9 @@
   }
   .text-white {
     color: var(--color-white);
+  }
+  .text-yellow-500 {
+    color: var(--color-yellow-500);
   }
   .text-yellow-600 {
     color: var(--color-yellow-600);

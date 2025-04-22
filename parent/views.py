@@ -21,6 +21,8 @@ from report.models import Report
 from actions.models import Notification
 from actions.utils import create_notification
 
+from testimonials.models import Testimonial
+
 import logging
 logger = logging.getLogger('app')
 
@@ -30,10 +32,11 @@ class ParentDashboardView(ParentRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            parent = Parent.objects.get(id=self.request.user.id)
-
+            parent = Parent.objects.prefetch_related('children').get(id=self.request.user.id)
+            testimonials = Testimonial.objects.filter(show_testimonial=True).exclude(parent=parent).select_related('parent', 'parent__parent_profile')
             context.update({
                 'parent': parent,
+                'testimonials': testimonials,
                 'active_section': 'dashboard',
             })
             
@@ -44,7 +47,7 @@ class ParentDashboardView(ParentRequiredMixin, TemplateView):
             
         except Exception as e:
             logger.error(
-                f"Parent dashboard error for {parent.get_full_name()}: {str(e)}",
+                f"Parent dashboard error for {self.request.user.get_full_name()}: {str(e)}",
                 exc_info=True
             )
             raise PermissionDenied("Error loading dashboard")
