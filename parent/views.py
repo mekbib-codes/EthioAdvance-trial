@@ -18,6 +18,9 @@ from session.views import BaseSessionsDashboardView
 from report.views import BaseReportsDashboardView
 from report.models import Report
 
+from actions.models import Notification
+from actions.utils import create_notification
+
 import logging
 logger = logging.getLogger('app')
 
@@ -160,6 +163,29 @@ class UpdateSessionStatusView(ParentRequiredMixin, View):
         if status in ["approved", "rejected"]:
             session.status = status
             session.save()
+
+            # Determine the notification type based on the status
+            notification_type = (
+                Notification.NotificationTypes.SUCCESS
+                if status == Session.Status.APPROVED
+                else Notification.NotificationTypes.ERROR
+            )
+
+            # Notify the tutor and company
+            tutor = session.tutor
+            company = tutor.profile.company
+            recipients = [tutor, company]
+
+            create_notification(
+                actor=request.user,
+                verb=f"updated the session status to {status} for {session.child.get_full_name()}.",
+                content_object=session,
+                child=session.child,
+                recipients=recipients,
+                extra_data={
+                },
+                notification_type=notification_type,
+            )
             
             # Render only the updated session block to be replaced dynamically
             return render(request, "parent/sessions/status_update/session_block.html", {"session": session})
@@ -205,6 +231,22 @@ class AddReportFeedbackView(ParentRequiredMixin, View):
         if parent_feedback:
             report.feedback_from_parent = parent_feedback
             report.save()
+
+            # Notify the tutor and company
+            tutor = report.tutor
+            company = tutor.profile.company
+            recipients = [tutor, company]
+
+            create_notification(
+                actor=request.user,
+                verb=f"provided feedback on the report for {report.child.get_full_name()}.",
+                content_object=report,
+                child=report.child,
+                recipients=recipients,
+                extra_data={
+                },
+                notification_type=Notification.NotificationTypes.INFO,
+            )
 
         # Render only the updated feedback block to be replaced dynamically
         return render(request, "parent/reports/parent_feedback_block.html", {"report": report})

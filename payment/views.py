@@ -12,6 +12,9 @@ import requests
 import logging
 import json
 
+from actions.models import Notification
+from actions.utils import create_notification
+
 logger = logging.getLogger(__name__)
 
 logger = logging.getLogger('app')
@@ -127,6 +130,20 @@ class ChapaWebhookView(View):
 
                 # Mark sessions as paid
                 payment.sessions.update(is_paid=True)
+
+                # Notify the company
+                company = payment.parent.profile.company
+                create_notification(
+                    actor=payment.parent,
+                    verb=f"made a payment of ${payment.amount} for {payment.child.get_full_name()}.",
+                    content_object=payment,
+                    child=payment.child,
+                    recipients=[company],  # Notify only the company
+                    extra_data={
+                        "payment_reference": payment.tx_ref,
+                    },
+                    notification_type=Notification.NotificationTypes.SUCCESS
+                )
 
                 logger.info(f"Payment with tx_ref {tx_ref} verified successfully.")
             return JsonResponse({"message": "Payment verified and sessions marked as paid."})

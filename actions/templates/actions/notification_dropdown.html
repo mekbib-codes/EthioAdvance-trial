@@ -1,0 +1,160 @@
+{% load static %}
+
+<div class="relative inline-block text-left">
+    <button class="relative focus:outline-none cursor-pointer" id="notification-bell">
+        <img src="{% static 'img/bell-icon.png' %}" alt="Notifications" class="w-6 h-6">
+        {% if unread_notification_count > 0 %}
+            <span id="notification-count" class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full px-1">{{ unread_notification_count }}</span>
+        {% endif %}
+    </button>
+
+    <div id="notification-dropdown" class="hidden absolute left-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+        {% if unread_notifications %}
+            <div class="p-2 bg-gray-100 border-b border-gray-200 flex justify-between items-center">
+                <button id="select-all-btn" class="text-blue-500 text-sm font-medium hover:text-blue-700 cursor-pointer">
+                    Select All
+                </button>
+                <button id="mark-as-read-btn" class="bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50 cursor-pointer" disabled>
+                    Mark as Read
+                </button>
+            </div>
+            <ul id="notification-list" class="divide-y divide-gray-200">
+                {% for notification in unread_notifications %}
+                    <li class="p-4 hover:bg-gray-100 flex items-start gap-2">
+                        <input type="checkbox" class="notification-checkbox mt-1 cursor-pointer" data-id="{{ notification.id }}">
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">{{ notification.notification.actor.get_full_name }} {{ notification.notification.verb }}</p>
+                            <p class="text-xs text-gray-400">{{ notification.notification.created_at|date:"Y-m-d H:i:s" }}</p>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <ul id="notification-list" class="divide-y divide-gray-200">
+                <li class="p-4 text-gray-500 text-sm">No unread notifications</li>
+            </ul>
+        {% endif %}
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const bellIcon = document.getElementById('notification-bell');
+        const dropdown = document.getElementById('notification-dropdown');
+        const selectAllBtn = document.getElementById('select-all-btn');
+        const markAsReadBtn = document.getElementById('mark-as-read-btn');
+
+        if (bellIcon && dropdown) {
+            bellIcon.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                // Toggle the visibility of the dropdown
+                dropdown.classList.toggle('hidden');
+            });
+        }
+
+        // Function to enable/disable the "Mark as Read" button
+        function updateButtonState() {
+            const checkboxes = document.querySelectorAll('.notification-checkbox');
+            const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+            if (markAsReadBtn) {
+                markAsReadBtn.disabled = !anyChecked;
+            }
+        }
+
+        // Function to attach event listeners to checkboxes
+        function attachCheckboxListeners() {
+            const checkboxes = document.querySelectorAll('.notification-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    updateButtonState();
+                });
+            });
+        }
+
+        // Function to handle the "Mark as Read" button click
+        function handleMarkAsRead() {
+            const checkboxes = document.querySelectorAll('.notification-checkbox');
+            const selectedIds = Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.dataset.id);
+
+            if (selectedIds.length > 0) {
+                fetch("{% url 'actions:mark_notifications_as_read' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: JSON.stringify({ notification_ids: selectedIds }),
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Remove marked notifications from the dropdown
+                        selectedIds.forEach(id => {
+                            const checkbox = document.querySelector(`.notification-checkbox[data-id="${id}"]`);
+                            if (checkbox) {
+                                checkbox.closest('li').remove();
+                            }
+                        });
+
+                        // Check if there are any remaining notifications
+                        const remainingNotifications = document.querySelectorAll('.notification-checkbox');
+                        if (remainingNotifications.length === 0) {
+                            // Update the dropdown to show "No unread notifications"
+                            const notificationList = document.getElementById('notification-list');
+                            notificationList.innerHTML = `
+                                <li class="p-4 text-gray-500 text-sm">No unread notifications</li>
+                            `;
+
+                            // Hide the "Mark as Read" and the 'Select All' button
+                            if (markAsReadBtn) {
+                                markAsReadBtn.remove();
+                            }
+                            if (selectAllBtn){
+                                selectAllBtn.remove()
+                            }
+                        }
+
+                        // Update the notification count
+                        const notificationCount = document.getElementById('notification-count');
+                        const currentCount = parseInt(notificationCount.textContent) || 0;
+                        notificationCount.textContent = Math.max(0, currentCount - selectedIds.length);
+
+                        if (parseInt(notificationCount.textContent) === 0) {
+                            notificationCount.classList.add('hidden');
+                        }
+                    } else {
+                        console.error('Failed to mark notifications as read');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        }
+
+        // Function to handle the "Select All" button click
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', function () {
+                const checkboxes = document.querySelectorAll('.notification-checkbox');
+                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+
+                // Toggle all checkboxes
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = !allChecked;
+                });
+
+                // Update the button state
+                updateButtonState();
+            });
+        }
+
+        // Initialize the button state and attach listeners on page load
+        updateButtonState();
+        attachCheckboxListeners();
+
+        if (markAsReadBtn) {
+            markAsReadBtn.addEventListener('click', handleMarkAsRead);
+        }
+    });
+</script>

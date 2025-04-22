@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'report.apps.ReportConfig',
     'payment.apps.PaymentConfig',
     'django.contrib.humanize',
+    'actions.apps.ActionsConfig',
 ]
 
 SITE_ID = 1  # Usually 1 for the default site
@@ -77,6 +78,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Custom context processor for notification
+                'actions.context_processors.notifications_context',
             ],
         },
     },
