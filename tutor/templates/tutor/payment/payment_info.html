@@ -69,7 +69,7 @@
         </div>
         {% endif %}
 
-        <!-- Pay Now Button (Conditional) -->
+        <!-- Request Button (Conditional) -->
         {% if payout and payout >= 1000 and not pending_payment %}
             <div class="pt-2">
                 <form action="{% url 'tutor:tutor_request_payment' child.id %}" method="POST" class="w-full">

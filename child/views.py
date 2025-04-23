@@ -16,7 +16,7 @@ from session.models import Session
 from report.models import Report
 
 from actions.models import Notification
-from actions.utils import create_notification
+from actions.utils import create_notification, create_activity_log
 
 import logging
 logger = logging.getLogger('app')
@@ -47,8 +47,6 @@ class ChildRegistrationView(ParentRequiredMixin, CreateView):
             child=form.instance,
             recipients=[company],  # Notify only the company
             extra_data={
-                "child_name": form.instance.get_full_name(),
-                "registration_date": form.instance.created_at.isoformat(),
             },
             notification_type=Notification.NotificationTypes.SUCCESS,
         )
@@ -220,6 +218,17 @@ class ChildProfileUpdateView(ParentRequiredMixin, UpdateView):
             )
             logger.info(f"Notification created for child profile update: {updated_fields}")
 
+        # Log the activity
+        parent = self.request.user
+        pronoun = 'his' if child.gender == 'MALE' else 'her'
+        create_activity_log(
+            user=parent,
+            action=f"{ child.first_name } updated {pronoun} profile.",
+            related_object=child,
+            link='child:profile_dashboard',
+            kwargs={'child_id': child.id}
+        )
+
         logger.info(f"Child profile updated successfully: {self.object} (ID: {self.object.id})")
         messages.success(self.request, "Child profile updated successfully.")
         return response
@@ -245,17 +254,33 @@ class AddReportFeedbackView(ParentRequiredMixin, View):
             company = tutor.profile.company
             recipients = [tutor, company]
 
+            child = report.child
+            parent = child.parent
+            pronoun = 'his' if child.gender == 'MALE' else 'her'
+
             create_notification(
-                actor=request.user,
-                verb=f"provided feedback on the report for {report.child.get_full_name()}.\n( Child Feedback. )",
+                actor=parent,
+                verb=f"{child.get_full_name()} provided feedback on {pronoun} report for.",
                 content_object=report,
-                child=report.child,
+                child=child,
                 recipients=recipients,
                 extra_data={
-                    "feedback": child_feedback,
-                    "report_date": report.created_at.isoformat(),
+                    'company_link': 'company:child_reports_dashboard',
+                    'company_link_kwargs': {'child_id': child.id},
+                    'tutor_link': 'tutor:child_reports_dashboard',
+                    'tutor_link_kwargs': {'child_id': child.id}
                 },
                 notification_type=Notification.NotificationTypes.INFO,
+            )
+
+
+            # Log the activity
+            create_activity_log(
+                user=parent,
+                action=f"{ child.first_name } Gave feedback {pronoun} report.",
+                related_object=report,
+                link='parent:child_reports_dashboard',
+                kwargs={'child_id': child.id}
             )
 
         # Render only the updated feedback block to be replaced dynamically

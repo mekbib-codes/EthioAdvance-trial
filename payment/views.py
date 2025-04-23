@@ -13,7 +13,7 @@ import logging
 import json
 
 from actions.models import Notification
-from actions.utils import create_notification
+from actions.utils import create_notification, create_activity_log
 
 logger = logging.getLogger(__name__)
 
@@ -130,19 +130,27 @@ class ChapaWebhookView(View):
 
                 # Mark sessions as paid
                 payment.sessions.update(is_paid=True)
-
+                
                 # Notify the company
-                company = payment.parent.profile.company
+                parent, child = payment.parent, payment.child
+                company = parent.profile.company
                 create_notification(
-                    actor=payment.parent,
-                    verb=f"made a payment of ${payment.amount} for {payment.child.get_full_name()}.",
+                    actor=parent,
+                    verb=f"made a payment of ${payment.amount} for {child.get_full_name()}.",
                     content_object=payment,
-                    child=payment.child,
+                    child=child,
                     recipients=[company],  # Notify only the company
                     extra_data={
-                        "payment_reference": payment.tx_ref,
-                    },
+                    'company_link': 'company:payment_dashboard',
+                },
                     notification_type=Notification.NotificationTypes.SUCCESS
+                )
+
+                create_activity_log(
+                    user=parent,
+                    action=f"Made a payment of { payment.amount } ETB for { child.first_name }",
+                    related_object=payment,
+                    link='parent:payment_dashboard',
                 )
 
                 logger.info(f"Payment with tx_ref {tx_ref} verified successfully.")

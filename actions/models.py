@@ -3,6 +3,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
 
 class Notification(models.Model):
     """Core notification event with flexible verb-based actions"""
@@ -28,6 +30,13 @@ class Notification(models.Model):
     )
     content_object = GenericForeignKey('content_type', 'object_id')
     
+    links = models.JSONField(
+        null=True,
+        blank=True,
+        verbose_name=_("Link"),
+        help_text=_("URLs to redirect based on role to when this notification is clicked.")
+    )
+
     class NotificationTypes(models.TextChoices):
         INFO = 'INFO', 'Info'
         SUCCESS = 'SUCCESS', 'Success'
@@ -112,3 +121,57 @@ class UserNotification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user} ({'read' if self.is_read else 'unread'})"
+
+class ActivityLog(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="activity_logs",
+        verbose_name=_("User"),
+        help_text=_("The user who performed the action.")
+    )
+    action = models.CharField(
+        max_length=500,
+        verbose_name=_("Action"),
+        help_text=_("Description of the action performed.")
+    )
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name=_("Content Type"),
+        help_text=_("The type of the related object.",)
+    )
+    object_id = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name=_("Object ID"),
+        help_text=_("The ID of the related object.",)
+    )
+    related_object = GenericForeignKey('content_type', 'object_id')
+    
+    link = models.CharField(
+        max_length=500,
+        null=True,
+        blank=True,
+        verbose_name=_("Link"),
+        help_text=_("A URL to redirect to when this action is clicked.")
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_("Timestamp"),
+        help_text=_("The time when the action was performed.")
+    )
+
+    class Meta:
+        verbose_name = _("Activity Log")
+        verbose_name_plural = _("Activity Logs")
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'created_at']),  # For filtering by user and sorting by time
+            models.Index(fields=['content_type', 'object_id']),  # For linking related objects
+        ]
+
+    def __str__(self):
+        return f"{self.user} - {self.action} at {self.created_at}"
