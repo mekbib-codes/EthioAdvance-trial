@@ -16,7 +16,7 @@ import logging
 from datetime import datetime, timedelta
 
 from actions.models import Notification
-from actions.utils import create_notification
+from actions.utils import create_notification, create_activity_log
 
 logger = logging.getLogger('app')
 
@@ -191,6 +191,14 @@ class CreateReportView(TutorRequiredMixin, View):
                 notification_type=Notification.NotificationTypes.INFO
             )
 
+            # Log the activity
+            create_activity_log(
+                user=self.request.user,
+                action=f"Created report for { self.child.get_full_name() }",
+                related_object=report,
+                link='tutor:child_reports_dashboard',
+                kwargs={'child_id': self.child.id}
+            )
 
             logger.info(f"Report successfully created by {request.user.email} for child {child.id}")
             messages.success(request, f"Report for {child.get_full_name()} created successfully.")

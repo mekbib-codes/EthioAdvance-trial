@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.utils.translation import gettext as _
 from django.conf import settings
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 
 from accounts.mixins import CompanyRequiredMixin, TutorRequiredMixin
 from accounts.views.base_registration import BaseRegistrationView
@@ -20,10 +20,11 @@ from child.models import Child
 from tutor.models import Tutor, TutorProfile
 from report.views import BaseReportsDashboardView, BaseReportStepView
 from report.forms import ReportSummaryForm, SessionInsightForm, QuizAssignmentForm, MockExamForm, ChallengesAndSolutionsForm
-from payment.models import TutorPayments
+from payment.models import TutorPayments, TutorPayRate
 
-from actions.models import Notification
-from actions.utils import create_notification
+from actions.models import Notification, ActivityLog
+from actions.utils import create_notification, create_activity_log
+from testimonials.models import Testimonial
 
 import logging
 from uuid import uuid4
@@ -36,10 +37,92 @@ class TutorDashboardView(TutorRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            tutor = Tutor.objects.select_related("tutor_profile").get(id=self.request.user.id)
+            tutor = Tutor.objects.prefetch_related('students', 'activity_logs', 'payments').select_related("tutor_profile").get(id=self.request.user.id)
+
+            # Get all sessions for the tutor
+            sessions = Session.objects.filter(tutor=tutor).select_related('child')
+
+            total_sessions = sessions.count()
+            pending_sessions = sessions.filter(status=Session.Status.PENDING)
+            approved_sessions = sessions.filter(status=Session.Status.APPROVED)
+            rejected_sessions = sessions.filter(status=Session.Status.REJECTED)
+            
+            session_data = {
+                'total_sessions': total_sessions,
+                'total_duration': sessions.aggregate(total=Sum('duration'))['total'] or 0,
+                
+                'pending_sessions': pending_sessions.count(),
+                'pending_duration': pending_sessions.aggregate(total=Sum('duration'))['total'] or 0,
+                
+                'approved_sessions': approved_sessions.count(),
+                'approved_duration': approved_sessions.aggregate(total=Sum('duration'))['total'] or 0,
+                
+                'rejected_sessions': rejected_sessions.count(),
+                'rejected_duration': rejected_sessions.aggregate(total=Sum('duration'))['total'] or 0,
+                
+                # If I need the actual session objects in the future
+                # 'all_sessions': sessions.order_by('-created_at')[:10]
+            }
+
+            # Calculate percentages
+            total = session_data['total_sessions'] or 1  # avoid division by zero
+            session_data['approved_percentage'] = round((session_data['approved_sessions'] / total) * 100)
+            session_data['pending_percentage'] = round((session_data['pending_sessions'] / total) * 100)
+            session_data['rejected_percentage'] = round((session_data['rejected_sessions'] / total) * 100)
+
+            # Get payment info
+            success_payments = tutor.tutor_payments.filter(status=TutorPayments.STATUS.SUCCESS)
+            total_earned = success_payments.aggregate(total=Sum('amount'))['total'] or 0
+            requested_payments = tutor.tutor_payments.filter(status=TutorPayments.STATUS.PENDING)
+            total_requested = requested_payments.aggregate(total=Sum('amount'))['total'] or 0
+
+            # Paid/Unpaid sessions
+            paid_sessions = approved_sessions.filter(paid_to_tutor=True)
+            unpaid_sessions = approved_sessions.filter(paid_to_tutor=False)
+
+            # Duration calculations
+            paid_sessions_duration = paid_sessions.aggregate(
+                total=Sum('duration')
+            )['total'] or 0
+
+            unpaid_sessions_duration = unpaid_sessions.aggregate(
+                total=Sum('duration')
+            )['total'] or 0
+
+            # Calculate amount unpaid
+            try:
+                rate = TutorPayRate.objects.latest("updated_at").current_hourly_rate
+            except TutorPayRate.DoesNotExist:
+                rate = 0
+                logger.warning("No TutorPayRate found")
+            
+            if unpaid_sessions_duration != 0:
+                # Convert duration to hours (assuming duration is in minutes)
+                total_unpaid_hours = unpaid_sessions_duration.total_seconds() / 3600
+                total_unpaid = round(total_unpaid_hours * float(rate), 2)
+            else:
+                total_unpaid = 0
+
+            payment_data = {
+                'total_earned': total_earned,
+                'total_requested': total_requested,
+                'total_unpiad': total_unpaid,
+                'paid_sessions': paid_sessions.count(),
+                'unpaid_sessions': unpaid_sessions.count(),
+                'paid_sessions_duration': paid_sessions_duration,
+                'unpaid_sessions_duration': unpaid_sessions_duration,
+                'hourly_rate': rate  # Include for transparency
+            }
+
+            testimonials = Testimonial.objects.filter(show_testimonial=True).select_related('parent', 'parent__parent_profile')[:3]
+            activities = ActivityLog.objects.filter(user=tutor)[:5]
 
             context.update({
                 'tutor': tutor,
+                'testimonials': testimonials,
+                'activities': activities,
+                'session_data': session_data,
+                'payment_data': payment_data,
                 'active_section': 'dashboard',
             })
             
@@ -126,6 +209,16 @@ class TutorProfileUpdateView(TutorRequiredMixin, UpdateView):
         try:
             # Save the form and add a success message
             response = super().form_valid(form)
+
+            # Log the activity
+            tutor = self.request.user
+            create_activity_log(
+                user=tutor,
+                action="Updated your profile",
+                related_object=tutor,
+                link='tutor:profile_dashboard'
+            )
+
             messages.success(self.request, "Your profile has been updated successfully.")
             logger.info(f"Profile updated successfully for tutor: {self.request.user.get_full_name()} (ID: {self.request.user.id})")
             return response
@@ -208,6 +301,14 @@ class CreateSessionView(TutorRequiredMixin, CreateView):
                 },
                 notification_type=Notification.NotificationTypes.INFO)
             
+            # Log the activity
+            create_activity_log(
+                user=self.request.user,
+                action=f"Created session for { self.child.get_full_name() }",
+                related_object=form.instance,
+                link='tutor:child_sessions_dashboard',
+                kwargs={'child_id': self.child.id}
+            )
 
             messages.success(self.request, f"Session for {self.child.get_full_name()} created successfully.")
             logger.info(f"Session created successfully by {self.request.user.email} for child {self.child.id}")
@@ -416,6 +517,14 @@ class TutorRequestPaymentView(View):
                     "company_link_kwargs": {"tutor_id": tutor.id}
                 },
                 notification_type=Notification.NotificationTypes.INFO
+            )
+
+            # Log the activity
+            create_activity_log(
+                user=tutor,
+                action=f"Requested ${amount} for sessions with {child.get_full_name()}",
+                related_object=payment,
+                link='tutor:payment_dashboard',
             )
 
             # Add a success message and redirect

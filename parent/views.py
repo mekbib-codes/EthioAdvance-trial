@@ -33,7 +33,7 @@ class ParentDashboardView(ParentRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            parent = Parent.objects.prefetch_related('children', 'activity_logs', 'payments').get(id=self.request.user.id)
+            parent = Parent.objects.prefetch_related('children', 'activity_logs', 'payments').select_related('parent_profile').get(id=self.request.user.id)
             
             # Get all sessions for all the parent
             sessions = Session.objects.filter(child__parent=parent).select_related('child')
