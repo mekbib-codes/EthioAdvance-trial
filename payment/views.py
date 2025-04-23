@@ -141,8 +141,8 @@ class ChapaWebhookView(View):
                     child=child,
                     recipients=[company],  # Notify only the company
                     extra_data={
-                        "payment_reference": payment.tx_ref,
-                    },
+                    'company_link': 'company:payment_dashboard',
+                },
                     notification_type=Notification.NotificationTypes.SUCCESS
                 )
 

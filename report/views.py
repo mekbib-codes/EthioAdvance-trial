@@ -183,6 +183,10 @@ class CreateReportView(TutorRequiredMixin, View):
                 child=child,
                 recipients=recipients,
                 extra_data={
+                    'parent_link': "parent:child_reports_dashboard",
+                    'parent_link_kwargs': {'child_id': child.id},
+                    'company_link': 'company:child_reports_dashboard',
+                    'company_link_kwargs': {'child_id': child.id},
                 },
                 notification_type=Notification.NotificationTypes.INFO
             )

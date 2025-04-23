@@ -47,8 +47,6 @@ class ChildRegistrationView(ParentRequiredMixin, CreateView):
             child=form.instance,
             recipients=[company],  # Notify only the company
             extra_data={
-                "child_name": form.instance.get_full_name(),
-                "registration_date": form.instance.created_at.isoformat(),
             },
             notification_type=Notification.NotificationTypes.SUCCESS,
         )
@@ -257,24 +255,26 @@ class AddReportFeedbackView(ParentRequiredMixin, View):
             recipients = [tutor, company]
 
             child = report.child
+            parent = child.parent
+            pronoun = 'his' if child.gender == 'MALE' else 'her'
+
             create_notification(
-                actor=request.user,
-                verb=f"provided feedback on the report for {child.get_full_name()}.\n( Child Feedback. )",
+                actor=parent,
+                verb=f"{child.get_full_name()} provided feedback on {pronoun} report for.",
                 content_object=report,
                 child=child,
                 recipients=recipients,
                 extra_data={
-                    "feedback": child_feedback,
-                    "report_date": report.created_at.isoformat(),
+                    'company_link': 'company:child_reports_dashboard',
+                    'company_link_kwargs': {'child_id': child.id},
+                    'tutor_link': 'tutor:child_reports_dashboard',
+                    'tutor_link_kwargs': {'child_id': child.id}
                 },
                 notification_type=Notification.NotificationTypes.INFO,
             )
 
 
             # Log the activity
-            parent = self.request.user
-
-            pronoun = 'his' if child.gender == 'MALE' else 'her'
             create_activity_log(
                 user=parent,
                 action=f"{ child.first_name } Gave feedback {pronoun} report.",

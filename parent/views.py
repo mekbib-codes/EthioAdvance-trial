@@ -265,6 +265,7 @@ class UpdateSessionStatusView(ParentRequiredMixin, View):
 
             # Notify the tutor and company
             tutor = session.tutor
+            child = session.child
             company = tutor.profile.company
             recipients = [tutor, company]
 
@@ -275,6 +276,10 @@ class UpdateSessionStatusView(ParentRequiredMixin, View):
                 child=session.child,
                 recipients=recipients,
                 extra_data={
+                    'company_link': 'company:child_sessions_dashboard',
+                    'company_link_kwargs': {'child_id': child.id},
+                    'tutor_link': 'tutor:child_sessions_dashboard',
+                    'tutor_link_kwargs': {'child_id': child.id}
                 },
                 notification_type=notification_type,
             )
@@ -336,6 +341,7 @@ class AddReportFeedbackView(ParentRequiredMixin, View):
 
             # Notify the tutor and company
             tutor = report.tutor
+            child = report.child
             company = tutor.profile.company
             recipients = [tutor, company]
 
@@ -346,6 +352,10 @@ class AddReportFeedbackView(ParentRequiredMixin, View):
                 child=report.child,
                 recipients=recipients,
                 extra_data={
+                    'company_link': 'company:child_reports_dashboard',
+                    'company_link_kwargs': {'child_id': child.id},
+                    'tutor_link': 'tutor:child_reports_dashboard',
+                    'tutor_link_kwargs': {'child_id': child.id}
                 },
                 notification_type=Notification.NotificationTypes.INFO,
             )

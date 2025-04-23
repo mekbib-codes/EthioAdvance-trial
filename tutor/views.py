@@ -201,6 +201,10 @@ class CreateSessionView(TutorRequiredMixin, CreateView):
                                 child=self.child,
                                 recipients=recipents,
                                 extra_data={
+                                    'parent_link': 'parent:child_sessions_dashboard',
+                                    'parent_link_kwargs': {'child_id': self.child.id},
+                                    'company_link': 'company:child_sessions_dashboard',
+                                    'company_link_kwargs': {'child_id': self.child.id},
                 },
                 notification_type=Notification.NotificationTypes.INFO)
             
@@ -408,8 +412,8 @@ class TutorRequestPaymentView(View):
                 child=child,
                 recipients=[company],  # Notify only the company
                 extra_data={
-                    "payment_reference": payment.tx_ref,
-                    "payment_amount": amount,
+                    "company_link": "company:tutor_payment_page",
+                    "company_link_kwargs": {"tutor_id": tutor.id}
                 },
                 notification_type=Notification.NotificationTypes.INFO
             )

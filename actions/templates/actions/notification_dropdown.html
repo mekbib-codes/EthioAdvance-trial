@@ -22,10 +22,14 @@
                 {% for notification in unread_notifications %}
                     <li class="p-4 hover:bg-gray-100 flex items-start gap-2">
                         <input type="checkbox" class="notification-checkbox mt-1 cursor-pointer" data-id="{{ notification.id }}">
-                        <div>
-                            <p class="text-sm font-medium text-gray-800">{{ notification.notification.actor.get_full_name }} {{ notification.notification.verb }}</p>
+                        <a  href="{% if request.user.role == 'PARENT' %}{{ notification.notification.links.parent_link }}
+                        {% elif request.user.role == 'TUTOR' %}{{ notification.notification.links.tutor_link }}
+                        {% else %}{{ notification.notification.links.company_link }}{% endif %}">
+                            <p class="text-sm font-medium text-gray-800">
+                                {{ notification.notification.actor.get_full_name }} {{ notification.notification.verb }}
+                            </p>
                             <p class="text-xs text-gray-400">{{ notification.notification.created_at|date:"Y-m-d H:i:s" }}</p>
-                        </div>
+                        </a>
                     </li>
                 {% endfor %}
             </ul>

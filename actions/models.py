@@ -30,6 +30,13 @@ class Notification(models.Model):
     )
     content_object = GenericForeignKey('content_type', 'object_id')
     
+    links = models.JSONField(
+        null=True,
+        blank=True,
+        verbose_name=_("Link"),
+        help_text=_("URLs to redirect based on role to when this notification is clicked.")
+    )
+
     class NotificationTypes(models.TextChoices):
         INFO = 'INFO', 'Info'
         SUCCESS = 'SUCCESS', 'Success'
