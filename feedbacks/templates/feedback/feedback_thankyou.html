@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Welcome
+{% endblock %}
+
+{% block header %}
+    {% include 'ui/'|add:request.user.role|lower|add:'_header.html' %}
+{% endblock %}
+
+{% block content %}
+    <!-- Hero -->
+    <section class="relative">
+        {% include "components/hero/stripes.html" %}
+    
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
+            <div class="pt-32 md:pt-40">
+                <div class="pb-6 text-center md:pb-10">
+                    
+                    <h1 class="mb-6 border-y text-5xl font-bold [border-image:linear-gradient(to_right,transparent,var(--color-slate-300/0.8),transparent)1] md:text-6xl">
+                    Thank You {{ request.user.get_full_name }}
+                    </h1>
+    
+                    <div class="mx-auto max-w-3xl">
+                        <p class="mb-8 text-lg text-gray-700">
+                            Your feedback have been submitted. We appriciate your efforts to make the platform better.
+                        </p>
+                    
+                        <div class="relative before:absolute before:inset-0 before:border-y before:[border-image:linear-gradient(to_right,transparent,var(--color-slate-300/0.8),transparent)1]">
+                        <div class="mx-auto max-w-xs sm:flex sm:max-w-none sm:justify-center">
+                            
+                            <a class="btn group mb-4 w-full bg-gradient-to-t from-blue-600 to-blue-500 bg-[length:100%_100%] bg-bottom text-white shadow-sm hover:bg-[length:100%_150%] sm:mb-0 sm:w-auto" href="{% url ''|add:request.user.role|lower|add:':dashboard' %}">
+                            <span class="relative inline-flex items-center">
+                                Go back to dashboard
+                                <span class="ml-1 tracking-normal text-blue-300 transition-transform group-hover:translate-x-0.5">
+                                →
+                                </span>
+                            </span>
+                            </a>
+                    
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

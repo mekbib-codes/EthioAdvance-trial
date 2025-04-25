@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'actions.apps.ActionsConfig',
     'testimonials.apps.TestimonialsConfig',
+    'feedbacks.apps.FeedbacksConfig',
 ]
 
 SITE_ID = 1  # Usually 1 for the default site

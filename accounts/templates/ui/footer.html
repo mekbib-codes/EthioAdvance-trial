@@ -1,209 +1,105 @@
-<footer>
-    <div class="mx-auto max-w-6xl px-4 sm:px-6">
-      <!-- {/* Top area: Blocks */} -->
-      <div
-      class="grid gap-10 py-8 sm:grid-cols-12 md:py-12 border-t [border-image:linear-gradient(to_right,transparent,var(--color-slate-200),transparent) 1;]"
-      >
-        <!-- {/* 1st block */} -->
-        <div class="space-y-2 sm:col-span-12 lg:col-span-4">
-          <div>
-            <!-- Logo goes here -->
-             {% include "ui/logo.html" %}
-          </div>
-          <div class="text-sm text-gray-600">
-            &copy; EthioAdvance - All rights reserved.
-          </div>
+<footer class="bg-gradient-to-b from-white to-blue-50 pt-12">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <div class="grid gap-10 py-8 sm:grid-cols-12 md:py-12 border-t border-gray-200">
+      <!-- Logo and Copyright -->
+      <div class="space-y-4 sm:col-span-12 lg:col-span-4">
+        <div class="flex items-center">
+          {% include "ui/logo.html" %}
+          <span class="ml-3 text-xl font-semibold text-gray-800">EthioAdvance</span>
         </div>
+        <p class="text-sm text-gray-600 max-w-xs">
+          Transforming education through personalized learning and innovative technology.
+        </p>
+        <div class="text-sm text-gray-500">
+          &copy; {% now "Y" %} EthioAdvance. All rights reserved.
+        </div>
+      </div>
 
-        <!-- {/* 2nd block */} -->
-        <!-- <div class="space-y-2 sm:col-span-6 md:col-span-3 lg:col-span-2">
-          <h3 class="text-sm font-medium">Product</h3>
-          <ul class="space-y-2 text-sm">
-            <li>
-              <a
-                class="text-gray-600 transition hover:text-gray-900"
-                href="#0"
-              >
-                Features
+      <!-- Company Links -->
+      <div class="space-y-3 sm:col-span-6 md:col-span-3 lg:col-span-2">
+        <h3 class="text-sm font-semibold text-gray-800 uppercase tracking-wider">Company</h3>
+        <ul class="space-y-2">
+          <li>
+            <a href="#about-us" class="text-gray-600 hover:text-blue-600 transition-colors">
+              About us
             </a>
-            </li>
-            <li>
-              <a
-              class="text-gray-600 transition hover:text-gray-900"
-                href="#0"
-              >
-                Integrations
+          </li>
+          {% if request.user.is_authenticated %}
+          <li>
+            <a href="{% url 'feedbacks:submit' %}" class="text-gray-600 hover:text-blue-600 transition-colors">
+              Feedback
             </a>
-            </li>
-            <li>
-              <a
-              class="text-gray-600 transition hover:text-gray-900"
-                href="#0"
-              >
-                Pricing & Plans
+          </li>
+          {% endif %}
+          <li>
+            <a href="#contact" class="text-gray-600 hover:text-blue-600 transition-colors">
+              Contact
             </a>
-            </li>
-            <li>
-              <a
-              class="text-gray-600 transition hover:text-gray-900"
-                href="#0"
-              >
-                Changelog
+          </li>
+        </ul>
+      </div>
+
+      <!-- Resources -->
+      <div class="space-y-3 sm:col-span-6 md:col-span-3 lg:col-span-2">
+        <h3 class="text-sm font-semibold text-gray-800 uppercase tracking-wider">Resources</h3>
+        <ul class="space-y-2">
+          <li>
+            <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">
+              Terms of Service
             </a>
-            </li>
-            <li>
-              <a
-              class="text-gray-600 transition hover:text-gray-900"
-                href="#0"
-              >
-                Our method
+          </li>
+          <li>
+            <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">
+              Privacy Policy
             </a>
-            </li>
-          </ul>
+          </li>
+          <li>
+            <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">
+              FAQs
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Social Media -->
+      <div class="space-y-3 sm:col-span-6 md:col-span-3 lg:col-span-2">
+        <h3 class="text-sm font-semibold text-gray-800 uppercase tracking-wider">Connect</h3>
+        <div class="flex space-x-4">
+          <a href="#" aria-label="Twitter" class="text-gray-500 hover:text-blue-500 transition-colors">
+            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path>
+            </svg>
+          </a>
+          <a href="#" aria-label="Facebook" class="text-gray-500 hover:text-blue-600 transition-colors">
+            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd"></path>
+            </svg>
+          </a>
+          <a href="#" aria-label="LinkedIn" class="text-gray-500 hover:text-blue-700 transition-colors">
+            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path>
+            </svg>
+          </a>
+        </div>
+        
+        <!-- Email Subscription
+        <div class="mt-4">
+          <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Stay Updated</h4>
+          <form class="flex">
+            <input type="email" placeholder="Your email" class="px-3 py-2 text-sm border border-gray-300 rounded-l focus:outline-none focus:ring-1 focus:ring-blue-500">
+            <button type="submit" class="bg-blue-600 text-white px-3 py-2 text-sm rounded-r hover:bg-blue-700 transition-colors">
+              Subscribe
+            </button>
+          </form>
         </div> -->
-
-        <!-- {/* 3rd block */} -->
-        <div class="space-y-2 sm:col-span-6 md:col-span-3 lg:col-span-2">
-          <h3 class="text-sm font-medium">Company</h3>
-          <ul class="space-y-2 text-sm">
-            <li>
-              <a
-              class="text-gray-600 transition hover:text-gray-900"
-                href="#about-us"
-                aria-label="About us"
-              >
-                About us
-            </a>
-            </li>
-            <!-- <li>
-              <a
-              class="text-gray-600 transition hover:text-gray-900"
-                href="#0"
-              >
-                Diversity & Inclusion
-            </a>
-            </li>
-            <li>
-              <a
-              class="text-gray-600 transition hover:text-gray-900"
-                href="#0"
-              >
-                Blog
-            </a>
-            </li>
-            <li>
-              <a
-              class="text-gray-600 transition hover:text-gray-900"
-                href="#0"
-              >
-                Careers
-            </a>
-            </li>
-            <li>
-              <a
-              class="text-gray-600 transition hover:text-gray-900"
-                href="#0"
-              >
-                Financial statements
-            </a>
-            </li> -->
-          </ul>
-        </div>
-
-        <!-- {/* 4th block */} -->
-        <div class="space-y-2 sm:col-span-6 md:col-span-3 lg:col-span-2">
-          <h3 class="text-sm font-medium">Resources</h3>
-          <ul class="space-y-2 text-sm">
-            <!-- <li>
-              <a
-              class="text-gray-600 transition hover:text-gray-900"
-                href="#0"
-              >
-                Community
-            </a>
-            </li> -->
-            <li>
-              <a
-              class="text-gray-600 transition hover:text-gray-900"
-                href="#0"
-              >
-                Terms of service
-            </a>
-            </li>
-            <!-- <li>
-              <a
-              class="text-gray-600 transition hover:text-gray-900"
-                href="#0"
-              >
-                Report a vulnerability
-            </a>
-            </li> -->
-          </ul>
-        </div>
-
-        <!-- {/* 5th block */} -->
-        <div class="space-y-2 sm:col-span-6 md:col-span-3 lg:col-span-2">
-          <h3 class="text-sm font-medium">Social</h3>
-          <ul class="flex gap-1">
-            <li>
-              <a
-              class="flex items-center justify-center text-blue-500 transition hover:text-blue-600"
-                href="#0"
-                aria-label="Twitter"
-              >
-                <svg
-                class="h-8 w-8 fill-current"
-                  viewBox="0 0 32 32"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="m13.063 9 3.495 4.475L20.601 9h2.454l-5.359 5.931L24 23h-4.938l-3.866-4.893L10.771 23H8.316l5.735-6.342L8 9h5.063Zm-.74 1.347h-1.457l8.875 11.232h1.36l-8.778-11.232Z"></path>
-                </svg>
-            </a>
-            </li>
-            <li>
-              <a
-              class="flex items-center justify-center text-blue-500 transition hover:text-blue-600"
-                href="#0"
-                aria-label="Medium"
-              >
-                <svg
-                class="h-8 w-8 fill-current"
-                  viewBox="0 0 32 32"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M23 8H9a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1Zm-1.708 3.791-.858.823a.251.251 0 0 0-.1.241V18.9a.251.251 0 0 0 .1.241l.838.823v.181h-4.215v-.181l.868-.843c.085-.085.085-.11.085-.241v-4.887l-2.41 6.131h-.329l-2.81-6.13V18.1a.567.567 0 0 0 .156.472l1.129 1.37v.181h-3.2v-.181l1.129-1.37a.547.547 0 0 0 .146-.472v-4.749a.416.416 0 0 0-.138-.351l-1-1.209v-.181H13.8l2.4 5.283 2.122-5.283h2.971l-.001.181Z"></path>
-                </svg>
-            </a>
-            </li>
-            <li>
-              <a
-              class="flex items-center justify-center text-blue-500 transition hover:text-blue-600"
-                href="#0"
-                aria-label="Github"
-              >
-                <svg
-                class="h-8 w-8 fill-current"
-                  viewBox="0 0 32 32"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M16 8.2c-4.4 0-8 3.6-8 8 0 3.5 2.3 6.5 5.5 7.6.4.1.5-.2.5-.4V22c-2.2.5-2.7-1-2.7-1-.4-.9-.9-1.2-.9-1.2-.7-.5.1-.5.1-.5.8.1 1.2.8 1.2.8.7 1.3 1.9.9 2.3.7.1-.5.3-.9.5-1.1-1.8-.2-3.6-.9-3.6-4 0-.9.3-1.6.8-2.1-.1-.2-.4-1 .1-2.1 0 0 .7-.2 2.2.8.6-.2 1.3-.3 2-.3s1.4.1 2 .3c1.5-1 2.2-.8 2.2-.8.4 1.1.2 1.9.1 2.1.5.6.8 1.3.8 2.1 0 3.1-1.9 3.7-3.7 3.9.3.4.6.9.6 1.6v2.2c0 .2.1.5.6.4 3.2-1.1 5.5-4.1 5.5-7.6-.1-4.4-3.7-8-8.1-8z"></path>
-                </svg>
-            </a>
-            </li>
-          </ul>
-        </div>
       </div>
     </div>
+  </div>
 
-    <!-- {/* Big text */} -->
-    <div class="relative -mt-16 h-60 w-full" aria-hidden="true">
-      <div class="pointer-events-none absolute left-1/2 -z-10 -translate-x-1/2 text-center text-[348px] font-bold leading-none before:bg-linear-to-b before:from-gray-200 before:to-gray-100/30 before:to-80% before:bg-clip-text before:text-transparent before:content-['Maybee'] after:absolute after:inset-0 after:bg-gray-300/70 after:bg-clip-text after:text-transparent after:mix-blend-darken after:content-['Maybee'] after:[text-shadow:0_1px_0_white]"></div>
-      <!-- {/* Glow */} -->
-      <div
-      class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-2/3"
-        aria-hidden="true"
-      >
-        <div class="h-56 w-56 rounded-full border-[20px] border-blue-700 blur-[80px]"></div>
-      </div>
+  <!-- Subtle Branding Element -->
+  <div class="relative h-32 w-full overflow-hidden">
+    <div class="pointer-events-none absolute left-1/2 -translate-x-1/2 text-center text-7xl md:text-8xl font-bold leading-none text-gray-100 select-none">
+      EthioAdvance
     </div>
-  </footer>
+  </div>
+</footer>

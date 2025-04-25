@@ -30,6 +30,8 @@ urlpatterns = [
     path('report/', include('report.urls', namespace='reports')),
     path('payment/', include('payment.urls', namespace='payment')),
     path('actions/', include('actions.urls', namespace='actions')),
+    path('feedbacks/', include('feedbacks.urls', namespace='feedbacks')),
+    path('testimonials/', include('testimonials.urls', namespace='testimonials')),
 ]
 
 if settings.DEBUG:
