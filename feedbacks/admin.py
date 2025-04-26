@@ -8,6 +8,7 @@ class FeedbackAdmin(admin.ModelAdmin):
     list_display = ('user', 'short_text', 'created_at', 'status', 'status_badge')
     list_filter = ('rating', 'created_at')
     search_fields = ('text', 'user__first_name', 'user__last_name', 'user__email')
+    list_editable = ['status']
     readonly_fields = ('created_at',)
     fieldsets = (
         (None, {

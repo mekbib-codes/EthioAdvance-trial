@@ -12,7 +12,7 @@ logger =  logging.getLogger('app')
 class Child(models.Model):
     parent = models.ForeignKey(
         'parent.Parent',
-        on_delete=models.CASCADE,  # Changed to CASCADE as per your requirement
+        on_delete=models.CASCADE,
         related_name='children'
     )
     tutor = models.ForeignKey(

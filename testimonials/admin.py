@@ -6,13 +6,13 @@ from django.utils.html import format_html
 @admin.register(Testimonial)
 class TestimonialAdmin(admin.ModelAdmin):
 
-    list_display = ['id', 'parent', 'show_testimonial', 'is_featured', 'status_badge']
+    list_display = ['id', 'parent', 'show_testimonial', 'is_featured', 'formatted_rating']
     list_filter = ['show_testimonial', 'rating', 'is_featured']
     search_fields = ['parent__first_name', 'parent__last_name']
     list_editable = ['show_testimonial', 'is_featured']
     list_per_page = 25
 
-    def status_badge(self, obj):
+    def formatted_rating(self, obj):
         if obj.rating is None:
             return format_html('<span style="color: #999;">No Rating</span>')
         elif obj.rating >= 4:

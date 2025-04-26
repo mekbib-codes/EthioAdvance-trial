@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+{% load report_tags %}
+
+{% block title %}
+    {{ parent.get_full_name }} - Parent Details
+{% endblock %}
+
+{% block header %}
+    {% include "ui/company_header.html" %}
+{% endblock %}
+
+{% block content %}
+<section class="relative mx-auto">
+    {% include "components/hero/stripes.html" %}
+
+    <div class="mx-auto w-full px-4 sm:px-6">
+        <div class="pt-32">
+            <div class="text-center">
+                
+                <!-- Parent Profile Header, Children list and Quick Status -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4  md:items-stretch h-full gap-4 mb-10">
+                    
+                    <div class="flex items-center justify-center flex-col min-h-0 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="w-20 h-20 md:w-30 md:h-30 bg-gray-100 rounded-full overflow-hidden border-4 border-blue-200 shadow-md mx-10">
+            
+                            <img src="{% if parent.profile.avatar %}{{ parent.profile.avatar.url }}{% else %}{% static 'img/default-avatar.png' %} {% endif %}" alt="Parent Avatar" class="w-full h-full rounded-full" loading="lazy">
+                        </div>
+                        <div class="">
+                            <h1 class="text-2xl font-bold text-gray-900">{{ parent.get_full_name }}</h1>
+                            
+                        </div>
+
+                        <div class="">
+                            <h1 class="text-sm font-bold italic text-gray-900">{{ parent.email }}</h1>
+                            
+                        </div>
+                        <div class="">
+                            <h1 class="text-sm font-bold italic text-gray-900">{{ parent.phone_number }}</h1>
+                            
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="h-10 px-5 py-2 border-b border-gray-100 bg-blue-50">
+                            <h2 class="text-lg font-semibold text-blue-500">Children</h2>
+                        </div>
+                        
+                        <div class="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-white">
+                            {% if children %}
+                                <ul class="divide-y divide-gray-100">
+                                    {% for child in children %}
+                                    <li class="px-5 py-3 flex justify-between items-center">
+                                        <span class="text-gray-800">{{ child.get_full_name }}</span>
+                                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                            {{ child.sessions.count }} session{{ child.sessions.count|pluralize }}
+                                        </span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <div class="px-5 py-4 text-gray-500 ">
+                                    <p class="mb-5">No children registered</p>
+                                    <a href="{% url 'child:register' %}" class="w-full text-center inline-block bg-blue-600 text-white py-2 rounded-lg shadow-md hover:bg-blue-700 transition">Add Child</a>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="h-10 px-5 py-2 border-b border-gray-100 bg-blue-50">
+                            <h2 class="text-lg font-semibold text-blue-500">Payments</h2>
+                        </div>
+                        <div class="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-white">
+                            <ul class="divide-y divide-gray-100">
+                                {% for payment in payments|slice:":5" %}
+                                <li class="px-5 py-3">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <p class="text-gray-800">{{ payment.child.get_full_name }}</p>
+                                            <p class="text-xs text-gray-500">{{ payment.date|date:"Y-m-d" }}</p>
+                                        </div>
+                                        <span class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded">
+                                            {{ payment.amount|intcomma }} ETB
+                                        </span>
+                                    </div>
+                                </li>
+                                {% empty %}
+                                <li class="px-5 py-4 text-center text-gray-500">
+                                    No payment records found
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Quick Status -->
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h2 class="text-center text-3xl text-blue-500 font-bold mb-6 relative">
+                            <span class="relative inline-block">
+                                Quick Stats
+                                <span class="absolute -bottom-1 left-0 w-full h-1 bg-blue-100 rounded-full"></span>
+                                <span class="absolute -bottom-1 left-0 w-1/3 h-1 bg-blue-500 rounded-full animate-pulse"></span>
+                            </span>
+                        </h2>
+                        
+                        <div class="mx-auto space-y-4 max-w-2xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-gray-600">Total Children</span>
+                                <span class="text-sm font-bold text-gray-900">{{ parent.children.count }}</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-gray-600">Total Sessions</span>
+                                <span class="text-sm font-bold text-gray-900">{{ session_data.total_sessions }}</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-gray-600">Total Paid</span>
+                                <span class="text-sm font-bold text-green-600">${{ payment_data.total_paid|intcomma }}</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-gray-600">Total Due</span>
+                                <span class="text-sm font-bold text-amber-600">${{ payment_data.total_due|intcomma }}</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-gray-600">Hourly Rate</span>
+                                <span class="text-sm font-bold text-blue-600">${{ payment_data.hourly_rate|floatformat:2 }}</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-gray-600">Member Since</span>
+                                <span class="text-sm font-bold text-gray-900">{{ parent.date_joined|date:"M Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payments and sessions -->
+                <div class="flex flex-col md:flex-row md:items-stretch h-full gap-4 mb-10">
+                        
+                    <!-- Payment Overview -->
+                    <div class="flex-1 min-h-0">  <!-- min-h-0 prevents overflow -->
+                        {% include 'parent/dashboard_components/payment_overview.html' %}
+                    </div>
+                
+                    <!-- Sessions Overview -->
+                    <div class="flex-1 min-h-0">  <!-- min-h-0 prevents overflow -->
+                        {% include 'parent/dashboard_components/sessions_overview.html' %}
+                    </div>
+                
+                </div>
+                
+                <!-- Feedbacks and Testimonials -->
+                <div class="flex flex-col md:flex-row md:items-stretch h-full gap-4 mb-10">
+                    <div class="flex-1 min-h-0 bg-white rounded-2xl shadow-lg p-6">
+                        <h2 class="text-center text-3xl text-blue-500 font-bold mb-6 relative">
+                            <span class="relative inline-block">
+                                Parent Feedback
+                                <span class="absolute -bottom-1 left-0 w-full h-1 bg-blue-100 rounded-full"></span>
+                                <span class="absolute -bottom-1 left-0 w-1/3 h-1 bg-blue-500 rounded-full animate-pulse"></span>
+                            </span>
+                        </h2>
+                        
+                        {% if feedbacks %}
+                            <div class="space-y-4">
+                                {% for feedback in feedbacks %}
+                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <div class="flex items-start">
+                                        <div class="bg-blue-100 text-blue-800 p-2 rounded-lg mr-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            {% if feedback.rating %}
+                                                <div class="flex mb-4">
+                                                    {% for i in "12345"|make_list %}
+                                                        {% if forloop.counter <= feedback.rating %}
+                                                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                        </svg>
+                                                        {% else %}
+                                                        <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                        </svg>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            <p class="text-left text-gray-600">{{ feedback.text }}</p>
+                                            <p class="text-right text-xs text-gray-500 mt-2">{{ feedback.created_at|date:"M d, Y" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-8">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                </svg>
+                                <p class="mt-2 text-sm text-gray-500">No feedback submitted yet</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex-1 min-h-0 bg-white rounded-2xl shadow-lg p-6"">
+                        <h2 class="text-center text-3xl text-blue-500 font-bold mb-6 relative">
+                            <span class="relative inline-block">
+                                Parent Testimonials
+                                <span class="absolute -bottom-1 left-0 w-full h-1 bg-blue-100 rounded-full"></span>
+                                <span class="absolute -bottom-1 left-0 w-1/3 h-1 bg-blue-500 rounded-full animate-pulse"></span>
+                            </span>
+                        </h2>
+                        {% if testimonials %}
+                            <div class="space-y-4">
+                                {% for testimonial in testimonials %}
+                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <div class="flex items-start">
+                                        <div class="bg-blue-100 text-blue-800 p-2 rounded-lg mr-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            
+                                            {% if testimonial.rating %}
+                                                <div class="flex mb-4">
+                                                    {% for i in "12345"|make_list %}
+                                                        {% if forloop.counter <= testimonial.rating %}
+                                                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                        </svg>
+                                                        {% else %}
+                                                        <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                        </svg>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+
+                                            <p class="text-left text-sm text-gray-600">{{ testimonial.text }}</p>
+                                            <p class="text-right text-xs text-gray-500 mt-2">{{ testimonial.created_at|date:"M d, Y" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                    <div class="text-center py-8">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                        </svg>
+                                        <p class="mt-2 text-sm text-gray-500">No testimonials submitted yet</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
