@@ -12,11 +12,52 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Row click handler
     document.querySelectorAll('.clickable-row').forEach(row => {
         row.addEventListener('click', (e) => {
-            if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+            if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
             window.location = row.dataset.href;
         });
+    });
+
+    // Select all checkbox
+    const selectAll = document.getElementById('select-all');
+    const parentCheckboxes = document.querySelectorAll('.parent-checkbox');
+    const bulkNotifyBtn = document.getElementById('bulk-notify-btn');
+
+    selectAll.addEventListener('change', function() {
+        parentCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateBulkButtonState();
+    });
+
+    // Individual checkbox handler
+    parentCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateBulkButtonState();
+            // Uncheck "select all" if any checkbox is unchecked
+            if (!this.checked && selectAll.checked) {
+                selectAll.checked = false;
+            }
+        });
+    });
+
+    // Update bulk button state based on selection
+    function updateBulkButtonState() {
+        const checkedBoxes = document.querySelectorAll('.parent-checkbox:checked');
+        bulkNotifyBtn.disabled = checkedBoxes.length === 0;
+    }
+
+    // Bulk notification button handler
+    bulkNotifyBtn.addEventListener('click', function() {
+        const selectedParents = Array.from(document.querySelectorAll('.parent-checkbox:checked'))
+            .map(checkbox => checkbox.value);
+        
+        if (selectedParents.length > 0) {
+            // Redirect to bulk notification view with selected IDs
+            window.location.href = `{% url 'company:parent_notify_bulk' %}?parent_ids=${selectedParents.join(',')}`;
+        }
     });
 });
 </script>
@@ -29,6 +70,20 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="mx-auto w-full px-4 sm:px-6">
         <div class="pb-12 pt-32 md:pb-20 md:pt-40">
             <div class="pb-12 text-center md:pb-16">
+
+                <!-- Send bulk notification Button -->
+                <div class="flex justify-end mb-4">
+                    <button id="bulk-notify-btn" 
+                            class="inline-flex items-center px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            disabled>
+                        <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 3.75C3 2.784 3.784 2 4.75 2h14.5a.75.75 0 0 1 .75.75v.692a18.088 18.088 0 0 1 2.017.96l.013.006a.75.75 0 0 1-.301 1.451l-.584-.146a16.59 16.59 0 0 0-1.846-.483V19.5H21a.75.75 0 0 1 0 1.5H3a.75.75 0 0 1 0-1.5h1.5v-14H4.75A.75.75 0 0 1 4 3.75v-.75zm16.5 2.134V19.5h-15v-13.7a17.067 17.067 0 0 1 1.5-.28V3.75c0-.414.336-.75.75-.75h12c.414 0 .75.336.75.75v1.384z" />
+                            <path d="M11.25 9.75a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5H12a.75.75 0 0 1-.75-.75zm0 3a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5H12a.75.75 0 0 1-.75-.75zm0 3a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5H12a.75.75 0 0 1-.75-.75zM7.5 9.75A.75.75 0 0 1 8.25 9h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H8.25a.75.75 0 0 1-.75-.75V9.75zm0 3a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H8.25a.75.75 0 0 1-.75-.75v-.008zm0 3a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H8.25a.75.75 0 0 1-.75-.75v-.008z" />
+                        </svg>
+                        Send Notification to Selected
+                    </button>
+                </div>
+                
                 <!-- Parent Table Container -->
                 <div class="bg-white rounded-2xl shadow-lg p-6 transform transition-all hover:shadow-xl duration-300">
                     <h2 class="text-center text-3xl text-blue-500 font-bold mb-6 relative">
@@ -44,6 +99,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">
+                                            <input type="checkbox" id="select-all" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">#</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Full Name</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Email</th>
@@ -61,8 +119,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                     {% for parent in parents %}
                                     <tr 
                                         data-href="{% url 'company:parent_detail' parent.id %}"
-                                        class="clickable-row {% if parent.total_due > 0 %}bg-red-50/50{% else %}bg-green-50/50{% endif %} hover:scale-[1.01] hover:bg-blue-50 transition-all duration-200 ease-out group cursor-pointer"
-                                    >
+                                        class="clickable-row {% if parent.total_due > 0 %}bg-red-50/50{% else %}bg-green-50/50{% endif %} hover:scale-[1.01] hover:bg-blue-50 transition-all duration-200 ease-out group cursor-pointer">
+                                        
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <input type="checkbox" name="parent" value="{{ parent.id }}" 
+                                                class="parent-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                        </td>
+                                        
                                         <td class="px-6 py-4 whitespace-nowrap align-top">
                                             <div class="flex items-center h-full">
                                                 <span class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-800 font-medium group-hover:bg-blue-200 transition-colors">
@@ -120,9 +183,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                                 {{ parent.total_testimonials }}
                                             </div>
                                         </td>
+
                                     </tr>
                                     {% empty %}
-                                    <tr><td colspan="11" class="text-center text-gray-400 py-4">No parents found yet.</td></tr>
+                                    <tr><td colspan="12" class="text-center text-gray-400 py-4">No parents found yet.</td></tr>
                                     {% endfor %}
 
                                 </tbody>
