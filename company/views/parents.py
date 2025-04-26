@@ -1,7 +1,12 @@
 from django.db.models import Count, Sum,DecimalField
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, View
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
+from django.contrib.auth import get_user_model
+from django.contrib import messages
+from django.urls import reverse
+from django.shortcuts import get_object_or_404, redirect
+
 from decimal import Decimal
 from datetime import timedelta
 
@@ -10,6 +15,8 @@ from parent.models import Parent
 from payment.models import SessionRate, Payment
 from session.models import Session
 from feedbacks.models import Feedback
+
+from company.services.email_services.send_emails import EmailService
 
 import logging
 logger = logging.getLogger('app')
@@ -215,3 +222,47 @@ class ParentDetailView(CompanyRequiredMixin, DetailView):
                 exc_info=True
             )
             raise PermissionDenied("Error loading parent details")
+        
+class ToggleParentStatusView(View):
+    def post(self, request, *args, **kwargs):
+        parent = get_object_or_404(
+            get_user_model(),
+            pk=kwargs['parent_id'],
+            role='PARENT',
+            parent_profile__company=request.user
+        )
+        
+        was_active = parent.is_active
+        parent.is_active = not was_active
+        parent.save()
+        
+        # Send appropriate email
+        context = {
+            'parent': parent,
+            'company': request.user.get_full_name(),
+            'support_url': 'https://ethioadvance.com/contact', # request.build_absolute_uri(reverse('contact_support')),
+            'login_url': request.build_absolute_uri(reverse('accounts:login')),
+            'home_url': request.build_absolute_uri(reverse('accounts:home')),
+        }
+        
+        if was_active:
+            EmailService.send_email(
+                subject="Your Account Has Been Deactivated",
+                to_emails=[parent.email],
+                template_name="company/emails/deactivated",
+                context=context
+            )
+            action = "deactivated"
+            logger.info(f"Account Deactivated for parent - {parent.get_full_name()} - Email sent successfully")
+        else:
+            EmailService.send_email(
+                subject="Your Account Has Been Reactivated",
+                to_emails=[parent.email],
+                template_name="company/emails/activated",
+                context=context
+            )
+            action = "activated"
+            logger.info(f"Account Activated for parent - {parent.get_full_name()} - Email sent successfully")
+        
+        messages.success(request, f"Parent {action} successfully")
+        return redirect('company:parents')

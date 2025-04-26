@@ -1,4 +1,3 @@
-# views.py
 from django.views.generic import FormView
 from django.contrib import messages
 from django.urls import reverse

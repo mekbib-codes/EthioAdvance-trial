@@ -1,0 +1,13 @@
+<!-- templates/emails/account_activated.html -->
+{% extends "company/emails/base.html" %}
+
+{% block title %}Account Activated{% endblock %}
+
+{% block content %}
+<h2 style="color: #38a169; margin-top: 0;">Account Activated</h2>
+<p>Dear {{ parent.first_name }},</p>
+<p>Your parent account with {{ company }} has been reactivated.</p>
+<p>You can now log in and access all features.</p>
+
+<a href="{{ login_url }}" class="button">Login to Your Account</a>
+{% endblock %}

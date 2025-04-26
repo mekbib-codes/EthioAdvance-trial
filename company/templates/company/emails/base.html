@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <style type="text/css">
+        /* Base styles */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f7fafc;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .logo {
+            max-height: 50px;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            color: #718096;
+            font-size: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4299e1;
+            color: white !important;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .button:hover {
+            background-color: #3182ce;
+        }
+    </style>
+</head>
+
+
+
+<body>
+    <div class="email-container">
+        <!-- <div class="header">
+            <a href="{{ home_url }}" class="inline-flex" aria-label="Cruip">
+                <img src="{% static 'img/logo.ico' %}" alt="Logo" class="w-25 h-12 rounded-full">
+            </a>
+        </div> -->
+        
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+        
+        <div class="footer">
+            © {% now "Y" %} EthioAdvance. All rights reserved.<br>
+            <a href="https://ethioadvance.com" style="color: #4299e1; text-decoration: none;">ethioadvance.com</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<!-- templates/emails/account_deactivated.html -->
+{% extends "company/emails/base.html" %}
+
+{% block title %}Account Deactivated{% endblock %}
+
+{% block content %}
+<h2 style="color: #e53e3e; margin-top: 0;">Account Deactivated</h2>
+<p>Dear {{ parent.first_name }},</p>
+<p>Your parent account with {{ company }} has been deactivated.</p>
+<p>If you believe this was done in error, please contact our support team.</p>
+
+<a href="{{ support_url }}" class="button">Contact Support</a>
+{% endblock %}
