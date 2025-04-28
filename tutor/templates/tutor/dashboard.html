@@ -30,7 +30,7 @@
                             
                             <p class="btn group mb-4 w-full bg-gradient-to-t from-blue-600 to-blue-500 bg-[length:100%_100%] bg-bottom text-white shadow-sm hover:bg-[length:100%_150%] sm:mb-0 sm:w-auto">
                                 <span class="relative inline-flex items-center">
-                                    You have {{ tutor.assigned_children.count }} children assigned to you
+                                    You have {{ tutor.students.count|default:"0" }} children assigned to you
                                 </span>
                             </p>
                         </div>

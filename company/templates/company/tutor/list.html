@@ -4,10 +4,10 @@
 
 {% block title %}Parents{% endblock %}
 
-{% block table_header %}Parent Directory{% endblock %}
+{% block table_header %}Tutor Directory{% endblock %}
 
 {% block search_bar %}
-    {% user_search 'company:parents' 'company:parent_search' %}
+    {% user_search 'company:tutors' 'company:tutor_search' %}
 {% endblock %}
 
 {% block table %}
@@ -23,23 +23,23 @@
                     <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Full Name</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Email</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Phone</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Children</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Students</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Sessions</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Paid</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Due</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Earned</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Requested</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Avaliable</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Reports</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Feedbacks</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Testimonials</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Feedbacks</th>    
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                {% for parent in parents %}
+                {% for tutor in tutors %}
                 <tr 
-                    data-href="{% url 'company:parent_detail' parent.id %}"
-                    class="clickable-row {% if parent.total_due > 0 %}bg-red-50/50{% else %}bg-green-50/50{% endif %} hover:scale-[1.01] hover:bg-blue-50 transition-all duration-200 ease-out group cursor-pointer">
+                    data-href="#"
+                    class="clickable-row {% if tutor.total_requested > 0 %}bg-red-50/50{% else %}bg-green-50/50{% endif %} hover:scale-[1.01] hover:bg-blue-50 transition-all duration-200 ease-out group cursor-pointer">
                     
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <input type="checkbox" name="parent" value="{{ parent.id }}" 
+                        <input type="checkbox" name="tutor" value="{{ tutir.id }}" 
                             class="user-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                     </td>
                     
@@ -52,75 +52,54 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap align-top">
                         <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
-                            {{ parent.get_full_name }}
+                            {{ tutor.get_full_name }}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap align-top">
                         <div class="text-sm text-gray-500 group-hover:text-blue-500 transition-colors">
-                            {{ parent.email }}
+                            {{ tutor.email }}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap align-top">
                         <div class="text-sm text-gray-500 group-hover:text-blue-500 transition-colors">
-                            {{ parent.phone_number|default:"-" }}
+                            {{ tutor.phone_number|default:"-" }}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap align-top">
                         <div class="text-sm text-gray-500 group-hover:text-blue-500 transition-colors">
-                            {{ parent.total_children }}
+                            {{ tutor.total_students }}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap align-top">
                         <div class="text-sm text-gray-500 group-hover:text-blue-500 transition-colors">
-                            {{ parent.total_sessions }}
+                            {{ tutor.total_sessions }}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap align-top">
                         <div class="text-sm font-medium text-green-600 group-hover:text-green-700 transition-colors">
-                            ${{ parent.total_paid|intcomma }}
+                            ${{ tutor.total_paid|intcomma }}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap align-top">
-                        <div class="text-sm font-medium {% if parent.total_due > 0 %}text-red-600 group-hover:text-red-700{% else %}text-gray-500 group-hover:text-blue-500{% endif %} transition-colors">
-                            ${{ parent.total_due|intcomma }}
+                        <div class="text-sm font-medium {% if parent.total_requested > 0 %}text-red-600 group-hover:text-red-700{% else %}text-gray-500 group-hover:text-blue-500{% endif %} transition-colors">
+                            ${{ tutor.total_requested|intcomma }}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap align-top">
-                        <div class="text-sm text-gray-500 group-hover:text-blue-500 transition-colors">
-                            {{ parent.total_reports }}
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap align-top">
-                        <div class="text-sm text-gray-500 group-hover:text-blue-500 transition-colors">
-                            {{ parent.total_feedbacks }}
+                        <div class="text-sm font-medium {% if parent.total_due > 0 %}text-yellow-600 group-hover:text-red-700{% else %}text-gray-500 group-hover:text-blue-500{% endif %} transition-colors">
+                            ${{ tutor.total_due|intcomma }}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap align-top">
                         <div class="text-sm text-gray-500 group-hover:text-blue-500 transition-colors">
-                            {{ parent.total_testimonials }}
+                            {{ tutor.total_reports }}
                         </div>
                     </td>
-
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <form method="post" action="{% url 'company:toggle_parent_status' parent.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium 
-                                {% if parent.is_active %}bg-red-100 text-red-800 hover:bg-red-200{% else %}bg-green-100 text-green-800 hover:bg-green-200{% endif %}">
-                                {% if parent.is_active %}
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-12.728 12.728M5.636 5.636l12.728 12.728"/>
-                                    </svg>
-                                    Deactivate
-                                {% else %}
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                    Activate
-                                {% endif %}
-                            </button>
-                        </form>
+                    <td class="px-6 py-4 whitespace-nowrap align-top">
+                        <div class="text-sm text-gray-500 group-hover:text-blue-500 transition-colors">
+                            {{ tutor.total_feedbacks }}
+                        </div>
                     </td>
-
                 </tr>
                 {% empty %}
                     <tr>
@@ -128,13 +107,13 @@
                             <div class="flex flex-col items-center justify-center space-y-4">
                                 <h3 class="text-lg font-medium text-gray-500">
                                     {% if is_search %}
-                                    No parents found matching "{{ search_query }}"
+                                    No tutors found matching "{{ search_query }}"
                                     {% else %}
-                                    No parents registered yet
+                                    No tutors registred yet
                                     {% endif %}
                                 </h3>
                                 {% if is_search %}
-                                <a href="{% url 'company:parents' %}" class="text-blue-600 hover:underline">View all parents</a>
+                                <a href="{% url 'company:tutors' %}" class="text-blue-600 hover:underline">View all tutors</a>
                                 {% endif %}
                             </div>
                         </td>

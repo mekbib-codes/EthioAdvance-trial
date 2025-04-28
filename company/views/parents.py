@@ -1,5 +1,5 @@
-from django.db.models import Count, Sum,DecimalField
-from django.views.generic import ListView, DetailView, View
+from django.db.models import Count, Sum
+from django.views.generic import DetailView, View
 from django.core.exceptions import PermissionDenied
 from django.db.models.functions import Coalesce
 from django.utils import timezone
@@ -48,7 +48,7 @@ class ParentListBaseView(BaseUserListView):
             return parents
             
         rate = self.get_current_rate()
-        parent_ids = [p.id for p in parents]
+        parent_ids = [parent.id for parent in parents]
 
         # Payment totals
         payment_totals = dict(

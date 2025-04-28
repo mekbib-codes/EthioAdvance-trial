@@ -4,7 +4,7 @@
   <li><a href="{% url 'company:dashboard' %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "dashboard" %}id="selected"{% endif %}>Dashboard</a></li>
   <li><a href="{% url 'company:parents' %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "parents" %}id="selected"{% endif %}>Parents</a></li>
   <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "children" %}id="selected"{% endif %}>Children</a></li>
-  <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "tutors" %}id="selected"{% endif %}>Tutors</a></li>
+  <li><a href="{% url 'company:tutors' %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "tutors" %}id="selected"{% endif %}>Tutors</a></li>
   <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "sessions" %}id="selected"{% endif %}>Sessions</a></li>
   <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "reports" %}id="selected"{% endif %}>Reports</a></li>
   <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "payments" %}id="selected"{% endif %}>Payments</a></li>
@@ -15,7 +15,7 @@
   <a href="{% url 'company:dashboard' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Dashboard</a>
   <a href="{% url 'company:parents' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Parents</a>
   <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Children</a>
-  <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Tutors</a>
+  <a href="{% url 'company:tutors' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Tutors</a>
   <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Sessions</a>
   <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Reports</a>
   <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Payments</a>

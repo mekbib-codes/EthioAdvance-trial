@@ -1,6 +1,7 @@
 from django.urls import path
 from .views.dashboard import CompanyDashboardView
 from .views.parents import ParentListView, ParentDetailView, ToggleParentStatusView, ParentSearchView
+from .views.tutors import TutorListView, TutorSearchView
 from .views.send_notifications import BulkParentNotificationView
 from .views.manual_parent_payment import CreateManualPaymentView, UnpaidSessionsAPIView
 
@@ -12,6 +13,10 @@ urlpatterns = [
     path('parents/', ParentListView.as_view(), name='parents'),
     path('parents/search/', ParentSearchView.as_view(), name='parent_search'),
     path('parents/<int:parent_id>/', ParentDetailView.as_view(), name='parent_detail'),
+
+    path('tutors/', TutorListView.as_view(), name='tutors'),
+    path('tutors/search/', TutorSearchView.as_view(), name='tutor_search'),
+
     path('parents/notify/', BulkParentNotificationView.as_view(), name='parent_notify_bulk'),
     path('parents/<int:parent_id>/toggle-status/', ToggleParentStatusView.as_view(), name='toggle_parent_status'),
     # Manual payment URL
