@@ -343,8 +343,14 @@
   .top-0 {
     top: calc(var(--spacing) * 0);
   }
+  .top-1\/2 {
+    top: calc(1/2 * 100%);
+  }
   .top-2 {
     top: calc(var(--spacing) * 2);
+  }
+  .top-2\.5 {
+    top: calc(var(--spacing) * 2.5);
   }
   .top-4 {
     top: calc(var(--spacing) * 4);
@@ -387,6 +393,9 @@
   }
   .left-1\/2 {
     left: calc(1/2 * 100%);
+  }
+  .left-3 {
+    left: calc(var(--spacing) * 3);
   }
   .-z-10 {
     z-index: calc(10 * -1);
@@ -640,9 +649,6 @@
   .h-screen {
     height: 100vh;
   }
-  .max-h-60 {
-    max-height: calc(var(--spacing) * 60);
-  }
   .max-h-64 {
     max-height: calc(var(--spacing) * 64);
   }
@@ -733,6 +739,9 @@
   .max-w-6xl {
     max-width: var(--container-6xl);
   }
+  .max-w-120 {
+    max-width: calc(var(--spacing) * 120);
+  }
   .max-w-full {
     max-width: 100%;
   }
@@ -787,6 +796,10 @@
   }
   .translate-x-full {
     --tw-translate-x: 100%;
+    translate: var(--tw-translate-x) var(--tw-translate-y);
+  }
+  .-translate-y-1\/2 {
+    --tw-translate-y: calc(calc(1/2 * 100%) * -1);
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
   .-translate-y-full {
@@ -1675,6 +1688,9 @@
   .pr-2 {
     padding-right: calc(var(--spacing) * 2);
   }
+  .pr-4 {
+    padding-right: calc(var(--spacing) * 4);
+  }
   .pr-10 {
     padding-right: calc(var(--spacing) * 10);
   }
@@ -1698,6 +1714,9 @@
   }
   .pl-6 {
     padding-left: calc(var(--spacing) * 6);
+  }
+  .pl-10 {
+    padding-left: calc(var(--spacing) * 10);
   }
   .text-center {
     text-align: center;
@@ -3013,6 +3032,11 @@
       display: none;
     }
   }
+  .sm\:w-96 {
+    @media (width >= 40rem) {
+      width: calc(var(--spacing) * 96);
+    }
+  }
   .sm\:w-auto {
     @media (width >= 40rem) {
       width: auto;
@@ -3036,6 +3060,11 @@
   .sm\:grid-cols-12 {
     @media (width >= 40rem) {
       grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+  }
+  .sm\:flex-row {
+    @media (width >= 40rem) {
+      flex-direction: row;
     }
   }
   .sm\:items-center {
@@ -3651,6 +3680,13 @@
   margin-right: 4px;
   width: 14px;
   height: 14px;
+}
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 @layer base {
   *, ::after, ::before, ::backdrop, ::file-selector-button {

@@ -102,6 +102,13 @@ class User(AbstractUser):
         ordering = ['-created_at']
         verbose_name = 'User'
         verbose_name_plural = 'Users'
+        indexes = [
+        models.Index(fields=['first_name']),
+        models.Index(fields=['last_name']),
+        models.Index(fields=['email']),
+        models.Index(fields=['phone_number']),
+        models.Index(fields=['created_at'])
+    ]
 
 class OTP(models.Model):
     class Purpose(models.TextChoices):

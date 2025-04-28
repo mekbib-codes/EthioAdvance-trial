@@ -1,6 +1,7 @@
 from django.db.models import Count, Sum,DecimalField
 from django.views.generic import ListView, DetailView, View
 from django.core.exceptions import PermissionDenied
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.contrib import messages
@@ -11,90 +12,95 @@ from decimal import Decimal
 from datetime import timedelta
 
 from accounts.mixins import CompanyRequiredMixin
+from accounts.views.user_list_view import BaseUserListView
+from accounts.models import User
 from parent.models import Parent
 from payment.models import SessionRate, Payment
 from session.models import Session
 from feedbacks.models import Feedback
-
 from company.services.email_services.send_emails import EmailService
 
 import logging
 logger = logging.getLogger('app')
 
-class ParentListView(CompanyRequiredMixin, ListView):
+class ParentListBaseView(BaseUserListView):
     model = Parent
     template_name = 'company/parent/list.html'
+    role_filter = User.Role.PARENT
     context_object_name = 'parents'
-    paginate_by = 25
-
-    def get_queryset(self):
-        # Get parents that belong to the current company
-        queryset = Parent.objects.filter(
+    financial_calculations = True
+    annotate_fields = {
+        'total_children': Count('children', distinct=True),
+        'total_sessions': Count('children__sessions', distinct=True),
+        'total_reports': Count('children__report', distinct=True),
+        'total_testimonials': Count('testimonials', distinct=True),
+        'total_feedbacks': Count('feedbacks', distinct=True),
+    }
+    
+    def get_base_queryset(self):
+        """Company-specific parent filtering"""
+        return super().get_base_queryset().filter(
             parent_profile__company=self.request.user
-        ).select_related('parent_profile').annotate(
-            total_children=Count('children', distinct=True),
-            total_sessions=Count('children__sessions', distinct=True),
-            total_reports=Count('children__report', distinct=True),
-            total_testimonials=Count('testimonials', distinct=True),
-            total_feedbacks=Count('feedbacks', distinct=True),
+        ).select_related('parent_profile')
+
+    def calculate_financials(self, parents):
+        if not parents:
+            return parents
+            
+        rate = self.get_current_rate()
+        parent_ids = [p.id for p in parents]
+
+        # Payment totals
+        payment_totals = dict(
+            Payment.objects.filter(
+                parent_id__in=parent_ids,
+                status=Payment.STATUS.SUCCESS
+            ).values('parent_id').annotate(
+                total=Coalesce(Sum('amount'), Decimal(0))
+            ).values_list('parent_id', 'total')
         )
 
-        # Get the current session rate
-        try:
-            rate = Decimal(SessionRate.objects.latest("updated_at").current_hourly_rate)
-        except SessionRate.DoesNotExist:
-            logger.error("No Session Rate Found")
-            rate = Decimal(0)
-
-        # We'll calculate total_paid and total_due in Python for accuracy
-        parents = list(queryset)
-        parent_ids = queryset.values_list('id', flat=True)
-
-        # Prefetch all necessary data in bulk
-        from django.db.models import Prefetch
-        from collections import defaultdict
-
-        # Get all successful payments for these parents
-        success_payments = Payment.objects.filter(
-            parent_id__in=parent_ids,
-            status=Payment.STATUS.SUCCESS
-        ).values('parent_id').annotate(
-            total=Sum('amount', output_field=DecimalField(max_digits=12, decimal_places=2))
+        # Unpaid durations
+        unpaid_durations = dict(
+            Session.objects.filter(
+                child__parent_id__in=parent_ids,
+                status=Session.Status.APPROVED,
+                is_paid=False
+            ).values('child__parent_id').annotate(
+                duration_sum=Coalesce(Sum('duration'), timedelta())
+            ).values_list('child__parent_id', 'duration_sum')
         )
-        payment_totals = {p['parent_id']: p['total'] for p in success_payments}
 
-        # Get all unpaid sessions for these parents
-        unpaid_sessions = Session.objects.filter(
-            child__parent_id__in=parent_ids,
-            status=Session.Status.APPROVED,
-            is_paid=False
-        ).select_related('child').only('child__parent_id', 'duration')
-
-        # Calculate total due per parent
-        parent_unpaid_durations = defaultdict(timedelta)
-        for session in unpaid_sessions:
-            if session.duration:
-                parent_unpaid_durations[session.child.parent_id] += session.duration
-
-        # Attach the calculated values to each parent
         for parent in parents:
-            # Total paid
             parent.total_paid = payment_totals.get(parent.id, Decimal(0))
-
-            # Total due calculation
-            unpaid_duration = parent_unpaid_durations.get(parent.id, timedelta())
-            if unpaid_duration:
-                total_hours = unpaid_duration.total_seconds() / 3600
-                parent.total_due = round(Decimal(total_hours) * rate, 2)
-            else:
-                parent.total_due = Decimal(0)
-
+            duration = unpaid_durations.get(parent.id, timedelta())
+            parent.total_due = self.calculate_due_amount(duration, rate)
+            
         return parents
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_section'] = 'parents'
-        return context
+    def get_current_rate(self):
+        try:
+            return Decimal(SessionRate.objects.latest("updated_at").current_hourly_rate)
+        except SessionRate.DoesNotExist:
+            logger.error("No Session Rate Found")
+            return Decimal(0)
+
+    def calculate_due_amount(self, duration, rate):
+        if not duration:
+            return Decimal(0)
+        total_hours = duration.total_seconds() / 3600
+        return round(Decimal(total_hours) * rate, 2)
+    
+class ParentListView(ParentListBaseView):
+    """Default parent listing without search"""
+    def get_queryset(self):
+        queryset = self.get_base_queryset()
+        queryset = self.apply_annotations(queryset)
+        return self.calculate_financials(list(queryset))
+
+class ParentSearchView(ParentListBaseView):
+    """Parent listing with search capabilities"""
+    pass
 
 class ParentDetailView(CompanyRequiredMixin, DetailView):
     model = Parent
@@ -222,7 +228,7 @@ class ParentDetailView(CompanyRequiredMixin, DetailView):
                 exc_info=True
             )
             raise PermissionDenied("Error loading parent details")
-        
+
 class ToggleParentStatusView(View):
     def post(self, request, *args, **kwargs):
         parent = get_object_or_404(

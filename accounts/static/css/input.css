@@ -41,6 +41,15 @@
   height: 14px;
 }
 
+/* Add to your CSS */
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
 
 @theme {
   --font-inter: Inter, sans-serif;
