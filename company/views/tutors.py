@@ -1,11 +1,14 @@
 from django.db.models import Count, Sum
 from django.db.models.functions import Coalesce
+from django.urls import reverse
 
 from accounts.views.user_list_view import BaseUserListView
 from tutor.models import Tutor
 from accounts.models import User
 from payment.models import TutorPayRate, TutorPayments
 from session.models import Session
+from company.forms.notification_forms import TutorNotificationForm
+from company.views.send_notifications import BaseNotificationView
 
 from decimal import Decimal
 from datetime import timedelta
@@ -102,3 +105,25 @@ class TutorListView(TutorBaseListView):
 class TutorSearchView(TutorBaseListView):
     """Tutor lisitng with search capabilities"""
     pass
+
+class TutorNotificationView(BaseNotificationView):
+    template_name = 'company/parent/bulk_notification.html'
+    form_class = TutorNotificationForm
+    user_type = 'TUTOR'
+    user_profile_relation = 'tutor_profile'
+    
+    def get_notification_data(self, message_type, custom_message=None):
+        data = {
+            'feedback_request': {
+                'verb': " - Friendly request to provide your feedback about the website.",
+                'link': 'feedbacks:submit',
+            },
+            'custom': {
+                'verb': f"- {custom_message}",
+                'link': 'tutor:dashboard',
+            }
+        }
+        return data[message_type]
+    
+    def get_success_url(self):
+        return reverse('company:tutors')

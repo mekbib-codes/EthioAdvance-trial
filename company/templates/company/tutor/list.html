@@ -2,9 +2,24 @@
 {% load user_search %}
 {% load humanize %}
 
-{% block title %}Parents{% endblock %}
+{% block title %}Tutors{% endblock %}
 
 {% block table_header %}Tutor Directory{% endblock %}
+
+{% block send_notification_button %}
+    <div class="flex justify-end mb-4">
+        <button id="bulk-notify-btn" 
+                class="inline-flex items-center px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                disabled
+                data-notify-url="{% url 'company:notify_tutors' %}">
+            <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 3.75C3 2.784 3.784 2 4.75 2h14.5a.75.75 0 0 1 .75.75v.692a18.088 18.088 0 0 1 2.017.96l.013.006a.75.75 0 0 1-.301 1.451l-.584-.146a16.59 16.59 0 0 0-1.846-.483V19.5H21a.75.75 0 0 1 0 1.5H3a.75.75 0 0 1 0-1.5h1.5v-14H4.75A.75.75 0 0 1 4 3.75v-.75zm16.5 2.134V19.5h-15v-13.7a17.067 17.067 0 0 1 1.5-.28V3.75c0-.414.336-.75.75-.75h12c.414 0 .75.336.75.75v1.384z" />
+                <path d="M11.25 9.75a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5H12a.75.75 0 0 1-.75-.75zm0 3a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5H12a.75.75 0 0 1-.75-.75zm0 3a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5H12a.75.75 0 0 1-.75-.75zM7.5 9.75A.75.75 0 0 1 8.25 9h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H8.25a.75.75 0 0 1-.75-.75V9.75zm0 3a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H8.25a.75.75 0 0 1-.75-.75v-.008zm0 3a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H8.25a.75.75 0 0 1-.75-.75v-.008z" />
+            </svg>
+            Send Notification to Selected
+        </button>
+    </div>
+{% endblock %}
 
 {% block search_bar %}
     {% user_search 'company:tutors' 'company:tutor_search' %}
@@ -39,7 +54,7 @@
                     class="clickable-row {% if tutor.total_requested > 0 %}bg-red-50/50{% else %}bg-green-50/50{% endif %} hover:scale-[1.01] hover:bg-blue-50 transition-all duration-200 ease-out group cursor-pointer">
                     
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <input type="checkbox" name="tutor" value="{{ tutir.id }}" 
+                        <input type="checkbox" name="tutor" value="{{ tutor.id }}" 
                             class="user-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                     </td>
                     
@@ -107,14 +122,15 @@
                             <div class="flex flex-col items-center justify-center space-y-4">
                                 <h3 class="text-lg font-medium text-gray-500">
                                     {% if is_search %}
-                                    No tutors found matching "{{ search_query }}"
+                                    No tutors found matching: <span class="font-bold text-blue-500">{{ search_query }}</span>
                                     {% else %}
                                     No tutors registred yet
                                     {% endif %}
+                                
+                                    {% if is_search %}
+                                    <a href="{% url 'company:tutors' %}" class="ml-8 font-bold text-blue-600 hover:text-blue-900">View all tutors</a>
+                                    {% endif %}
                                 </h3>
-                                {% if is_search %}
-                                <a href="{% url 'company:tutors' %}" class="text-blue-600 hover:underline">View all tutors</a>
-                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -124,4 +140,8 @@
         </table>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+    {% include 'company/components/notification_script.html' %}
 {% endblock %}

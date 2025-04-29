@@ -19,6 +19,8 @@ from payment.models import SessionRate, Payment
 from session.models import Session
 from feedbacks.models import Feedback
 from company.services.email_services.send_emails import EmailService
+from company.views.send_notifications import BaseNotificationView
+from company.forms.notification_forms import ParentNotificationForm
 
 import logging
 logger = logging.getLogger('app')
@@ -229,6 +231,36 @@ class ParentDetailView(CompanyRequiredMixin, DetailView):
             )
             raise PermissionDenied("Error loading parent details")
 
+class ParentNotificationView(BaseNotificationView):
+    template_name = 'company/parent/bulk_notification.html'
+    form_class = ParentNotificationForm
+    user_type = 'PARENT'
+    user_profile_relation = 'parent_profile'
+    
+    def get_notification_data(self, message_type, custom_message=None):
+        data = {
+            'feedback_request': {
+                'verb': " - Friendly request to provide your feedback about the website.",
+                'link': 'feedbacks:submit',
+            },
+            'testimonial_request': {
+                'verb': "- Friendly request to provide a testimonial.",
+                'link': 'testimonials:submit',
+            },
+            'payment_reminder': {
+                'verb': "- Friendly Payment overdue reminder.",
+                'link': 'parent:payment_dashboard',
+            },
+            'custom': {
+                'verb': f"- {custom_message}",
+                'link': 'parent:dashboard',
+            }
+        }
+        return data[message_type]
+    
+    def get_success_url(self):
+        return reverse('company:parents')
+    
 class ToggleParentStatusView(View):
     def post(self, request, *args, **kwargs):
         parent = get_object_or_404(

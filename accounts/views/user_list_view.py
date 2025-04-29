@@ -1,11 +1,13 @@
 from django.views.generic import ListView
 from django.db.models import Q
+from accounts.mixins import CompanyRequiredMixin
+
 from decimal import Decimal
 import logging
 
 logger = logging.getLogger('app')
 
-class BaseUserListView(ListView):
+class BaseUserListView(CompanyRequiredMixin, ListView):
     """
     Base view for all user type listings (Company, Tutor, Parent)
     To be inherited by specific user type views
