@@ -66,47 +66,6 @@ class ParentDashboardView(ParentRequiredMixin, TemplateView):
             session_data['pending_percentage'] = round((session_data['pending_sessions'] / total) * 100)
             session_data['rejected_percentage'] = round((session_data['rejected_sessions'] / total) * 100)
 
-            # Get payment info
-            success_payments = parent.payments.filter(status=Payment.STATUS.SUCCESS)
-            total_paid = success_payments.aggregate(total=Sum('amount'))['total'] or 0
-
-            # Paid/Unpaid sessions
-            paid_sessions = approved_sessions.filter(is_paid=True)
-            unpaid_sessions = approved_sessions.filter(is_paid=False)
-
-            # Duration calculations
-            paid_sessions_duration = paid_sessions.aggregate(
-                total=Sum('duration')
-            )['total'] or 0
-
-            unpaid_sessions_duration = unpaid_sessions.aggregate(
-                total=Sum('duration')
-            )['total'] or 0
-
-            # Calculate amount due
-            try:
-                rate = SessionRate.objects.latest("updated_at").current_hourly_rate
-            except SessionRate.DoesNotExist:
-                rate = 0
-                logger.warning("No SessionRate found")
-
-            if unpaid_sessions_duration != 0:
-                # Convert duration to hours (assuming duration is in minutes)
-                total_unpaid_hours = unpaid_sessions_duration.total_seconds() / 3600
-                total_due = round(total_unpaid_hours * float(rate), 2)
-            else:
-                total_due = 0
-
-            payment_data = {
-                'total_paid': total_paid,
-                'total_due': total_due,
-                'paid_sessions': paid_sessions.count(),
-                'unpaid_sessions': unpaid_sessions.count(),
-                'paid_sessions_duration': paid_sessions_duration,
-                'unpaid_sessions_duration': unpaid_sessions_duration,
-                'hourly_rate': rate  # Include for transparency
-            }
-
             testimonials = Testimonial.objects.filter(show_testimonial=True).exclude(parent=parent).select_related('parent', 'parent__parent_profile')[:3]
             activities = ActivityLog.objects.filter(user=parent)[:5]
             
@@ -115,7 +74,6 @@ class ParentDashboardView(ParentRequiredMixin, TemplateView):
                 'testimonials': testimonials,
                 'activities': activities,
                 'session_data': session_data,
-                'payment_data': payment_data,
                 'active_section': 'dashboard',
             })
             

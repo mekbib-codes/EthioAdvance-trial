@@ -2,6 +2,7 @@
 {% load humanize %}
 {% load static %}
 {% load report_tags %}
+{% load parent_tags %}
 
 {% block title %}
     {{ parent.get_full_name }} - Parent Details
@@ -157,7 +158,7 @@
                         
                     <!-- Payment Overview -->
                     <div class="flex-1 min-h-0">  <!-- min-h-0 prevents overflow -->
-                        {% include 'parent/dashboard_components/payment_overview.html' %}
+                        {% parent_payment_info parent.id %}
                     </div>
                 
                     <!-- Sessions Overview -->

@@ -1,12 +1,11 @@
 from django.db.models import Count, Sum
-from django.views.generic import DetailView, View
-from django.core.exceptions import PermissionDenied
+from django.views.generic import View, DetailView
 from django.db.models.functions import Coalesce
-from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect
+from django.db import models
 
 from decimal import Decimal
 from datetime import timedelta
@@ -104,133 +103,6 @@ class ParentSearchView(ParentListBaseView):
     """Parent listing with search capabilities"""
     pass
 
-class ParentDetailView(CompanyRequiredMixin, DetailView):
-    model = Parent
-    template_name = 'company/parent/detail.html'
-    context_object_name = 'parent'
-    pk_url_kwarg = 'parent_id'
-
-    def get_queryset(self):
-        # Only allow access to parents belonging to the current company
-        return Parent.objects.filter(
-            parent_profile__company=self.request.user
-        ).select_related('parent_profile')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        parent = self.object
-        
-        try:
-            # Prefetch related data
-            parent = Parent.objects.prefetch_related(
-                'children',
-                'activity_logs',
-                'payments',
-                'feedbacks',
-                'testimonials'
-            ).select_related('parent_profile').get(id=parent.id)
-
-            # Get all sessions for the parent
-            sessions = Session.objects.filter(child__parent=parent).select_related('child')
-            
-            # Session statistics
-            total_sessions = sessions.count()
-            pending_sessions = sessions.filter(status=Session.Status.PENDING)
-            approved_sessions = sessions.filter(status=Session.Status.APPROVED)
-            rejected_sessions = sessions.filter(status=Session.Status.REJECTED)
-            
-            session_data = {
-                'total_sessions': total_sessions,
-                'total_duration': sessions.aggregate(total=Sum('duration'))['total'] or timedelta(0),
-                
-                'pending_sessions': pending_sessions.count(),
-                'pending_duration': pending_sessions.aggregate(total=Sum('duration'))['total'] or timedelta(0),
-                
-                'approved_sessions': approved_sessions.count(),
-                'approved_duration': approved_sessions.aggregate(total=Sum('duration'))['total'] or timedelta(0),
-                
-                'rejected_sessions': rejected_sessions.count(),
-                'rejected_duration': rejected_sessions.aggregate(total=Sum('duration'))['total'] or timedelta(0),
-                
-                'recent_sessions': sessions.order_by('-created_at')[:5]
-            }
-
-            # Calculate percentages
-            total = session_data['total_sessions'] or 1  # avoid division by zero
-            session_data['approved_percentage'] = round((session_data['approved_sessions'] / total) * 100)
-            session_data['pending_percentage'] = round((session_data['pending_sessions'] / total) * 100)
-            session_data['rejected_percentage'] = round((session_data['rejected_sessions'] / total) * 100)
-
-            # Payment information
-            success_payments = parent.payments.filter(status=Payment.STATUS.SUCCESS)
-            total_paid = success_payments.aggregate(total=Sum('amount'))['total'] or Decimal(0)
-
-            # Paid/Unpaid sessions
-            paid_sessions = approved_sessions.filter(is_paid=True)
-            unpaid_sessions = approved_sessions.filter(is_paid=False)
-
-            # Duration calculations
-            paid_sessions_duration = paid_sessions.aggregate(
-                total=Sum('duration')
-            )['total'] or timedelta(0)
-
-            unpaid_sessions_duration = unpaid_sessions.aggregate(
-                total=Sum('duration')
-            )['total'] or timedelta(0)
-
-            # Calculate amount due
-            try:
-                rate = Decimal(SessionRate.objects.latest("updated_at").current_hourly_rate)
-            except SessionRate.DoesNotExist:
-                rate = Decimal(0)
-                logger.warning("No SessionRate found")
-
-            if unpaid_sessions_duration != timedelta(0):
-                total_unpaid_hours = unpaid_sessions_duration.total_seconds() / 3600
-                total_due = round(Decimal(total_unpaid_hours) * rate, 2)
-            else:
-                total_due = Decimal(0)
-
-            payment_data = {
-                'total_paid': total_paid,
-                'total_due': total_due,
-                'paid_sessions': paid_sessions.count(),
-                'unpaid_sessions': unpaid_sessions.count(),
-                'paid_sessions_duration': paid_sessions_duration,
-                'unpaid_sessions_duration': unpaid_sessions_duration,
-                'hourly_rate': rate
-            }
-            
-            # Feedback and testimonials
-            parent_feedbacks = parent.feedbacks.filter(status=Feedback.FeedbackStatus.OPEN)[:3]
-            testimonials = parent.testimonials.all()[:3]
-            
-            children = parent.children.all().prefetch_related('sessions')
-            payments = parent.payments.all()
-
-            context.update({
-                'testimonials': testimonials,
-                'session_data': session_data,
-                'payment_data': payment_data,
-                'feedbacks': parent_feedbacks,
-                'active_section': 'parents',
-                'payments': payments,
-                'children': children,
-                'current_time': timezone.now(),
-            })
-            
-            logger.info(
-                f"Parent detail viewed for {parent.get_full_name()} by company {self.request.user.email}"
-            )
-            return context
-            
-        except Exception as e:
-            logger.error(
-                f"Error loading parent detail for {parent.id}: {str(e)}",
-                exc_info=True
-            )
-            raise PermissionDenied("Error loading parent details")
-
 class ParentNotificationView(BaseNotificationView):
     template_name = 'company/parent/bulk_notification.html'
     form_class = ParentNotificationForm
@@ -261,7 +133,7 @@ class ParentNotificationView(BaseNotificationView):
     def get_success_url(self):
         return reverse('company:parents')
     
-class ToggleParentStatusView(View):
+class ToggleParentStatusView(CompanyRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         parent = get_object_or_404(
             get_user_model(),
@@ -276,7 +148,8 @@ class ToggleParentStatusView(View):
         
         # Send appropriate email
         context = {
-            'parent': parent,
+            'user': parent,
+            'role': 'parent',
             'company': request.user.get_full_name(),
             'support_url': 'https://ethioadvance.com/contact', # request.build_absolute_uri(reverse('contact_support')),
             'login_url': request.build_absolute_uri(reverse('accounts:login')),
@@ -304,3 +177,61 @@ class ToggleParentStatusView(View):
         
         messages.success(request, f"Parent {action} successfully")
         return redirect('company:parents')
+    
+class ParentDetailView(CompanyRequiredMixin, DetailView):
+    model = Parent
+    template_name = 'company/parent/detail.html'
+    profile_relation = 'parent_profile'
+    pk_url_kwarg = 'parent_id'
+    
+    def get_context_data(self, **kwargs):
+        parent = self.object
+
+        sessions = Session.objects.filter(child__parent=parent).select_related('child')
+
+        # Session statistics
+        session_data = self._calculate_session_stats(sessions)
+        
+        # Children and related data
+        children = parent.children.all().prefetch_related('sessions')
+        payments = parent.payments.all()
+        feedbacks = parent.feedbacks.filter(status=Feedback.FeedbackStatus.OPEN)[:3]
+        testimonials = parent.testimonials.all()[:3]
+        
+        return {
+            'parent': parent,
+            'testimonials': testimonials,
+            'session_data': session_data,
+            'feedbacks': feedbacks,
+            'payments': payments,
+            'children': children,
+        }
+    
+    def _calculate_session_stats(self, sessions):
+        status_counts = {
+            'total': sessions.count(),
+            'pending': sessions.filter(status=Session.Status.PENDING),
+            'approved': sessions.filter(status=Session.Status.APPROVED),
+            'rejected': sessions.filter(status=Session.Status.REJECTED),
+        }
+        
+        data = {
+            f'{key}_sessions': qs.count() if isinstance(qs, models.QuerySet) else qs
+            for key, qs in status_counts.items()
+        }
+        
+        # Add durations
+        for status in ['pending', 'approved', 'rejected']:
+            data[f'{status}_duration'] = status_counts[status].aggregate(
+                total=Sum('duration')
+            )['total'] or timedelta(0)
+        
+        data['total_duration'] = sessions.aggregate(total=Sum('duration'))['total'] or timedelta(0)
+        data['recent_sessions'] = sessions.order_by('-created_at')[:5]
+        
+        # Calculate percentages
+        total = data['total_sessions'] or 1
+        for status in ['approved', 'pending', 'rejected']:
+            data[f'{status}_percentage'] = round((data[f'{status}_sessions'] / total) * 100)
+            
+        return data
