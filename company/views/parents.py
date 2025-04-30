@@ -186,14 +186,9 @@ class ParentDetailView(CompanyRequiredMixin, DetailView):
     
     def get_context_data(self, **kwargs):
         parent = self.object
-
-        sessions = Session.objects.filter(child__parent=parent).select_related('child')
-
-        # Session statistics
-        session_data = self._calculate_session_stats(sessions)
         
         # Children and related data
-        children = parent.children.all().prefetch_related('sessions')
+        children = parent.children.only('id', 'first_name', 'last_name').prefetch_related('sessions')
         payments = parent.payments.all()
         feedbacks = parent.feedbacks.filter(status=Feedback.FeedbackStatus.OPEN)[:3]
         testimonials = parent.testimonials.all()[:3]
@@ -201,37 +196,7 @@ class ParentDetailView(CompanyRequiredMixin, DetailView):
         return {
             'parent': parent,
             'testimonials': testimonials,
-            'session_data': session_data,
             'feedbacks': feedbacks,
             'payments': payments,
             'children': children,
         }
-    
-    def _calculate_session_stats(self, sessions):
-        status_counts = {
-            'total': sessions.count(),
-            'pending': sessions.filter(status=Session.Status.PENDING),
-            'approved': sessions.filter(status=Session.Status.APPROVED),
-            'rejected': sessions.filter(status=Session.Status.REJECTED),
-        }
-        
-        data = {
-            f'{key}_sessions': qs.count() if isinstance(qs, models.QuerySet) else qs
-            for key, qs in status_counts.items()
-        }
-        
-        # Add durations
-        for status in ['pending', 'approved', 'rejected']:
-            data[f'{status}_duration'] = status_counts[status].aggregate(
-                total=Sum('duration')
-            )['total'] or timedelta(0)
-        
-        data['total_duration'] = sessions.aggregate(total=Sum('duration'))['total'] or timedelta(0)
-        data['recent_sessions'] = sessions.order_by('-created_at')[:5]
-        
-        # Calculate percentages
-        total = data['total_sessions'] or 1
-        for status in ['approved', 'pending', 'rejected']:
-            data[f'{status}_percentage'] = round((data[f'{status}_sessions'] / total) * 100)
-            
-        return data

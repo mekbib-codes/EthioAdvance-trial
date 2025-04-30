@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.views.generic.edit import View, UpdateView
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, Q
 from django.urls import reverse_lazy
 from django.contrib import messages
 
@@ -11,18 +11,16 @@ from accounts.mixins import ParentRequiredMixin
 from accounts.views.base_registration import BaseRegistrationView
 from accounts.models import User
 from parent.models import ParentProfile, Parent
-from .forms import ParentRegistrationForm, ParentProfileUpdateForm
+from parent.forms import ParentRegistrationForm, ParentProfileUpdateForm
 from session.models import Session
 from child.views import BaseChildrenDashboardView, PaymentDashboardView
 from session.views import BaseSessionsDashboardView
 from report.views import BaseReportsDashboardView
 from report.models import Report
-from payment.models import Payment, SessionRate
 
 from actions.models import Notification, ActivityLog
 from actions.utils import create_notification, create_activity_log
 
-from testimonials.models import Testimonial
 
 import logging
 logger = logging.getLogger('app')
@@ -33,47 +31,14 @@ class ParentDashboardView(ParentRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            parent = Parent.objects.prefetch_related('children', 'activity_logs', 'payments').select_related('parent_profile').get(id=self.request.user.id)
-            
-            # Get all sessions for all the parent
-            sessions = Session.objects.filter(child__parent=parent).select_related('child')
-            
-            total_sessions = sessions.count()
-            pending_sessions = sessions.filter(status=Session.Status.PENDING)
-            approved_sessions = sessions.filter(status=Session.Status.APPROVED)
-            rejected_sessions = sessions.filter(status=Session.Status.REJECTED)
-            
-            session_data = {
-                'total_sessions': total_sessions,
-                'total_duration': sessions.aggregate(total=Sum('duration'))['total'] or 0,
-                
-                'pending_sessions': pending_sessions.count(),
-                'pending_duration': pending_sessions.aggregate(total=Sum('duration'))['total'] or 0,
-                
-                'approved_sessions': approved_sessions.count(),
-                'approved_duration': approved_sessions.aggregate(total=Sum('duration'))['total'] or 0,
-                
-                'rejected_sessions': rejected_sessions.count(),
-                'rejected_duration': rejected_sessions.aggregate(total=Sum('duration'))['total'] or 0,
-                
-                # If I need the actual session objects in the future
-                # 'all_sessions': sessions.order_by('-created_at')[:10]
-            }
-
-            # Calculate percentages
-            total = session_data['total_sessions'] or 1  # avoid division by zero
-            session_data['approved_percentage'] = round((session_data['approved_sessions'] / total) * 100)
-            session_data['pending_percentage'] = round((session_data['pending_sessions'] / total) * 100)
-            session_data['rejected_percentage'] = round((session_data['rejected_sessions'] / total) * 100)
-
-            testimonials = Testimonial.objects.filter(show_testimonial=True).exclude(parent=parent).select_related('parent', 'parent__parent_profile')[:3]
+            parent = Parent.objects.prefetch_related('testimonials', 'activity_logs').get(id=self.request.user.id)
+            testimonials = parent.testimonials.filter(show_testimonial=True).exclude(parent=parent)[:3]
             activities = ActivityLog.objects.filter(user=parent)[:5]
             
             context.update({
                 'parent': parent,
                 'testimonials': testimonials,
                 'activities': activities,
-                'session_data': session_data,
                 'active_section': 'dashboard',
             })
             

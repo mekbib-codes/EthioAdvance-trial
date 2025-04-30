@@ -21,7 +21,7 @@
             <div class="text-center">
                 
                 <!-- Parent Profile Header, Children list and Quick Status -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4  md:items-stretch h-full gap-4 mb-10">
+                <div class="mx-auto max-w-4xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  md:items-stretch h-full gap-4 mb-10">
                     
                     <div class="flex items-center justify-center flex-col min-h-0 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
 
@@ -93,7 +93,7 @@
                                     <div class="flex justify-between items-center">
                                         <div>
                                             <p class="text-gray-800">{{ payment.child.get_full_name }}</p>
-                                            <p class="text-xs text-gray-500">{{ payment.date|date:"Y-m-d" }}</p>
+                                            <p class="text-left text-xs text-gray-500">{{ payment.timestamp|date:"M - d, Y" }}</p>
                                         </div>
                                         <span class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded">
                                             {{ payment.amount|intcomma }} ETB
@@ -109,48 +109,6 @@
                         </div>
                     </div>
 
-                    <!-- Quick Status -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
-                        <h2 class="text-center text-3xl text-blue-500 font-bold mb-6 relative">
-                            <span class="relative inline-block">
-                                Quick Stats
-                                <span class="absolute -bottom-1 left-0 w-full h-1 bg-blue-100 rounded-full"></span>
-                                <span class="absolute -bottom-1 left-0 w-1/3 h-1 bg-blue-500 rounded-full animate-pulse"></span>
-                            </span>
-                        </h2>
-                        
-                        <div class="mx-auto space-y-4 max-w-2xs">
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-gray-600">Total Children</span>
-                                <span class="text-sm font-bold text-gray-900">{{ parent.children.count }}</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-gray-600">Total Sessions</span>
-                                <span class="text-sm font-bold text-gray-900">{{ session_data.total_sessions }}</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-gray-600">Total Paid</span>
-                                <span class="text-sm font-bold text-green-600">${{ payment_data.total_paid|intcomma }}</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-gray-600">Total Due</span>
-                                <span class="text-sm font-bold text-amber-600">${{ payment_data.total_due|intcomma }}</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-gray-600">Hourly Rate</span>
-                                <span class="text-sm font-bold text-blue-600">${{ payment_data.hourly_rate|floatformat:2 }}</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-gray-600">Member Since</span>
-                                <span class="text-sm font-bold text-gray-900">{{ parent.date_joined|date:"M Y" }}</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Payments and sessions -->
@@ -163,7 +121,7 @@
                 
                     <!-- Sessions Overview -->
                     <div class="flex-1 min-h-0">  <!-- min-h-0 prevents overflow -->
-                        {% include 'parent/dashboard_components/sessions_overview.html' %}
+                        {% parent_session_info parent.id %}
                     </div>
                 
                 </div>
