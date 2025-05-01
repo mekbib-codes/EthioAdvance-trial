@@ -21,7 +21,7 @@
         {% if request.user.role == 'PARENT' %}
             {% child_payment_info child %}
         {% elif request.user.role == 'TUTOR' %}
-            {% tutor_payment_info child %}
+            {% tutor_payment_card child %}
         {% endif %}
     {% else %}
         <div class="bg-gray-100 p-4 rounded-lg shadow text-center">

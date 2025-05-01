@@ -2,7 +2,7 @@ from django.urls import path
 from .views.dashboard import CompanyDashboardView
 from .views.parents import ParentListView, ParentSearchView, ParentNotificationView, ToggleParentStatusView,  ParentDetailView
 from .views.tutors import TutorListView, TutorSearchView, TutorNotificationView, ToggleTutorStatusView, TutorDetailView
-from .views.manual_parent_payment import CreateManualPaymentView, UnpaidSessionsAPIView
+from .views.manual_payments import ManualParentPayment, ManualTutorPayment, UnpaidChildSessionsApIView, UnpaidTutorSessionsAPIView
 
 app_name = "company"
 
@@ -23,7 +23,9 @@ urlpatterns = [
     
 
     # Manual payment URL
-    path('parents/<int:parent_id>/manual-payment/', CreateManualPaymentView.as_view(), name='record_manual_payment'),
+    path('parents/<int:parent_id>/manual-payment/', ManualParentPayment.as_view(), name='record_parent_payment'),
+    path('tutor/<int:tutor_id>/manual-payment/', ManualTutorPayment.as_view(), name='record_tutor_payment'),
     # API endpoint for dynamic session loading
-    path('api/children/<int:child_id>/unpaid-sessions/', UnpaidSessionsAPIView.as_view(),name='unpaid_sessions_api'),
+    path('api/children/<int:child_id>/unpaid-sessions/', UnpaidChildSessionsApIView.as_view(),name='unpaid_sessions_api'),
+    path('api/students/<int:child_id>/requested-sessions/', UnpaidTutorSessionsAPIView.as_view(),name='requested_sessions_api'),
 ]

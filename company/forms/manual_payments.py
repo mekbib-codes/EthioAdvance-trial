@@ -7,5 +7,5 @@ class ManualPaymentForm(forms.ModelForm):
         model = Payment
         fields = ['child']
     
-    def __init__(self, *args, parent=None, **kwargs):
+    def __init__(self, *args, parent=None, tutor=None, **kwargs):
         super().__init__(*args, **kwargs)
