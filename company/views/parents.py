@@ -181,7 +181,6 @@ class ToggleParentStatusView(CompanyRequiredMixin, View):
 class ParentDetailView(CompanyRequiredMixin, DetailView):
     model = Parent
     template_name = 'company/parent/detail.html'
-    profile_relation = 'parent_profile'
     pk_url_kwarg = 'parent_id'
     
     def get_context_data(self, **kwargs):

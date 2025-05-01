@@ -1,12 +1,12 @@
 from django.db.models import Count, Sum
 from django.db.models.functions import Coalesce
 from django.urls import reverse
-from django.views.generic import View
+from django.views.generic import View, DetailView
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth import get_user_model
 from django.contrib import messages
-from django.db import models
 
+from accounts.mixins import CompanyRequiredMixin
 from accounts.views.user_list_view import BaseUserListView
 from tutor.models import Tutor
 from accounts.models import User
@@ -136,7 +136,7 @@ class TutorNotificationView(BaseNotificationView):
     def get_success_url(self):
         return reverse('company:tutors')
     
-class ToggleTutorStatusView(View):
+class ToggleTutorStatusView(CompanyRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         tutor = get_object_or_404(
             get_user_model(),
@@ -181,87 +181,22 @@ class ToggleTutorStatusView(View):
         messages.success(request, f"Tutor {action} successfully")
         return redirect('company:tutors')
     
-# class TutorDetailView(BaseUserDetailView):
-#     model = Tutor
-#     template_name = 'company/tutor/detail.html'
-#     profile_relation = 'tutor_profile'
-    
-#     def get_specific_context_data(self, tutor):
-#         sessions = tutor.sessions.all()
-#         session_data = self._calculate_session_stats(sessions)
+class TutorDetailView(CompanyRequiredMixin, DetailView):
+    model = Tutor
+    template_name = 'company/tutor/detail.html'
+    pk_url_kwarg = 'tutor_id'
+
+    def get_context_data(self, **kwargs):
+        tutor = self.object
         
-#         # Payment information
-#         payment_data = self._calculate_payment_info(tutor, sessions)
+        # Children and related data
+        students = tutor.students.only('id', 'first_name', 'last_name').prefetch_related('sessions')
+        payments = tutor.tutor_payments.filter(status=TutorPayments.STATUS.SUCCESS)
+        feedbacks = tutor.feedbacks.filter(status=Feedback.FeedbackStatus.OPEN)[:3]
         
-#         # Children and related data
-#         children = tutor.students.all()
-#         payments = tutor.tutor_payments.all()
-#         feedbacks = tutor.feedbacks.filter(status=Feedback.FeedbackStatus.OPEN)[:3]
-        
-#         return {
-#             'parent': tutor,
-#             'session_data': session_data,
-#             'payment_data': payment_data,
-#             'feedbacks': feedbacks,
-#             'payments': payments,
-#             'children': children,
-#         }
-    
-#     def _calculate_session_stats(self, sessions):
-#         status_counts = {
-#             'total': sessions.count(),
-#             'pending': sessions.filter(status=Session.Status.PENDING),
-#             'approved': sessions.filter(status=Session.Status.APPROVED),
-#             'rejected': sessions.filter(status=Session.Status.REJECTED),
-#         }
-        
-#         data = {
-#             f'{key}_sessions': qs.count() if isinstance(qs, models.QuerySet) else qs
-#             for key, qs in status_counts.items()
-#         }
-        
-#         # Add durations
-#         for status in ['pending', 'approved', 'rejected']:
-#             data[f'{status}_duration'] = status_counts[status].aggregate(
-#                 total=Sum('duration')
-#             )['total'] or timedelta(0)
-        
-#         data['total_duration'] = sessions.aggregate(total=Sum('duration'))['total'] or timedelta(0)
-#         data['recent_sessions'] = sessions.order_by('-created_at')[:5]
-        
-#         # Calculate percentages
-#         total = data['total_sessions'] or 1
-#         for status in ['approved', 'pending', 'rejected']:
-#             data[f'{status}_percentage'] = round((data[f'{status}_sessions'] / total) * 100)
-            
-#         return data
-    
-#     def _calculate_payment_info(self, tutor, sessions):
-#         success_payments = tutor.tutor_payments.filter(status=TutorPayments.STATUS.SUCCESS)
-#         total_earned = success_payments.aggregate(total=Sum('amount'))['total'] or Decimal(0)
-        
-#         unpaid_sessions = sessions.filter(
-#             status=Session.Status.APPROVED,
-#             paid_to_tutor=False
-#         )
-#         unpaid_duration = unpaid_sessions.aggregate(total=Sum('duration'))['total'] or timedelta(0)
-        
-#         try:
-#             rate = Decimal(TutorPayRate.objects.latest("updated_at").current_hourly_rate)
-#         except TutorPayRate.DoesNotExist:
-#             rate = Decimal(0)
-#             logger.warning("No TutorPayRate found")
-        
-#         total_unpaid = round(Decimal(unpaid_duration.total_seconds() / 3600) * rate, 2) if unpaid_duration else Decimal(0)
-#         total_requested = tutor.tutor_payments.filter(status=TutorPayments.STATUS.PENDING)
-        
-#         return {
-#             'total_earned': total_earned,
-#                 'total_requested': total_requested,
-#                 'total_unpiad': total_unpaid,
-#                 'paid_sessions': 
-#                 'unpaid_sessions': unpaid_sessions.count(),
-#                 'paid_sessions_duration': paid_sessions_duration,
-#                 'unpaid_sessions_duration': unpaid_sessions_duration,
-#                 'hourly_rate': rate  # Include for transparency
-#         }
+        return {
+            'tutor': tutor,
+            'feedbacks': feedbacks,
+            'payments': payments,
+            'students': students,
+        }

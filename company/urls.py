@@ -1,7 +1,7 @@
 from django.urls import path
 from .views.dashboard import CompanyDashboardView
 from .views.parents import ParentListView, ParentSearchView, ParentNotificationView, ToggleParentStatusView,  ParentDetailView
-from .views.tutors import TutorListView, TutorSearchView, TutorNotificationView, ToggleTutorStatusView
+from .views.tutors import TutorListView, TutorSearchView, TutorNotificationView, ToggleTutorStatusView, TutorDetailView
 from .views.manual_parent_payment import CreateManualPaymentView, UnpaidSessionsAPIView
 
 app_name = "company"
@@ -19,6 +19,7 @@ urlpatterns = [
     path('tutors/search/', TutorSearchView.as_view(), name='tutor_search'),
     path('tutors/notify/', TutorNotificationView.as_view(), name='notify_tutors'),
     path('tutors/<int:tutor_id>/toggle-status/', ToggleTutorStatusView.as_view(), name='toggle_tutor_status'),
+    path('tutor/<int:tutor_id>/', TutorDetailView.as_view(), name='tutor_detail'),
     
 
     # Manual payment URL

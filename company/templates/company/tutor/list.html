@@ -50,7 +50,7 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 {% for tutor in tutors %}
                 <tr 
-                    data-href="#"
+                    data-href="{% url 'company:tutor_detail' tutor.id %}"
                     class="clickable-row {% if tutor.total_requested > 0 %}bg-red-50/50{% else %}bg-green-50/50{% endif %} hover:scale-[1.01] hover:bg-blue-50 transition-all duration-200 ease-out group cursor-pointer">
                     
                     <td class="px-6 py-4 whitespace-nowrap">
