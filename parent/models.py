@@ -52,3 +52,7 @@ class ParentProfile(models.Model):
                 _('User must have the role of "Parent" to create a Parent Profile.'),
                 code='invalid_role'
             )
+    class Meta:
+        indexes = [
+            models.Index(fields=['company']),  # Speeds up child→company filters
+        ]
