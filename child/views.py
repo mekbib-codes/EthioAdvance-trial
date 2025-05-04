@@ -1,12 +1,10 @@
-from django.views.generic import DetailView, ListView, TemplateView
-from django.db.models import OuterRef, Subquery, Prefetch
+from django.views.generic import DetailView, ListView, CreateView, UpdateView
+from django.db.models import OuterRef, Subquery, Prefetch, Count, Q
 from django.shortcuts import get_object_or_404, render
-from django.views.generic import CreateView, UpdateView
 from django.views.generic.edit import View
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.utils.translation import gettext as _
-from django.db.models import Count, Q
 
 from .models import Child
 from parent.models import Parent

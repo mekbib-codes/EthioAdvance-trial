@@ -130,6 +130,11 @@ class ParentNotificationView(BaseNotificationView):
         }
         return data[message_type]
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_section'] = 'parents'
+        return context
+
     def get_success_url(self):
         return reverse('company:parents')
     

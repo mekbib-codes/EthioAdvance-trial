@@ -3,7 +3,7 @@ from .views.dashboard import CompanyDashboardView
 from .views.parents import ParentListView, ParentSearchView, ParentNotificationView, ToggleParentStatusView,  ParentDetailView
 from .views.tutors import TutorListView, TutorSearchView, TutorNotificationView, ToggleTutorStatusView, TutorDetailView
 from .views.manual_payments import ManualParentPayment, ManualTutorPayment, UnpaidChildSessionsApIView, UnpaidTutorSessionsAPIView
-from .views.children import ChildrenListView
+from .views.children import ChildrenListView, StatusUpdateView
 
 app_name = "company"
 
@@ -30,5 +30,6 @@ urlpatterns = [
     path('api/children/<int:child_id>/unpaid-sessions/', UnpaidChildSessionsApIView.as_view(),name='unpaid_sessions_api'),
     path('api/students/<int:child_id>/requested-sessions/', UnpaidTutorSessionsAPIView.as_view(),name='requested_sessions_api'),
 
-    path('children/', ChildrenListView.as_view(), name='children_list')
+    path('children/', ChildrenListView.as_view(), name='children_list'),
+    path('child/<int:child_id>/status/update/', StatusUpdateView.as_view(), name='update_child_status'),
 ]

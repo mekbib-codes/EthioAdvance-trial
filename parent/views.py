@@ -17,7 +17,7 @@ from child.views import BaseChildrenDashboardView, PaymentDashboardView
 from session.views import BaseSessionsDashboardView
 from report.views import BaseReportsDashboardView
 from report.models import Report
-
+from payment.models import Payment
 from actions.models import Notification, ActivityLog
 from actions.utils import create_notification, create_activity_log
 
@@ -70,7 +70,7 @@ class ParentProfileDashboardView(ParentRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        parent = Parent.objects.select_related("parent_profile").get(id=self.request.user.id)
+        parent = Parent.objects.select_related("parent_profile").prefetch_related("children", "payments").get(id=self.request.user.id)
 
         # Fetch the parent's profile
         profile = getattr(parent, "parent_profile", None)
@@ -86,7 +86,7 @@ class ParentProfileDashboardView(ParentRequiredMixin, TemplateView):
         sessions = Session.objects.filter(child__in=children).select_related("child")
 
         # Fetch all payments made by the parent
-        payments = parent.payments.select_related("child")
+        payments = parent.payments.select_related("child").filter(status=Payment.STATUS.SUCCESS)
         total_payment = sum([payment.amount for payment in payments])
 
         # Aggregate session counts
