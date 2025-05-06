@@ -6,10 +6,10 @@
         <!-- Attendance Details -->
         <div class="w-full">
             <p class="text-lg text-gray-700 mb-2">
-                <span class="font-semibold text-blue-600">Attendance Rate:</span> {{ child.status.attendance_rate }}%
+                <span class="font-semibold text-blue-600">Attendance Rate:</span> {{ child.status.attendance_rate|default:"0" }}%
             </p>
             <p class="text-lg text-gray-700 mb-2">
-                <span class="font-semibold text-blue-600">Sessions Summary:</span> {{ child.status.sessions_summary }}
+                <span class="font-semibold text-blue-600">Sessions Summary:</span> {{ child.status.sessions_summary|default:"No session record yet." }}
             </p>
         </div>
         <!-- Attendance Pie Chart -->
