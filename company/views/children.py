@@ -1,4 +1,4 @@
-from django.views.generic import ListView, UpdateView
+from django.views.generic import ListView, UpdateView, DetailView
 from django.db.models import Count, Sum, Q
 from django.db.models.functions import Coalesce
 from django.db.models import OuterRef, Subquery, Sum, Count, DecimalField, Value, IntegerField
@@ -138,7 +138,7 @@ class ChildrenListView(CompanyRequiredMixin, ListView):
         context['active_section'] = 'children'
         return context
     
-class StatusUpdateView(UpdateView):
+class StatusUpdateView(CompanyRequiredMixin, UpdateView):
     model = Status
     form_class = StatusForm
     template_name = 'company/children/status/update.html'
@@ -172,3 +172,15 @@ class StatusUpdateView(UpdateView):
     def get_success_url(self):
         return reverse_lazy('company:children_list')
 
+class ChildDeatilView(CompanyRequiredMixin, DetailView):
+    model = Child
+    pk_url_kwarg = 'child_id'
+    template_name = 'company/children/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        child =self.get_object()
+
+        return context
+
+        

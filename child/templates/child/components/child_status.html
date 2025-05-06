@@ -1,0 +1,87 @@
+<!-- Sessions Section -->
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-semibold text-blue-600 mb-4">Sessions Summary</h2>
+    
+    <div class="flex flex-col md:flex-row items-center md:space-x-6">
+        <!-- Attendance Details -->
+        <div class="w-full">
+            <p class="text-lg text-gray-700 mb-2">
+                <span class="font-semibold text-blue-600">Attendance Rate:</span> {{ child.status.attendance_rate }}%
+            </p>
+            <p class="text-lg text-gray-700 mb-2">
+                <span class="font-semibold text-blue-600">Sessions Summary:</span> {{ child.status.sessions_summary }}
+            </p>
+        </div>
+        <!-- Attendance Pie Chart -->
+        <div class="flex justify-center items-center col-span-1">
+            {% include "child/components/pie_chart.html" with chart_id="attendanceRateChart" score=child.status.attendance_rate|default:"0" color="#2196f3" label="Score" %}
+        </div>
+    </div>
+</div>
+
+
+<!-- Strengths & Weaknesses -->
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-semibold text-blue-600 mb-4">Strengths & Weaknesses</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Strengths -->
+        <div class="flex items-start space-x-4 bg-green-50 p-4 rounded-lg shadow">
+            <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-green-600">Strengths</h3>
+                <p class="text-gray-700">{{ child.status.strengths|default:"No strengths recorded yet." }}</p>
+            </div>
+        </div>
+
+        <!-- Weaknesses -->
+        <div class="flex items-start space-x-4 bg-red-50 p-4 rounded-lg shadow">
+            <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-red-200 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-red-600">Weaknesses</h3>
+                <p class="text-gray-700">{{ child.status.weaknesses|default:"No weaknesses recorded yet." }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+ <!-- Mock Exam and Improvement Notes -->
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-semibold text-blue-600 mb-4">Mock Exam & Improvement Notes</h2>
+    
+    <!-- Mock Exam -->
+    <div class="flex flex-col items-center space-y-4">
+        {% if child.status.mock_exam_graph %}
+            <img src="{{ child.status.mock_exam_graph.url }}" alt="Mock Exam Results" class="max-w-full h-auto rounded-lg shadow">
+        {% else %}
+            <p class="text-gray-500 italic">No mock exam graph available.</p>
+        {% endif %}
+    </div>
+
+    <!-- Improvement Notes -->
+    <div class="mt-6">
+        <h3 class="text-lg font-semibold text-gray-800">Improvement Notes</h3>
+        <p class="text-lg text-gray-700">{{ child.status.improvement_notes|default:"No improvement notes available." }}</p>
+    </div>
+</div>
+
+<!-- Last Updated -->
+<div class="text-right mt-4">
+    <p class="italic text-sm text-gray-500">
+        <span class="font-semibold text-gray-700">Last Updated:</span> {{ child.status.updated_at|date:"M d, Y" }}
+    </p>
+    <p class="italic text-sm text-gray-500">
+        <span class="font-semibold text-gray-700">Prepared by: The EthioAdvance Team</span> 
+    </p>
+</div>

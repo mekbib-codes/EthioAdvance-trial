@@ -56,3 +56,17 @@
     </div>
 </section>
 {% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Row click handler
+        document.querySelectorAll('.clickable-row').forEach(row => {
+            row.addEventListener('click', (e) => {
+                if (e.target.closest('a, button, input, .no-click')) return;
+                window.location = row.dataset.href;
+            });
+        });
+    });
+</script>
+{% endblock %}
