@@ -18,7 +18,7 @@
     <tbody class="bg-white divide-y divide-gray-200">
         {% for session in sessions %}
             <tr 
-                data-href="#"
+                data-href="{% url 'company:session_detail' session.id %}"
                 class="clickable-row text-left hover:scale-[1.01] transition-all duration-200 ease-out group cursor-pointer
                 {% if session.status == 'approved' %}bg-green-50/50{% endif %}
                 {% if session.status == 'rejected' %}bg-red-50/50{% endif %}

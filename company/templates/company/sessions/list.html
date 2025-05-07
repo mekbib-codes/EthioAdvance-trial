@@ -27,9 +27,19 @@
                     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                         <!-- Search Results Info -->
                         <div class="flex-1 min-w-0">
+                            {% if search_query %}
+                            <p class="text-lg text-gray-600 truncate italic">
+                                Showing results for: <span class="font-bold text-blue-500">{{ search_query }}</span>
+                                <a href="{% url 'company:sessions_list' %}" 
+                                   class="ml-8 text-blue-600 hover:text-blue-900 font-bold">
+                                   Clear search
+                                </a>
+                            </p>
+                            {% endif %}
                         </div>
                         
                        <!-- Search and filter forms -->
+                        {% include 'company/sessions/search_and_filter_form.html' %}
                     </div>
 
                     {% include 'company/sessions/list_table.html' %}

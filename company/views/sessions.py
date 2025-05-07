@@ -1,6 +1,7 @@
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.db.models import Q, DurationField, F, ExpressionWrapper
 from django.utils.timezone import timedelta
+from django.utils import timezone
 
 from accounts.mixins import CompanyRequiredMixin
 from session.models import Session
@@ -25,7 +26,7 @@ class SessionsListView(CompanyRequiredMixin, ListView):
 
     def _apply_search(self, queryset):
         """Applies search filtering by tutor/child names."""
-        search_query = self.request.GET.get('search')
+        search_query = self.request.GET.get('q')
         if search_query:
             queryset = queryset.filter(
                 Q(tutor__first_name__icontains=search_query) |
@@ -69,20 +70,45 @@ class SessionsListView(CompanyRequiredMixin, ListView):
             queryset = queryset.filter(is_paid=True)
         if self.request.GET.get('paid_to_tutor') == 'on':
             queryset = queryset.filter(paid_to_tutor=True)
-        if self.request.GET.get('overdue') == 'on':
-            queryset = queryset.filter(overdue=True)
         return queryset
 
     def get_context_data(self, **kwargs):
         """Passes current filter values to the template."""
         context = super().get_context_data(**kwargs)
+
+        status_choices = Session.Status.choices
         context.update({
             'current_search': self.request.GET.get('search', ''),
             'current_status': self.request.GET.get('status', ''),
             'current_duration': self.request.GET.get('duration', ''),
             'current_is_paid': self.request.GET.get('is_paid', ''),
             'current_paid_to_tutor': self.request.GET.get('paid_to_tutor', ''),
-            'current_overdue': self.request.GET.get('overdue', ''),
+            
+            'status_choices': status_choices,
             'active_section': 'sessions',
         })
+        return context
+    
+
+class SessionDetailView(CompanyRequiredMixin, DetailView):
+    model = Session
+    template_name = 'company/sessions/detail.html'
+    pk_url_kwarg = 'session_id'
+    context_object_name = 'session'
+
+    def get_queryset(self):
+        # Optimize queryset to prevent N+1 queries and ensure company restriction
+        return super().get_queryset().filter(
+            tutor__tutor_profile__company=self.request.user
+        ).select_related(
+            'tutor',
+            'child',
+            'tutor__tutor_profile'
+        )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Add additional context data
+        context['now'] = timezone.now()
+        context['active_section'] = 'sessions'
         return context
