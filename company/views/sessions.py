@@ -78,7 +78,7 @@ class SessionsListView(CompanyRequiredMixin, ListView):
 
         status_choices = Session.Status.choices
         context.update({
-            'current_search': self.request.GET.get('search', ''),
+            'current_search': self.request.GET.get('q', ''),
             'current_status': self.request.GET.get('status', ''),
             'current_duration': self.request.GET.get('duration', ''),
             'current_is_paid': self.request.GET.get('is_paid', ''),

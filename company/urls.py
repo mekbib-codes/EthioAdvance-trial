@@ -5,6 +5,7 @@ from .views.tutors import TutorListView, TutorSearchView, TutorNotificationView,
 from .views.manual_payments import ManualParentPayment, ManualTutorPayment, UnpaidChildSessionsApIView, UnpaidTutorSessionsAPIView
 from .views.children import ChildrenListView, StatusUpdateView, ChildDeatilView
 from .views.sessions import SessionsListView, SessionDetailView
+from .views.reports import ReportListView
 
 app_name = "company"
 
@@ -36,5 +37,7 @@ urlpatterns = [
     path('child/<int:child_id>/', ChildDeatilView.as_view(), name='child_detail'),
 
     path('sessions/', SessionsListView.as_view(), name='sessions_list'),
-    path('session/<int:session_id>/', SessionDetailView.as_view(), name='session_detail')
+    path('session/<int:session_id>/', SessionDetailView.as_view(), name='session_detail'),
+
+    path('reports/', ReportListView.as_view(), name='reports_list'),
 ]
