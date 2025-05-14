@@ -42,3 +42,30 @@ class ReportListView(CompanyRequiredMixin, ListView):
             'active_section': 'reports',
         })
         return context
+    
+class ReportDetailView(CompanyRequiredMixin, DetailView):
+    model = Report
+    template_name = 'company/reports/detail.html'
+    context_object_name = 'report'
+    pk_url_kwarg = 'report_id'
+
+    def get_queryset(self):
+        # Optimize queryset by prefetching all related data
+        return super().get_queryset().select_related(
+            'tutor',
+            'child'
+        ).prefetch_related(
+            'strengths',
+            'weaknesses',
+            'goals_achieved',
+            'learning_material_prepared',
+            'challenges_encountered',
+            'suggested_solutions'
+        )
+    
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+        context['active_section'] = 'reports'
+        return context
+

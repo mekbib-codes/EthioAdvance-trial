@@ -21,7 +21,7 @@
     <tbody class="bg-white divide-y divide-gray-200">
         {% for report in reports %}
             <tr 
-                data-href="#"
+                data-href="{% url 'company:report_detail' report.id %}"
                 class="clickable-row text-left hover:scale-[1.01] transition-all duration-200 ease-out group cursor-pointer bg-green-50/50">
 
                 <!-- Counter -->

@@ -12,3 +12,11 @@
         {% endif %}
     </div>
 {% endblock %}
+
+ {% block update_profile %}
+        <div>
+            <a href="{% url 'child:update_profile' child.id %}" class="inline-block bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition">
+                Update Profile
+            </a>
+        </div>
+{% endblock %}
