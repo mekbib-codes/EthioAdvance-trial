@@ -52,7 +52,7 @@ class User(AbstractUser):
         COMPANY = "COMPANY", "Company"
 
     # Role field was missing in your original
-    role = models.CharField(max_length=20, choices=Role.choices)
+    role = models.CharField(max_length=20, choices=Role.choices, default=Role.PARENT)
     
     # Personal Info
     first_name = models.CharField(max_length=255)
