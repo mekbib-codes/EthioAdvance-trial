@@ -107,7 +107,7 @@
                 </div>
                 
                 <!--Go to payment -->
-                {% if payment_data.unpaid_sessions > 0 and request.user.role == "PARENT" %}
+                {% comment %} {% if payment_data.unpaid_sessions > 0 and request.user.role == "PARENT" %}
                 <div class="mt-6 text-center">
                     <a href="{% url 'parent:payment_dashboard' %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -116,7 +116,7 @@
                         Pay ${{ payment_data.total_due|intcomma }} Now
                     </a>
                 </div>
-                {% endif %}
+                {% endif %} {% endcomment %}
             </div>
         </div>
     </div>

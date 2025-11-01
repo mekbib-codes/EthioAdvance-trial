@@ -98,8 +98,7 @@ class Report(models.Model):
     )
     completion_notes = models.TextField(blank=True, null=True)
 
-    feedback_from_parent = models.TextField(blank=True, null=True)
-    feedback_from_child = models.TextField(blank=True, null=True)
+    feedback = models.TextField(blank=True, null=True)
 
     challenges_encountered = models.ManyToManyField(ChallengeEncountered, blank=True)
     suggested_solutions = models.ManyToManyField(SuggestedSolution, blank=True)

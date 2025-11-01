@@ -1,16 +1,16 @@
 <div id="report-{{ report.id }}-container" class="p-4 bg-blue-50 shadow-md rounded-lg text-gray-700 space-y-4">
     <!-- Header -->
 
-    {% if report.feedback_from_parent %}
+    {% if report.feedback %}
         <div id="feedback-display" class="flex items-center space-x-2 text-green-700 bg-transparent p-2">
             <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
             </svg>
-            <span class="italic">Parent feedback has been sent! Thank you for helping us improve your child’s learning journey.</span>
+            <span class="italic">Feedback has been sent! Thank you for helping us improve your child’s learning journey.</span>
         </div>
     
     {% else %}
-        <h2 class="font-bold text-2xl text-blue-600">Parent Feedback</h2>
+        <h2 class="font-bold text-2xl text-blue-600">Feedback</h2>
         <!-- Feedback Form -->
         <form 
             hx-post="{% url 'parent:add_report_feedback' report.id %}" 

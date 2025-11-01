@@ -259,7 +259,7 @@ class AddReportFeedbackView(ParentRequiredMixin, View):
         # Get the feedback from the POST request
         parent_feedback = request.POST.get("parent_feedback", "").strip()
         if parent_feedback:
-            report.feedback_from_parent = parent_feedback
+            report.feedback = parent_feedback
             report.save()
 
             # Notify the tutor and company

@@ -56,7 +56,7 @@
         </div>
 
         <!-- Pay Now Button (Conditional) -->
-        {% if unpaid_sessions and unpaid_sessions.count > 0 %}
+        {% comment %} {% if unpaid_sessions and unpaid_sessions.count > 0 %}
             <div class="pt-2">
                 <form action="{% url 'payment:initialize' child.id %}" method="POST" class="w-full">
                     {% csrf_token %}
@@ -69,6 +69,6 @@
                     </button>
                 </form>
             </div>
-        {% endif %}
+        {% endif %} {% endcomment %}
     </div>
 </div>

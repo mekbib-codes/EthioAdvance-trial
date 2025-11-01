@@ -16,34 +16,19 @@
 {% block feedbacks %}
     <div class="p-4 bg-blue-50 shadow-md rounded-lg text-gray-700 space-y-4">
     <!-- Header -->
-        <h2 class="font-bold text-2xl text-blue-600">Parent Feedback</h2>
+        <h2 class="font-bold text-2xl text-blue-600">Feedback</h2>
 
-        {% if report.feedback_from_parent %}
+        {% if report.feedback %}
             <!-- Display Feedback -->
             <div id="feedback-display-{{ report.id }}" class="bg-white p-4 rounded-lg shadow">
-                <p class="text-gray-700 indent-4">{{ report.feedback_from_parent }}</p>
+                <p class="text-gray-700 indent-4">{{ report.feedback }}</p>
             </div>
         {% else %}
             <div id="feedback-display-{{ report.id }}" class="bg-white p-4 rounded-lg shadow">
-                <p class="text-gray-700 indent-4">No feed back from parent yet.</p>
+                <p class="text-gray-700 indent-4">No feedback provided yet.</p>
             </div>
         {% endif %}
     </div>
 
-    <div class="p-4 bg-blue-50 shadow-md rounded-lg text-gray-700 space-y-4">
-        <!-- Header -->
-        <h2 class="font-bold text-2xl text-blue-600">Child Feedback</h2>
-
-        {% if report.feedback_from_child %}
-            <!-- Display Feedback -->
-            <div id="feedback-display-{{ report.id }}" class="bg-white p-4 rounded-lg shadow">
-                <p class="text-gray-700 indent-4">{{ report.feedback_from_child }}</p>
-            </div>
-        {% else %}
-            <div id="feedback-display-{{ report.id }}" class="bg-white p-4 rounded-lg shadow">
-                <p class="text-gray-700 indent-4">No feedback from child yet.</p>
-            </div>
-        {% endif %}
-    </div>
     
 {% endblock %}
