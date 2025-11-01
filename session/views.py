@@ -32,7 +32,7 @@ class BaseSessionsDashboardView(ListView):
     def get_queryset(self):
         """Fetch sessions for the child."""
         child = self.get_child()
-        return Session.objects.filter(child=child, is_paid=False, overdue=False).select_related('tutor', 'child').order_by('-created_at')
+        return Session.objects.filter(child=child, overdue=False).select_related('tutor', 'child').order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

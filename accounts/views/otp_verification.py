@@ -99,7 +99,6 @@ class OTPVerificationView(TemplateView):
             else:
                 cache.incr(attempt_key)
             
-            cache.expire(attempt_key, 600)
             return False
         
         cache.delete(f"otp_attempts:{email}")

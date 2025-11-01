@@ -194,10 +194,10 @@ class CreateReportView(TutorRequiredMixin, View):
             # Log the activity
             create_activity_log(
                 user=self.request.user,
-                action=f"Created report for { self.child.get_full_name() }",
+                action=f"Created report for { child.get_full_name() }",
                 related_object=report,
                 link='tutor:child_reports_dashboard',
-                kwargs={'child_id': self.child.id}
+                kwargs={'child_id': child.id}
             )
 
             logger.info(f"Report successfully created by {request.user.email} for child {child.id}")
