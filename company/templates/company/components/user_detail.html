@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block header %}
+    {% include "ui/company_header.html" %}
+{% endblock %}
+
+{% block content %}
+<section class="relative mx-auto">
+    {% include "components/hero/stripes.html" %}
+
+    <div class="mx-auto w-full px-4 sm:px-6">
+        <div class="pt-32">
+            <div class="text-center">
+                <div class="mx-auto max-w-4xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  md:items-stretch h-full gap-4 mb-10">
+                    {% block profile_banner %}
+                    {% endblock %}
+
+                    {% block child_list %}
+                    {% endblock %}
+
+                    {% block payments_list %}
+                    {% endblock %}
+                </div>
+
+                    {% block payment_and_session_cards %}
+                    {% endblock %}
+
+                    {% block feedbacks_and_testimonials%}
+                    {% endblock %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

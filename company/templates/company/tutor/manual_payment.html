@@ -1,0 +1,159 @@
+{% extends "forms/base_form.html" %}
+
+{% block title %}Record Payment{% endblock %}
+
+{% block header %}
+    {% include 'ui/company_header.html' %}
+{% endblock %}
+
+
+{% block form_content %}
+
+<div class="max-w-3xl mx-auto py-8">
+
+    <div class="mb-10">
+        <h2 class="text-2xl font-bold">Record Manual Payment for {{ tutor.get_full_name }}</h2>
+    </div>
+        
+    <form method="post" class="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200" action="{% url 'company:record_tutor_payment' tutor.id %}">
+        {% csrf_token %}
+        
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2" for="id_child">
+                Select the child
+            </label>
+            <select id="id_child" class="form-select w-full py-2" name="child" onchange='updateSessions(this.value)' required>
+                    <option value="">Please select the child</option>
+                {% for child in students %}
+                    <option value="{{ child.id }}">{{ child.get_full_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        
+
+        <div id="sessions-container">
+            <div class="bg-gray-100 p-4 rounded-xl shadow-lg mb-6 border border-gray-200">
+                <h3 class="font-medium mb-3 text-gray-700">
+                    <span class="font-semibold text-blue-600">0</span> Sessions
+                </h3>
+                <p class="text-sm text-gray-500">Select a child to view tutor payment requests</p>
+            </div>
+        </div>
+        
+        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 mt-6">
+            <a href="{% url 'company:tutor_detail' tutor.id %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                Cancel
+            </a>
+            <button type="submit" id="payment-submit-button" class="px-4 py-2 text-sm font-medium text-white bg-gray-400 rounded-lg cursor-not-allowed flex items-center" disabled>
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Record Payment
+            </button>
+        </div>
+    </form>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Function to update button state
+    function updatePaymentButtonState(amount) {
+        const submitButton = document.getElementById('payment-submit-button');
+        if (amount > 0) {
+            console.log('Payment button enabled')
+            submitButton.disabled = false;
+            submitButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
+            submitButton.classList.add('bg-green-600', 'hover:bg-green-700');
+        } else {
+            console.log('payment button disabled')
+            submitButton.disabled = true;
+            submitButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+            submitButton.classList.add('bg-gray-400', 'cursor-not-allowed');
+        }
+    }
+
+    // Initialize button as disabled
+    document.addEventListener('DOMContentLoaded', function() {
+        updatePaymentButtonState(0);
+    });
+
+    async function updateSessions(childId) {
+
+        // Enable or enable button based on amount
+        
+        const container = document.getElementById('sessions-container');
+        container.innerHTML = `
+            <div class="bg-gray-100 p-4 rounded-xl shadow-lg mb-6 border border-gray-200">
+                <h3 class="font-medium mb-3 text-gray-700">
+                    <span class="text-sm text-gray-500">Loading sessions...</span>
+                </h3>
+                <div class="max-h-[220px] overflow-y-auto pr-2" id="sessions-list"></div>
+            </div>
+        `;
+        const sessionsList = document.getElementById('sessions-list');
+        
+        try {
+            const response = await fetch(`/company/api/students/${childId}/requested-sessions/`);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const data = await response.json();
+            
+            if (data.sessions.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-gray-100 p-4 rounded-xl shadow-lg mb-6 border border-gray-200">
+                        <h3 class="font-medium mb-3 text-gray-700">
+                            No payment requests for this child
+                        </h3>
+                        <p class="text-sm text-gray-500">No payment requests found</p>
+                    </div>
+                `;
+                updatePaymentButtonState(0);
+                return;
+            }
+            
+            let html = `
+                <h3 class="font-medium mb-3 text-gray-700">
+                    Requested for <span class="font-semibold text-blue-600">${data.sessions.length}</span> Session${data.sessions.length !== 1 ? 's' : ''}
+                    <span class="ml-4 px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800">
+                        Total: $${data.amount}
+                    </span>
+                </h3>
+                <ul class="space-y-2">
+                    ${data.sessions.map(session => `
+                    <li class="flex items-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200 border border-blue-100 group">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                                ${session.text}
+                            </p>
+                            <p class="text-xs text-gray-500 truncate group-hover:text-blue-500 transition-colors">
+                                Tutor: ${session.tutor_name} • ${session.date}
+                            </p>
+                        </div>
+                        <span class="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                            ${session.duration}
+                        </span>
+                    </li>
+                    `).join('')}
+                </ul>
+            `;
+            
+            sessionsList.innerHTML = html;
+            updatePaymentButtonState(data.amount);
+        } catch (error) {
+            console.error('Error loading sessions:', error);
+            container.innerHTML = `
+                <div class="bg-gray-100 p-4 rounded-xl shadow-lg mb-6 border border-gray-200">
+                    <h3 class="font-medium mb-3 text-gray-700">
+                        Requested Sessions
+                    </h3>
+                    <p class="text-sm text-red-500">Error loading sessions. Please try again.</p>
+                </div>
+            `;
+            updatePaymentButtonState(0);
+        }
+    }
+</script>
+{% endblock %}

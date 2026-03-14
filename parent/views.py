@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.views.generic.edit import View, UpdateView
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, Q
 from django.urls import reverse_lazy
 from django.contrib import messages
 
@@ -11,18 +11,16 @@ from accounts.mixins import ParentRequiredMixin
 from accounts.views.base_registration import BaseRegistrationView
 from accounts.models import User
 from parent.models import ParentProfile, Parent
-from .forms import ParentRegistrationForm, ParentProfileUpdateForm
+from parent.forms import ParentRegistrationForm, ParentProfileUpdateForm
 from session.models import Session
 from child.views import BaseChildrenDashboardView, PaymentDashboardView
 from session.views import BaseSessionsDashboardView
 from report.views import BaseReportsDashboardView
 from report.models import Report
-from payment.models import Payment, SessionRate
-
+from payment.models import Payment
 from actions.models import Notification, ActivityLog
 from actions.utils import create_notification, create_activity_log
 
-from testimonials.models import Testimonial
 
 import logging
 logger = logging.getLogger('app')
@@ -33,89 +31,14 @@ class ParentDashboardView(ParentRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            parent = Parent.objects.prefetch_related('children', 'activity_logs', 'payments').select_related('parent_profile').get(id=self.request.user.id)
-            
-            # Get all sessions for all the parent
-            sessions = Session.objects.filter(child__parent=parent).select_related('child')
-            
-            total_sessions = sessions.count()
-            pending_sessions = sessions.filter(status=Session.Status.PENDING)
-            approved_sessions = sessions.filter(status=Session.Status.APPROVED)
-            rejected_sessions = sessions.filter(status=Session.Status.REJECTED)
-            
-            session_data = {
-                'total_sessions': total_sessions,
-                'total_duration': sessions.aggregate(total=Sum('duration'))['total'] or 0,
-                
-                'pending_sessions': pending_sessions.count(),
-                'pending_duration': pending_sessions.aggregate(total=Sum('duration'))['total'] or 0,
-                
-                'approved_sessions': approved_sessions.count(),
-                'approved_duration': approved_sessions.aggregate(total=Sum('duration'))['total'] or 0,
-                
-                'rejected_sessions': rejected_sessions.count(),
-                'rejected_duration': rejected_sessions.aggregate(total=Sum('duration'))['total'] or 0,
-                
-                # If I need the actual session objects in the future
-                # 'all_sessions': sessions.order_by('-created_at')[:10]
-            }
-
-            # Calculate percentages
-            total = session_data['total_sessions'] or 1  # avoid division by zero
-            session_data['approved_percentage'] = round((session_data['approved_sessions'] / total) * 100)
-            session_data['pending_percentage'] = round((session_data['pending_sessions'] / total) * 100)
-            session_data['rejected_percentage'] = round((session_data['rejected_sessions'] / total) * 100)
-
-            # Get payment info
-            success_payments = parent.payments.filter(status=Payment.STATUS.SUCCESS)
-            total_paid = success_payments.aggregate(total=Sum('amount'))['total'] or 0
-
-            # Paid/Unpaid sessions
-            paid_sessions = approved_sessions.filter(is_paid=True)
-            unpaid_sessions = approved_sessions.filter(is_paid=False)
-
-            # Duration calculations
-            paid_sessions_duration = paid_sessions.aggregate(
-                total=Sum('duration')
-            )['total'] or 0
-
-            unpaid_sessions_duration = unpaid_sessions.aggregate(
-                total=Sum('duration')
-            )['total'] or 0
-
-            # Calculate amount due
-            try:
-                rate = SessionRate.objects.latest("updated_at").current_hourly_rate
-            except SessionRate.DoesNotExist:
-                rate = 0
-                logger.warning("No SessionRate found")
-
-            if unpaid_sessions_duration != 0:
-                # Convert duration to hours (assuming duration is in minutes)
-                total_unpaid_hours = unpaid_sessions_duration.total_seconds() / 3600
-                total_due = round(total_unpaid_hours * float(rate), 2)
-            else:
-                total_due = 0
-
-            payment_data = {
-                'total_paid': total_paid,
-                'total_due': total_due,
-                'paid_sessions': paid_sessions.count(),
-                'unpaid_sessions': unpaid_sessions.count(),
-                'paid_sessions_duration': paid_sessions_duration,
-                'unpaid_sessions_duration': unpaid_sessions_duration,
-                'hourly_rate': rate  # Include for transparency
-            }
-
-            testimonials = Testimonial.objects.filter(show_testimonial=True).exclude(parent=parent).select_related('parent', 'parent__parent_profile')[:3]
+            parent = Parent.objects.prefetch_related('testimonials', 'activity_logs').get(id=self.request.user.id)
+            testimonials = parent.testimonials.filter(show_testimonial=True).exclude(parent=parent)[:3]
             activities = ActivityLog.objects.filter(user=parent)[:5]
             
             context.update({
                 'parent': parent,
                 'testimonials': testimonials,
                 'activities': activities,
-                'session_data': session_data,
-                'payment_data': payment_data,
                 'active_section': 'dashboard',
             })
             
@@ -147,7 +70,7 @@ class ParentProfileDashboardView(ParentRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        parent = Parent.objects.select_related("parent_profile").get(id=self.request.user.id)
+        parent = Parent.objects.select_related("parent_profile").prefetch_related("children", "payments").get(id=self.request.user.id)
 
         # Fetch the parent's profile
         profile = getattr(parent, "parent_profile", None)
@@ -163,7 +86,7 @@ class ParentProfileDashboardView(ParentRequiredMixin, TemplateView):
         sessions = Session.objects.filter(child__in=children).select_related("child")
 
         # Fetch all payments made by the parent
-        payments = parent.payments.select_related("child")
+        payments = parent.payments.select_related("child").filter(status=Payment.STATUS.SUCCESS)
         total_payment = sum([payment.amount for payment in payments])
 
         # Aggregate session counts
@@ -336,7 +259,7 @@ class AddReportFeedbackView(ParentRequiredMixin, View):
         # Get the feedback from the POST request
         parent_feedback = request.POST.get("parent_feedback", "").strip()
         if parent_feedback:
-            report.feedback_from_parent = parent_feedback
+            report.feedback = parent_feedback
             report.save()
 
             # Notify the tutor and company

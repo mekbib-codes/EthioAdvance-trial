@@ -1,23 +1,25 @@
 {% extends "ui/header_base.html" %}
 
 {% block desktop_nav %}
-  <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "dashboard" %}id="selected"{% endif %}>Dashboard</a></li>
-  <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "parents" %}id="selected"{% endif %}>Parents</a></li>
-  <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "children" %}id="selected"{% endif %}>Children</a></li>
-  <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "tutors" %}id="selected"{% endif %}>Tutors</a></li>
-  <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "sessions" %}id="selected"{% endif %}>Sessions</a></li>
-  <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "reports" %}id="selected"{% endif %}>Reports</a></li>
-  <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "payments" %}id="selected"{% endif %}>Payments</a></li>
-  <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if section == "profile" %}id="selected"{% endif %}>Profile</a></li>
+  <li><a href="{% url 'company:dashboard' %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "dashboard" %}id="selected"{% endif %}>Dashboard</a></li>
+  <li><a href="{% url 'company:parents' %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "parents" %}id="selected"{% endif %}>Parents</a></li>
+  <li><a href="{% url 'company:children_list' %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "children" %}id="selected"{% endif %}>Children</a></li>
+  <li><a href="{% url 'company:tutors' %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "tutors" %}id="selected"{% endif %}>Tutors</a></li>
+  <li><a href="{% url 'company:sessions_list' %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "sessions" %}id="selected"{% endif %}>Sessions</a></li>
+  <li><a href="{% url 'company:reports_list' %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "reports" %}id="selected"{% endif %}>Reports</a></li>
+  <li><a href="{% url 'company:payments_list' %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "payments" %}id="selected"{% endif %}>Payments</a></li>
+  <li><a href="{% url 'company:tutor_payments_list' %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "tutor_payments" %}id="selected"{% endif %}>Tutor Payments</a></li>
+  <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "profile" %}id="selected"{% endif %}>Profile</a></li>
 {% endblock %}
 
 {% block mobile_nav %}
-  <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Dashboard</a>
-  <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Parents</a>
-  <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Children</a>
-  <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Tutors</a>
-  <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Sessions</a>
-  <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Reports</a>
-  <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Payments</a>
+  <a href="{% url 'company:dashboard' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Dashboard</a>
+  <a href="{% url 'company:parents' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Parents</a>
+  <a href="{% url 'company:children_list' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Children</a>
+  <a href="{% url 'company:tutors' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Tutors</a>
+  <a href="{% url 'company:sessions_list' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Sessions</a>
+  <a href="{% url 'company:reports_list' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Reports</a>
+  <a href="{% url 'company:payments_list' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Payments</a>
+  <a href="{% url 'company:tutor_payments_list' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Tutor Payments</a>
   <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Profile</a>
 {% endblock %}

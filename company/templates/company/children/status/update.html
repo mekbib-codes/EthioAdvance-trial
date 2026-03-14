@@ -1,0 +1,110 @@
+{% extends "forms/base_form.html" %}
+
+{% block title %}Update Status{% endblock %}
+
+{% block header %}
+    {% include 'ui/company_header.html' %}
+{% endblock %}
+
+{% block form_content %}
+<div class="max-w-3xl mx-auto py-8">
+    <div class="mb-10">
+        <h1 class="text-4xl font-bold">Update status</h1>
+    </div>
+
+    <!-- Form -->
+<form method="post" enctype="multipart/form-data" {% block action %}{% endblock %}>
+{% csrf_token %}
+    <div class="space-y-4">
+        <div class="bg-gray-200 shadow-md rounded-lg p-5 mb-4 space-y-4">
+            <h2 class="text-2xl font-bold">{{ object.child.get_full_name }}</h2>
+
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_sessions_summary">
+                    Sessions Summary
+                </label>
+                <textarea id="id_sessions_summary" rows="3" class="form-input w-full py-2" name="sessions_summary" placeholder="Add a short summary about daily sessions" required></textarea>
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_attendance_rate">
+                    Session Attendance Rate
+                </label>
+                <input id="id_attendance_rate" class="form-input w-full py-2" type="number" name="attendance_rate" placeholder="e.g: 90" required/>
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_strengths">
+                    Strengths
+                </label>
+                <textarea id="id_strengths" rows="3" class="form-input w-full py-2" name="strengths" placeholder="Add a short summary about child strengths" required></textarea>
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_weaknesses">
+                    Weaknesses
+                </label>
+                <textarea id="id_weaknesses" rows="3" class="form-input w-full py-2" name="weaknesses" placeholder="Add a short summary about child weaknesses" required></textarea>
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_improvement_notes">
+                    improvement_notes
+                </label>
+                <textarea id="improvement_notes" rows="3" class="form-input w-full py-2" name="improvement_notes" placeholder="Add areas where the child should imporve or suggestions for focus areas" required></textarea>
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_mock_exam_graph">
+                    Mock Exam Graph
+                </label>
+                <input id="id_mock_exam_graph" class="form-input w-full py-2 cursor-pointer" type="file" name="mock_exam_graph" accept="image/*"/>
+            
+                <!-- Image preview area -->
+                <div id="mock-exam-preview" class="mt-4 hidden">
+                    <p class="text-sm text-gray-600 mb-2">Selected file: <span id="mock-exam-filename"></span></p>
+                    <img id="mock-exam-image" src="" alt="Mock Exam Preview" class="rounded-lg shadow-md max-w-full h-auto">
+                </div>
+            </div>
+            
+
+        </div>
+        <div class="mt-6 space-y-3">
+            <button class="btn w-full bg-linear-to-t from-blue-600 to-blue-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-sm hover:bg-[length:100%_150%] cursor-pointer">
+                Update
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    document.getElementById('id_mock_exam_graph').addEventListener('change', function(event) {
+        const fileInput = event.target;
+        const previewContainer = document.getElementById('mock-exam-preview');
+        const previewImage = document.getElementById('mock-exam-image');
+        const fileNameDisplay = document.getElementById('mock-exam-filename');
+    
+        if (fileInput.files && fileInput.files[0]) {
+            const file = fileInput.files[0];
+            fileNameDisplay.textContent = file.name;
+            const reader = new FileReader();
+    
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewContainer.classList.remove('hidden');
+            }
+    
+            reader.readAsDataURL(file);
+        } else {
+            // Clear preview if no file is selected
+            previewContainer.classList.add('hidden');
+            previewImage.src = '';
+            fileNameDisplay.textContent = '';
+        }
+    });
+</script>
+    
+{% endblock %}

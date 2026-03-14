@@ -62,20 +62,6 @@
                     <p class="text-sm font-medium text-gray-500 mb-1">Academic Interests</p>
                     <p class="text-gray-800">{% if child.academic_interests %}{{ child.academic_interests }}{% else %}No data given{% endif %}</p>
                 </div>
-                
-                {% if profile.occupation %}
-                <div class="px-5 py-3">
-                    <p class="text-sm font-medium text-gray-500 mb-1">Occupation</p>
-                    <p class="text-gray-800">{{ profile.occupation }}</p>
-                </div>
-                {% endif %}
-                
-                {% if profile.preferred_communication %}
-                <div class="px-5 py-3">
-                    <p class="text-sm font-medium text-gray-500 mb-1">Preferred Communication</p>
-                    <p class="text-gray-800">{{ profile.preferred_communication|title }}</p>
-                </div>
-                {% endif %}
             </div>
         </div>
 

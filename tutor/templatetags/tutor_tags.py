@@ -1,9 +1,13 @@
 from django import template
 from payment.utils import calculate_tutor_payment
-from payment.models import TutorPayments
+from payment.models import TutorPayments, TutorPayRate
 from tutor.models import Tutor
 from django.db.models import Sum, Count, Q
 from session.models import Session
+from session.utils import calculate_session_data
+
+import logging
+logger = logging.getLogger('app')
 
 register = template.Library()
 
@@ -38,8 +42,8 @@ def tutor_general_info(context):
         # 'rejected_sessions': session_totals['rejected_sessions'],
     }
 
-@register.inclusion_tag('tutor/payment/payment_info.html', takes_context=True)
-def tutor_payment_info(context, child):
+@register.inclusion_tag('tutor/payment/payment_card.html', takes_context=True)
+def tutor_payment_card(context, child):
     payout, unpaid_sessions = calculate_tutor_payment(child=child)
 
     total_earned = TutorPayments.objects.filter(
@@ -65,3 +69,61 @@ def tutor_payment_info(context, child):
         'pending_payment': pending_payment,
         'requested_amount': requested_amount,
     }
+
+@register.inclusion_tag('tutor/payment/payment_info.html', takes_context=True)
+def tutor_payment_info(context, tutor_id: int):
+
+    tutor = Tutor.objects.get(id=tutor_id
+                              )
+    # Get payment info
+    success_payments = tutor.tutor_payments.filter(status=TutorPayments.STATUS.SUCCESS)
+    total_earned = success_payments.aggregate(total=Sum('amount'))['total'] or 0
+
+    requested_payments = tutor.tutor_payments.filter(status=TutorPayments.STATUS.PENDING)
+    total_requested = requested_payments.aggregate(total=Sum('amount'))['total'] or 0
+
+    approved_sessions = Session.objects.filter(tutor=tutor, status=Session.Status.APPROVED)
+    paid_sessions = approved_sessions.filter(paid_to_tutor=True)
+    unpaid_sessions = approved_sessions.filter(paid_to_tutor=False)
+
+    # Duration calculations
+    paid_sessions_duration = paid_sessions.aggregate(total=Sum('duration'))['total'] or 0
+    unpaid_sessions_duration = unpaid_sessions.aggregate(total=Sum('duration'))['total'] or 0
+
+    # Calculate amount unpaid
+    try:
+        rate = TutorPayRate.objects.latest("updated_at").current_hourly_rate
+    except TutorPayRate.DoesNotExist:
+        rate = 0
+        logger.warning("No TutorPayRate found")
+    
+    if unpaid_sessions_duration != 0:
+        # Convert duration to hours (assuming duration is in minutes)
+        total_unpaid_hours = unpaid_sessions_duration.total_seconds() / 3600
+        total_unpaid = round(total_unpaid_hours * float(rate), 2)
+    else:
+        total_unpaid = 0
+
+    payment_data = {'total_earned': total_earned,
+                    'total_requested': total_requested,
+                    'total_unpiad': total_unpaid,
+                    'paid_sessions': paid_sessions.count(),
+                    'unpaid_sessions': unpaid_sessions.count(),
+                    'paid_sessions_duration': paid_sessions_duration,
+                    'unpaid_sessions_duration': unpaid_sessions_duration,
+                    'hourly_rate': rate  # Include for transparency
+            }
+    
+    return {'payment_data': payment_data}
+
+@register.inclusion_tag('parent/sessions/session_info.html', takes_context=True)
+def tutor_session_info(context, tutor_id:int):
+     
+    #  Get all sessions for the parent
+    tutor = Tutor.objects.get(id=tutor_id)
+    sessions = Session.objects.filter(tutor=tutor)
+
+    session_data = calculate_session_data(sessions=sessions)
+    
+
+    return{'session_data': session_data}

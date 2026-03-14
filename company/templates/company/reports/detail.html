@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+    Report Detail
+{% endblock %}
+
+{% block header %}
+    {% include "ui/company_header.html" %}
+{% endblock %}
+
+{% block content %}
+    <section class="mx-auto max-w-4xl relative pt-24 md:pt-32 bg-white p-6 rounded-lg shadow-md space-y-6">
+
+        <!-- General Information -->
+        {% include 'child/components/general_info/for_company.html' with child=report.child tutor=report.tutor %}
+
+        {% include 'reports/components/report_detail.html' with report=report %}
+            
+        {% include 'reports/components/sessions_insight.html' with report=report %}
+
+        {% include 'reports/components/quizzes_and_assignments.html' with report=report %}
+
+        {% include 'reports/components/mock_exam_data.html' with report=report %}
+
+        {% include 'reports/components/challenges_and_solutions.html' with report=report %}
+
+        <div class="p-4 bg-blue-50 shadow-md rounded-lg text-gray-700 space-y-4">
+        <!-- Header -->
+            <h2 class="font-bold text-2xl text-blue-600">Parent Feedback</h2>
+
+            {% if report.feedback %}
+                <!-- Display Feedback -->
+                <div id="feedback-display-{{ report.id }}" class="bg-white p-4 rounded-lg shadow">
+                    <p class="text-gray-700 indent-4">{{ report.feedback }}</p>
+                </div>
+            {% else %}
+                <div id="feedback-display-{{ report.id }}" class="bg-white p-4 rounded-lg shadow">
+                    <p class="text-gray-700 indent-4">No feedback provided yet.</p>
+                </div>
+            {% endif %}
+        </div>
+
+    </section>
+
+{% endblock %}

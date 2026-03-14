@@ -12,7 +12,7 @@ logger =  logging.getLogger('app')
 class Child(models.Model):
     parent = models.ForeignKey(
         'parent.Parent',
-        on_delete=models.CASCADE,  # Changed to CASCADE as per your requirement
+        on_delete=models.CASCADE,
         related_name='children'
     )
     tutor = models.ForeignKey(
@@ -55,6 +55,11 @@ class Child(models.Model):
         verbose_name = 'Child'
         verbose_name_plural = 'Children'
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['first_name', 'last_name']),
+            models.Index(fields=['grade_level']),
+            models.Index(fields=['date_of_birth']),
+        ]
         
     def __str__(self):
         return f"{self.first_name} {self.last_name} (Parent: {self.parent})"
@@ -68,6 +73,7 @@ class Child(models.Model):
     
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
+    
 
 class Status(models.Model):
     child = models.OneToOneField("child.Child", on_delete=models.CASCADE, related_name="status")

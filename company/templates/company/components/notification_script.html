@@ -1,0 +1,48 @@
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Row click handler
+        document.querySelectorAll('.clickable-row').forEach(row => {
+            row.addEventListener('click', (e) => {
+                if (e.target.closest('a, button, input, .no-click')) return;
+                window.location = row.dataset.href;
+            });
+        });
+    
+        // Select all checkbox
+        const selectAll = document.getElementById('select-all');
+        const userCheckboxes = document.querySelectorAll('.user-checkbox');
+        const bulkNotifyBtn = document.getElementById('bulk-notify-btn');
+        const notifyUrl = bulkNotifyBtn.dataset.notifyUrl;  // Get URL from data attribute
+    
+        selectAll.addEventListener('change', function() {
+            userCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBulkButtonState();
+        });
+    
+        // Individual checkbox handler
+        userCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateBulkButtonState();
+                if (!this.checked && selectAll.checked) {
+                    selectAll.checked = false;
+                }
+            });
+        });
+    
+        function updateBulkButtonState() {
+            bulkNotifyBtn.disabled = document.querySelectorAll('.user-checkbox:checked').length === 0;
+        }
+    
+        // Bulk notification button handler
+        bulkNotifyBtn.addEventListener('click', function() {
+            const selectedUsers = Array.from(document.querySelectorAll('.user-checkbox:checked'))
+                .map(checkbox => checkbox.value);
+            
+            if (selectedUsers.length > 0 && notifyUrl) {
+                window.location.href = `${notifyUrl}?user_ids=${selectedUsers.join(',')}`;
+            }
+        });
+    });
+</script>

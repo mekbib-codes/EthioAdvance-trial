@@ -1,0 +1,113 @@
+{% extends "forms/base_form.html" %}
+
+{% block title %}Send Notification{% endblock %}
+
+{% block header %}
+    {% include 'ui/company_header.html' %}
+{% endblock %}
+
+{% block form_content %}
+<div class="max-w-3xl mx-auto py-8">
+    <div class="mb-10">
+        <h1 class="text-4xl font-bold">Send Notifications</h1>
+    </div>
+    
+    {% if users %}
+    <div class="bg-gray-100 p-4 rounded-xl shadow-lg mb-6 border border-gray-200">
+        <h3 class="font-medium mb-3 text-gray-700">
+            <span class="font-semibold text-blue-600">{{ users|length }}</span> {{ user_type|title }}{{ users|length|pluralize }} Selected
+        </h3>
+        <div class="max-h-[220px] overflow-y-auto pr-2">
+            <ul class="space-y-2">
+                {% for user in users %}
+                <li class="flex items-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200 border border-blue-100 group">
+                    <span class="flex-shrink-0 inline-block h-3 w-3 rounded-full bg-blue-500 mr-3"></span>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                            {{ user.get_full_name }}
+                        </p>
+                        <p class="text-xs text-gray-500 truncate group-hover:text-blue-500 transition-colors">
+                            {{ user.email }}
+                        </p>
+                    </div>
+                    {% if user_type == 'PARENT' %}
+                    <span class="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                        {{ user.children.count }} child{{ user.children.count|pluralize:"ren" }}
+                    </span>
+                    {% elif user_type == 'TUTOR' %}
+                    <span class="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                        {{ user.students.count }} student{{ user.students.count|pluralize }}
+                    </span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+    
+    <form method="post" class="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200">
+        {% csrf_token %}
+        <input type="hidden" name="user_ids" value="{{ request.GET.user_ids }}">
+        
+        <!-- Notification Type Field -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Notification Type</label>
+            <select id="id_message_type" class="form-select w-full py-2" name="message_type" required>
+                <option value="">Please select notification type</option>
+                <option value="feedback_request">Feedback Request</option>
+                {% if user_type == 'PARENT' %}
+                    <option value="testimonial_request">Testimonial Request</option>
+                    <option value="payment_reminder">Payment reminder</option>
+                {% endif %}
+                <option value="custom">Custom Message</option>
+        </select>
+            
+        </div>
+        
+        <!-- Custom Message Field -->
+        <div class="mb-6 transition-all duration-200" id="custom-message-group" style="display: none;">
+            <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700" for="id_custom_message">
+                    Custom Message
+                </label>
+                <textarea id="id_session_summary" rows="5" class="form-input w-full py-2" name="custom_message" placeholder="Write your message here"></textarea>
+            </div>
+        </div>
+        
+        <!-- Form Actions -->
+        <div class="mt-6">
+            <button 
+                class="btn w-full bg-gradient-to-t from-blue-600 to-blue-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-sm hover:bg-[length:100%_150%] hover:shadow-lg transition-transform duration-300 transform hover:scale-105 cursor-pointer" 
+                type="submit"
+            >
+            Send Notifications
+            </button>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 mt-6">
+            <a href="{{ success_url }}" class="cancel-button">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const messageTypeSelect = document.querySelector('select[name="message_type"]');
+    const customGroup = document.getElementById('custom-message-group');
+    const customMessage = document.querySelector('textarea[name="custom_message"]');
+    
+    function toggleCustomField() {
+        const isCustom = messageTypeSelect.value === 'custom';
+        customGroup.style.display = isCustom ? 'block' : 'none';
+        customMessage.required = isCustom;
+    }
+    
+    messageTypeSelect.addEventListener('change', toggleCustomField);
+    toggleCustomField(); // Initialize
+});
+</script>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Reports{% endblock %}
+
+{% block header %}
+    {% include "ui/company_header.html" %}
+{% endblock %}
+
+{% block content %}
+<section class="relative">
+    {% include "components/hero/stripes.html" %}
+
+    <div class="mx-auto w-full px-4 sm:px-6">
+        <div class="pb-12 pt-32 md:pb-20 md:pt-40">
+            <div class="pb-12 text-center md:pb-16">
+
+                <div class="bg-white rounded-2xl shadow-lg p-6 transform transition-all hover:shadow-xl duration-300">
+                    <h2 class="text-center text-3xl text-blue-500 font-bold mb-6 relative">
+                        <span class="relative inline-block">
+                                Reports
+                            <span class="absolute -bottom-1 left-0 w-full h-1 bg-blue-100 rounded-full"></span>
+                            <span class="absolute -bottom-1 left-0 w-1/3 h-1 bg-blue-500 rounded-full animate-pulse"></span>
+                        </span>
+                    </h2>
+
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                        <!-- Search Results Info -->
+                        <div class="flex-1 min-w-0">
+                            {% if search_query %}
+                            <p class="text-lg text-gray-600 truncate italic">
+                                Showing results for: <span class="font-bold text-blue-500">{{ search_query }}</span>
+                                <a href="{% url 'company:reports_list' %}" 
+                                   class="ml-8 text-blue-600 hover:text-blue-900 font-bold">
+                                   Clear search
+                                </a>
+                            </p>
+                            {% endif %}
+                        </div>
+                        
+                       <!-- Search and filter forms -->
+                        {% include 'company/reports/search_form.html' %}
+                    </div>
+
+                    <div class="w-full max-w-full overflow-x-auto">
+                        <div class="inline-block min-w-full align-middle">
+                            {% include 'company/reports/list_table.html' %}
+                        </div>
+                    </div>
+                    
+                    
+                    <!-- Pagination -->
+                    {% if is_paginated %}
+                        {% include 'child/components/pagination.html' %}
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Row click handler
+        document.querySelectorAll('.clickable-row').forEach(row => {
+            row.addEventListener('click', (e) => {
+                if (e.target.closest('a, button, input, .no-click')) return;
+                window.location = row.dataset.href;
+            });
+        });
+    });
+</script>
+{% endblock %}

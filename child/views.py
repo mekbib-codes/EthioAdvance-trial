@@ -1,12 +1,10 @@
-from django.views.generic import DetailView, ListView, TemplateView
-from django.db.models import OuterRef, Subquery, Prefetch
+from django.views.generic import DetailView, ListView, CreateView, UpdateView
+from django.db.models import OuterRef, Subquery, Prefetch, Count, Q
 from django.shortcuts import get_object_or_404, render
-from django.views.generic import CreateView, UpdateView
 from django.views.generic.edit import View
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.utils.translation import gettext as _
-from django.db.models import Count, Q
 
 from .models import Child
 from parent.models import Parent
@@ -238,53 +236,6 @@ class ChildProfileUpdateView(ParentRequiredMixin, UpdateView):
         logger.warning(f"Failed to update child profile: {form.errors}")
         messages.error(self.request, "There was an error updating the child profile. Please check the form and try again.")
         return super().form_invalid(form)
-       
-class AddReportFeedbackView(ParentRequiredMixin, View):
-    def post(self, request, report_id, *args, **kwargs):
-        report = get_object_or_404(Report, id=report_id)
-
-        # Get the feedback from the POST request
-        child_feedback = request.POST.get("child_feedback", "").strip()
-        if child_feedback:
-            report.feedback_from_child = child_feedback
-            report.save()
-
-            # Notify the tutor and company
-            tutor = report.tutor
-            company = tutor.profile.company
-            recipients = [tutor, company]
-
-            child = report.child
-            parent = child.parent
-            pronoun = 'his' if child.gender == 'MALE' else 'her'
-
-            create_notification(
-                actor=parent,
-                verb=f"{child.get_full_name()} provided feedback on {pronoun} report for.",
-                content_object=report,
-                child=child,
-                recipients=recipients,
-                extra_data={
-                    'company_link': 'company:child_reports_dashboard',
-                    'company_link_kwargs': {'child_id': child.id},
-                    'tutor_link': 'tutor:child_reports_dashboard',
-                    'tutor_link_kwargs': {'child_id': child.id}
-                },
-                notification_type=Notification.NotificationTypes.INFO,
-            )
-
-
-            # Log the activity
-            create_activity_log(
-                user=parent,
-                action=f"{ child.first_name } Gave feedback {pronoun} report.",
-                related_object=report,
-                link='parent:child_reports_dashboard',
-                kwargs={'child_id': child.id}
-            )
-
-        # Render only the updated feedback block to be replaced dynamically
-        return render(request, "child/reports/child_feedback_block.html", {"report": report})
 
 
 class PaymentDashboardView(ListView):

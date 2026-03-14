@@ -2,8 +2,7 @@ from django.urls import path
 from .views import (ChildRegistrationView,
                     ChildDashboardView,
                     ChildProfileDashboardView,
-                    ChildProfileUpdateView,
-                    AddReportFeedbackView)
+                    ChildProfileUpdateView,)
 
 app_name = "child"
 
@@ -12,5 +11,4 @@ urlpatterns = [
     path('dashboard/<int:child_id>', ChildDashboardView.as_view(), name='child_dashboard'),
     path('profile/update/<int:child_id>/', ChildProfileUpdateView.as_view(), name='update_profile'),
     path("profile/<int:child_id>", ChildProfileDashboardView.as_view(), name="profile_dashboard"),
-    path('add-feedback/<int:report_id>/', AddReportFeedbackView.as_view(), name='add_report_feedback'),
 ]

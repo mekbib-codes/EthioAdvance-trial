@@ -1,0 +1,141 @@
+{% load humanize %}
+
+<table class="min-w-full divide-y divide-gray-200">
+    <thead>
+        <tr class="bg-gray-50">
+            <!-- <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">
+                <input type="checkbox" id="select-all" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+            </th> -->
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">#</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Full Name</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Gender</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Age</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Parent</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Tutor</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Grade</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Sessions</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Paid</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Due</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Reports</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Update status</th>
+        </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+        {% for child  in children %}
+            <tr 
+                data-href="{% url 'company:child_detail' child.id %}"
+                class="clickable-row text-left {% if child.total_due > 0 %}bg-red-50/50{% else %}bg-green-50/50{% endif %} hover:scale-[1.01] hover:bg-blue-50 transition-all duration-200 ease-out group cursor-pointer">
+
+                <!-- <td class="px-6 py-4 whitespace-nowrap">
+                    <input type="checkbox" name="child" value="{{ child.id }}" 
+                        class="user-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                </td> -->
+
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="flex items-center h-full">
+                        <span class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-800 font-medium group-hover:bg-blue-200 transition-colors">
+                            {{ forloop.counter }}
+                        </span>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {{ child.get_full_name }}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {{ child.gender|title }}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {{ child.age }}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {{ child.parent.get_full_name }}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {{ child.tutor.get_full_name|default:"Not Assigned" }}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {{ child.grade_level }}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {{ child.total_sessions }}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-green-600 group-hover:text-green-700 transition-colors">
+                        ${{ child.total_payments|intcomma }}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-red-600 group-hover:text-red-700 transition-colors">
+                        ${{ child.total_due|intcomma }}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {{ child.total_reports }}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        <a
+                            class="btn w-3/4 bg-gradient-to-t from-blue-600 to-blue-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-sm hover:bg-[length:100%_150%] hover:shadow-lg transition-transform duration-300 transform hover:scale-105 cursor-pointer" 
+                            href="{% url 'company:update_child_status' child.id %}"
+                        >
+                            Update status
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        {% empty %}
+        <tr>
+            <td colspan="12" class="text-center py-8">
+                <div class="flex flex-col items-center justify-center space-y-4">
+                    <h3 class="text-lg font-medium text-gray-500">
+                        <div class="text-center py-8">
+                            {% if request.GET.q %}
+                                <p class="text-gray-600">
+                                    No children found matching: <span class="font-bold text-blue-500">"{{ request.GET.q }}"</span>
+                                </p>
+                            {% elif request.GET.grade or request.GET.age or request.GET.gender %}
+                                <p class="text-gray-600">
+                                    No children match the selected filters.
+                                    {% if request.GET.grade %}
+                                        <br>Grade: <span class="font-bold">{{ request.GET.grade }}</span>
+                                    {% endif %}
+                                    {% if request.GET.age %}
+                                        <br>Age: <span class="font-bold">{{ request.GET.age }}</span>
+                                    {% endif %}
+                                    {% if request.GET.gender %}
+                                        <br>Gender: <span class="font-bold">{{ request.GET.gender }}</span>
+                                    {% endif %}
+                                </p>
+                            {% else %}
+                                <p class="text-gray-600">No children registered yet.</p>
+                            {% endif %}
+                            
+                            <a href="{% url 'company:children_list' %}" 
+                            class="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            View all children
+                            </a>
+                        </div>
+                        
+                    </h3>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

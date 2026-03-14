@@ -23,6 +23,33 @@
   transform: translateY(0);
 }
 
+/* Add this to your CSS or in a style tag */
+.parent-checkbox {
+  transform: translateY(-1px); /* Better alignment */
+}
+
+#bulk-notify-btn svg {
+  margin-right: 8px;
+  width: 18px;
+  height: 18px;
+}
+
+/* For the single notification button */
+.flex.justify-end a svg {
+  margin-right: 4px;
+  width: 14px;
+  height: 14px;
+}
+
+/* Add to your CSS */
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
 
 @theme {
   --font-inter: Inter, sans-serif;
