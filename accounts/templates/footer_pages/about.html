@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{# Header selection #}
+{% block header %}
+    {% if request.user.is_authenticated %}
+        {% if request.user.role == "PARENT" %}
+            {% include "ui/parent_header.html" %}
+        {% elif request.user.role == "TUTOR" %}
+            {% include "ui/tutor_header.html" %}
+        {% elif request.user.role == "COMPANY" %}
+            {% include "ui/company_header.html" %}
+        {% endif %}
+    {% else %}
+        {% include "ui/accounts_header.html" %}
+    {% endif %}
+{% endblock %}
+
+
+{% block content %}
+
+    <!-- Hero Section -->
+    <section class="relative">
+        {% include "components/hero/stripes.html" %}
+
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
+            <div class="pb-12 pt-32 md:pb-20 md:pt-40">
+                <div class="pb-12 text-left md:pb-16">
+                    {% include "components/hero/employees.html" %}
+                    
+                    <div class="max-w-6xl mx-auto my-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Card 1: Mission -->
+                        <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-start hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+                            <div class="bg-indigo-50 p-4 rounded-xl mb-5">
+                                <i class="fa-solid fa-graduation-cap text-2xl text-indigo-600"></i>
+                            </div>
+                            <p class="text-gray-700 leading-relaxed">
+                                <span class="font-semibold text-gray-900">EthioAdvance</span> is a <span class="text-indigo-600 font-medium">student-first EdTech company</span> committed to transforming the way children view education. 
+                                Our mission is to empower students to take charge of their learning, unlocking their full potential for a brighter future—for themselves and for the country they will proudly serve.
+                            </p>
+                        </div>
+
+                        <!-- Card 2: Tools & Vision -->
+                        <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-start hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+                            <div class="bg-emerald-50 p-4 rounded-xl mb-5">
+                                <i class="fa-solid fa-lightbulb text-2xl text-emerald-600"></i>
+                            </div>
+                            <p class="text-gray-700 leading-relaxed">
+                                We offer personalized support and innovative learning tools designed to spark curiosity, build confidence, and create lasting impact. 
+                                Our vision extends beyond today, with future expansions planned across multiple educational categories to provide comprehensive growth opportunities for every learner.
+                            </p>
+                        </div>
+
+                        <!-- Card 3: Expansion & Testimonials -->
+                        <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-start hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+                            <div class="bg-slate-50 p-4 rounded-xl mb-5">
+                                <i class="fa-solid fa-comment-dots text-2xl text-slate-600"></i>
+                            </div>
+                            <p class="text-gray-700 leading-relaxed">
+                                Below, you can read about <span class="font-semibold text-gray-900">future business expansion</span> and testimonials from parents who have witnessed real, positive changes in their children's learning journey with EthioAdvance.
+                            </p>
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+                {% include "components/hero/animation.html" %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Business Expansion Categories -->
+    <section class="relative before:absolute before:inset-0 before:-z-20 before:bg-gray-900">
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
+            <div class="py-12 md:py-20">
+    
+                <!-- Expansion banner -->
+                <div class="mx-auto max-w-3xl pb-16 text-center md:pb-20">
+                    <h2 class="text-3xl font-bold text-gray-200 md:text-4xl">
+                        From ABCs to AI, we’re building a future where learning never stops. 🚀 Here are our plans on expanding!
+                    </h2>
+                </div>
+                {% include "components/business_expansions/categories.html" %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section-->
+    <section>
+        <div class="mx-auto px-4 sm:px-6">
+            <div class="py-12 md:py-20">
+                <div class="space-y-3">
+    
+                    {% include "components/testimonials/testimony.html" %}
+                </div>
+            </div>
+        </div>
+    </section>
+</p>
+{% endblock %}

@@ -156,7 +156,7 @@ class ToggleParentStatusView(CompanyRequiredMixin, View):
             'user': parent,
             'role': 'parent',
             'company': request.user.get_full_name(),
-            'support_url': 'https://ethioadvance.com/contact', # request.build_absolute_uri(reverse('contact_support')),
+            'support_url': "", # Add telegram link
             'login_url': request.build_absolute_uri(reverse('accounts:login')),
             'home_url': request.build_absolute_uri(reverse('accounts:home')),
         }

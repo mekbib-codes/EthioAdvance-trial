@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{# Header selection #}
+{% block header %}
+    {% if request.user.is_authenticated %}
+        {% if request.user.role == "PARENT" %}
+            {% include "ui/parent_header.html" %}
+        {% elif request.user.role == "TUTOR" %}
+            {% include "ui/tutor_header.html" %}
+        {% elif request.user.role == "COMPANY" %}
+            {% include "ui/company_header.html" %}
+        {% endif %}
+    {% else %}
+        {% include "ui/accounts_header.html" %}
+    {% endif %}
+{% endblock %}
+
+
+{% block content %}
+
+    <!-- Hero Section -->
+    <section class="relative">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+        <div class="pb-12 pt-32 md:pb-20 md:pt-40">
+            <div class="pb-12 text-left md:pb-16">
+
+                <div class="max-w-6xl mx-auto my-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <!-- Card 1: FAQ 1 -->
+                    <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-start hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+                        <div class="bg-indigo-50 p-4 rounded-xl mb-5">
+                            <i class="fa-solid fa-question text-2xl text-indigo-600"></i>
+                        </div>
+                        <p class="text-gray-700 leading-relaxed">
+                            <span class="font-semibold text-gray-900">How do I book a tutor?</span><br>
+                            Create an account, regsiter your child, and we will contact you immediately to assign a tutor based on your location, subject needs, schedule preferences and other preferences you share with us.
+                        </p>
+                    </div>
+
+                    <!-- Card 2: FAQ 2 -->
+                    <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-start hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+                        <div class="bg-emerald-50 p-4 rounded-xl mb-5">
+                            <i class="fa-solid fa-info-circle text-2xl text-emerald-600"></i>
+                        </div>
+                        <p class="text-gray-700 leading-relaxed">
+                            <span class="font-semibold text-gray-900">What subjects are available?</span><br>
+                            We focus on core school subjects and exam prep, with plans to expand into more educational categories soon.
+                        </p>
+                    </div>
+
+                    <!-- Card 3: FAQ 3 -->
+                    <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-start hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+                        <div class="bg-slate-50 p-4 rounded-xl mb-5">
+                            <i class="fa-solid fa-lightbulb text-2xl text-slate-600"></i>
+                        </div>
+                        <p class="text-gray-700 leading-relaxed">
+                            <span class="font-semibold text-gray-900">How are tutors verified?</span><br>
+                            All tutors go through a thorough screening process to ensure quality, reliability, and expertise before joining our platform.
+                        </p>
+                    </div>
+
+                    <!-- Card 4: FAQ 4 -->
+                    <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-start hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+                        <div class="bg-yellow-50 p-4 rounded-xl mb-5">
+                            <i class="fa-solid fa-clock text-2xl text-yellow-600"></i>
+                        </div>
+                        <p class="text-gray-700 leading-relaxed">
+                            <span class="font-semibold text-gray-900">Can I reschedule sessions?</span><br>
+                            Yes! Sessions can be rescheduled, but you need to contact us or your assigned tutor before 2 hrs of the session sechdule.
+                        </p>
+                    </div>
+
+                    <!-- Card 5: FAQ 5 -->
+                    <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-start hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+                        <div class="bg-pink-50 p-4 rounded-xl mb-5">
+                            <i class="fa-solid fa-shield-halved text-2xl text-pink-600"></i>
+                        </div>
+                        <p class="text-gray-700 leading-relaxed">
+                            <span class="font-semibold text-gray-900">Is my data secure?</span><br>
+                            Absolutely. We follow industry-standard security practices to protect personal and educational data on our platform.
+                        </p>
+                    </div>
+
+                    <!-- Card 6: FAQ 6 -->
+                    <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-start hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+                        <div class="bg-purple-50 p-4 rounded-xl mb-5">
+                            <i class="fa-solid fa-headset text-2xl text-purple-600"></i>
+                        </div>
+                        <p class="text-gray-700 leading-relaxed">
+                            <span class="font-semibold text-gray-900">How can I get support?</span><br>
+                            Currently for fast response we suggest to use direct phone calls or use the conact link at the bottom for our telegram account. Our support team is responsive and ready to help you with any questions.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</p>
+{% endblock %}
