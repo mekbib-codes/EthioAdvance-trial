@@ -6,6 +6,7 @@ from .views.manual_payments import ManualParentPayment, ManualTutorPayment, Unpa
 from .views.children import ChildrenListView, StatusUpdateView, ChildDeatilView
 from .views.sessions import SessionsListView, SessionDetailView
 from .views.reports import ReportListView, ReportDetailView
+from .views.payments import PaymentListView
 
 app_name = "company"
 
@@ -41,4 +42,6 @@ urlpatterns = [
 
     path('reports/', ReportListView.as_view(), name='reports_list'),
     path('report/<int:report_id>/', ReportDetailView.as_view(), name='report_detail'),
+
+    path('payments/', PaymentListView.as_view(), name='payments_list'),
 ]

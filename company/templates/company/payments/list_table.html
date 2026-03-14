@@ -1,0 +1,98 @@
+{% load humanize %}
+{% load report_tags %}
+
+<table class="min-w-full divide-y divide-gray-200">
+    <thead>
+        <tr class="bg-gray-50">
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">#</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Created</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Parent</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Student</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Amount</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Total Sessions</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Total Duration</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Status</th>
+            
+        </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+        {% for payment in payments %}
+            <tr 
+                 {% comment %} {% url 'company:payment_detail' payment.id %} {% endcomment %}
+                data-href="#"
+                class="clickable-row text-left hover:scale-[1.01] transition-all duration-200 ease-out group cursor-pointer bg-green-50/50">
+
+                <!-- Counter -->
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="flex items-center h-full">
+                        <span class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-800 font-medium group-hover:bg-blue-200 transition-colors">
+                            {{ forloop.counter }}
+                        </span>
+                    </div>
+                </td>
+
+                <!-- Date -->
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {{ payment.timestamp|date:"M d, Y" }}
+                    </div>
+                </td>
+
+                <!-- Parent -->
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {{ payment.parent.get_full_name }}
+                    </div>
+                </td>
+
+                <!-- Student -->
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {{ payment.child.get_full_name }}
+                    </div>
+                </td>
+
+                <!-- Amount -->
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {{ payment.amount|floatformat:2 }}
+                    </div>
+                </td>
+
+                <!-- Total Sessions -->
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {{ payment.total_sessions }}
+                    </div>
+                </td>
+
+                <!-- Total Duration -->
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {{ payment.total_duration|humanize_duration }}
+                    </div>
+                </td>
+
+                <td class="px-6 py-4 whitespace-nowrap align-top">
+                    <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {{ payment.status }}
+                    </div>
+                </td>
+                
+
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="12" class="text-center py-8">
+                    <div class="flex flex-col items-center justify-center space-y-4">
+                        <h3 class="text-lg font-medium text-gray-500">
+                            <div class="text-center py-8">
+                                No payments recorded yet.
+                            </div>
+                        </h3>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

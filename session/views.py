@@ -3,7 +3,6 @@ from django.core.exceptions import PermissionDenied
 
 from child.models import Child
 from .models import Session
-from accounts.mixins import ParentorTutorRequiredMixin
 
 import logging
 
