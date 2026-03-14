@@ -6,7 +6,7 @@
         <tr class="bg-gray-50">
             <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">#</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Created</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Parent</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Beneficiary</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Student</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Amount</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Total Sessions</th>
@@ -38,10 +38,14 @@
                     </div>
                 </td>
 
-                <!-- Parent -->
+                <!-- Beneficiary -->
                 <td class="px-6 py-4 whitespace-nowrap align-top">
                     <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
-                        {{ payment.parent.get_full_name }}
+                        {% if payment.parent %}
+                            {{ payment.parent.get_full_name }}
+                        {% else %}
+                            {{ payment.tutor.get_full_name }}
+                        {% endif %}
                     </div>
                 </td>
 

@@ -8,6 +8,7 @@
   <li><a href="{% url 'company:sessions_list' %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "sessions" %}id="selected"{% endif %}>Sessions</a></li>
   <li><a href="{% url 'company:reports_list' %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "reports" %}id="selected"{% endif %}>Reports</a></li>
   <li><a href="{% url 'company:payments_list' %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "payments" %}id="selected"{% endif %}>Payments</a></li>
+  <li><a href="{% url 'company:tutor_payments_list' %}" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "tutor_payments" %}id="selected"{% endif %}>Tutor Payments</a></li>
   <li><a href="#" class="btn-sm bg-white text-gray-800 shadow-sm hover:bg-blue-500" {% if active_section == "profile" %}id="selected"{% endif %}>Profile</a></li>
 {% endblock %}
 
@@ -19,5 +20,6 @@
   <a href="{% url 'company:sessions_list' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Sessions</a>
   <a href="{% url 'company:reports_list' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Reports</a>
   <a href="{% url 'company:payments_list' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Payments</a>
+  <a href="{% url 'company:tutor_payments_list' %}" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Tutor Payments</a>
   <a href="#" class="w-full block text-center px-4 py-3 text-gray-800 text-lg font-medium hover:bg-blue-100">Profile</a>
 {% endblock %}
