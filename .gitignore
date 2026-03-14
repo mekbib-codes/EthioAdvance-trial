@@ -2,7 +2,6 @@ package-lock.json
 node_modules/
 venv/
 __pycache__/
-migrations/
 *.sqlite3
 .env
 *.log

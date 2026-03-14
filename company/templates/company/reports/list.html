@@ -42,7 +42,11 @@
                         {% include 'company/reports/search_form.html' %}
                     </div>
 
-                    {% include 'company/reports/list_table.html' %}
+                    <div class="w-full max-w-full overflow-x-auto">
+                        <div class="inline-block min-w-full align-middle">
+                            {% include 'company/reports/list_table.html' %}
+                        </div>
+                    </div>
                     
                     
                     <!-- Pagination -->

@@ -14,7 +14,7 @@
             <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Number of Quiz</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Average Quiz Score</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Mock Exams</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Feedbacks</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider align-bottom">Feedback</th>
             
         </tr>
     </thead>
@@ -56,19 +56,16 @@
 
                 <!-- Date (combined from/to) -->
                 <td class=" py-4 whitespace-nowrap align-top">
-                    <div class="flex flex-row text-xs font-medium text-gray-500 px">
-                        <div class="mx-2">From
-                            <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        <div class="flex items-center text-xs px">
+                            <time datetime="{{ report.from_date|date:'Y-m-d' }}" class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
                                 {{ report.from_date|date:"M d" }}
-                            </div>
-                        </div>
-                        <div class="mx-2">End
-                            <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                            </time>
+                            <span class="mx-2 text-gray-400 text-sm" aria-hidden="true">-</span>
+                            <time datetime="{{ report.to_date|date:'Y-m-d' }}" class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
                                 {{ report.to_date|date:"M d" }}
-                            </div>
+                            </time>
                         </div>
-                    </div>
-                </td>  
+                </td> 
 
                 <td class="px-6 py-4 whitespace-nowrap align-top">
                     <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
@@ -102,10 +99,10 @@
                     </div>
                 </td>
 
-                <!-- Feedbacks -->
+                <!-- Feedback -->
                 <td class="px-6 py-4 whitespace-nowrap align-top">
                     <div class="flex items-center">
-                        {% if report.feedback_from_parent %}
+                        {% if report.feedback %}
                             <span class="text-green-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
