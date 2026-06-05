@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/ethicgkz/ethioadvance
+    - /bin/cp -a . "$DEPLOYPATH"
