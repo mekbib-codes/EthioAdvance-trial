@@ -1,23 +1,28 @@
-Hey {{ user.get_full_name|default:"there" }}!
+Welcome to {{ site_name }}
 
-We're absolutely thrilled to welcome you to the {{ site_name }} family — your place for growth, learning, and leveling up! 🚀
+Dear {{ user.get_full_name|default:"there" }},
 
-You've successfully joined as part of our community, and we couldn’t be happier to have you onboard.
+Thank you for creating an account with {{ site_name }}.
 
-💡 What’s next?
-You can now log in anytime and start exploring all the opportunities waiting for you.
-👉 You can log in anytime using this link:
-🔗 [Log In Now]({{ login_url }})
+Your account has been successfully registered and is now ready to use.
 
-If you have any questions or hit a bump — we’re just one message away! 💌
-Your success is our priority.
+We are pleased to have you join our learning community. we are here to provide educational assistance for your child, and to help connect you with quality tutoring services.
 
-Thanks for choosing {{ site_name }}.
-We’re here to grow with you, every step of the way. 🌱✨
+Getting Started:
 
-See you on the inside!
+• Log in to your account.
+• Complete your profile information if needed.
+• Register a student and request tutoring services.
+• Manage your tutoring requests and account through the platform.
+
+Log in here:
+{{ login_url }}
+
+If you did not create this account, please contact us immediately.
+
+We appreciate your trust in {{ site_name }} and look forward to supporting your educational journey.
+
+Need assistance?
+Contact us at one of our social media channels at the bottom of our website
 
 — The {{ site_name }} Team
-Your future favorite support squad.
-
-Need help? Contact us at support@{{ site_domain }}

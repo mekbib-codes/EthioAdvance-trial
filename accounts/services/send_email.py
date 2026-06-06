@@ -1,4 +1,3 @@
-from django.contrib.sites.models import Site
 from django.urls import reverse
 
 from django.template.loader import render_to_string
@@ -14,13 +13,12 @@ class SendEmailService:
     def send_welcome_message(cls, request, user):
 
         try:
-            current_site = Site.objects.get_current()
             context = {
                 'user': user,
-                'site_name': current_site.name,
+                'site_name': "EthioAdvance",
                 "login_url": request.build_absolute_uri(reverse('accounts:login')),
             }
-            subject = f"Welcome aboard, {user.first_name}! 🎉 Let’s get started with {current_site}."
+            subject = f"Welcome to {context['site_name']}!"
             message = render_to_string('accounts/emails/welcome_message.txt', context)
             html_message = render_to_string('accounts/emails/welcome_message.html', context)
 

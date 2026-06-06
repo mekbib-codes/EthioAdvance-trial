@@ -51,13 +51,12 @@ class OTPService:
     def send_otp_email(email, otp_code, purpose, expires_at):
         """Send OTP code to user's email"""
         try:
-            current_site = Site.objects.get_current()
             context = {
                 'otp_code': otp_code,
                 'purpose': purpose,
                 'expiry_minutes': settings.OTP_EXPIRY_MINUTES,
                 'expires_at': expires_at,
-                'site_name': current_site.name,
+                'site_name': "EthioAdvance",
             }
 
             subject = f"Your OTP for {purpose}"

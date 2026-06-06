@@ -1,37 +1,101 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Welcome to {{ site_name }}</title>
 </head>
-<body style="font-family: Arial, sans-serif; background-color: #f9fafb; color: #333; padding: 20px;">
-    <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-        <h2 style="color: #3b82f6;">Hey {{ user.get_full_name|default:"there" }}! 👋</h2>
+<body style="margin:0;padding:0;background-color:#f5f7fb;font-family:Arial,sans-serif;color:#333333;">
 
-        <p>We're absolutely <strong>thrilled</strong> to welcome you to the <strong>{{ site_name }}</strong> family — your place for growth, learning, and leveling up! 🚀</p>
+```
+<div style="max-width:600px;margin:40px auto;padding:0 20px;">
 
-        <p>You've successfully joined as part of our community, and we couldn’t be happier to have you onboard.</p>
+    <div style="background-color:#ffffff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">
 
-        <h3 style="color: #10b981;">💡 What’s next?</h3>
-        <p>You can now log in anytime and start exploring all the opportunities waiting for you.</p>
+        <div style="background-color:#4f46e5;padding:24px;text-align:center;">
+            <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:600;">
+                Welcome to {{ site_name }}
+            </h1>
+        </div>
 
-        <p style="text-align: center; margin: 20px 0;">
-            <a href="{{ login_url }}" style="display: inline-block; padding: 12px 25px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 6px;">
-                🔗 Log In Now
-            </a>
-        </p>
+        <div style="padding:32px;">
 
-        <p>If you have any questions or hit a bump — we’re just one message away! 💌 Your success is our priority.</p>
+            <p style="font-size:16px;line-height:1.6;margin-top:0;">
+                Dear {{ user.get_full_name|default:"there" }},
+            </p>
 
-        <p>Thanks for choosing <strong>{{ site_name }}</strong>. We’re here to grow with you, every step of the way. 🌱✨</p>
+            <p style="font-size:16px;line-height:1.6;">
+                Thank you for creating an account with <strong>{{ site_name }}</strong>.
+                Your account has been successfully registered and is now ready to use.
+            </p>
 
-        <p style="margin-top: 30px;">See you on the inside!</p>
+            <p style="font-size:16px;line-height:1.6;">
+                We are pleased to have you join our learning community. we are here to provide educational assistance for your child, and to help connect you with quality tutoring services.
+            </p>
 
-        <p>— The {{ site_name }} Team<br>
-        Your future favorite support squad.</p>
+            <div style="
+                background-color:#f9fafb;
+                border-left:4px solid #4f46e5;
+                padding:16px;
+                margin:24px 0;
+                border-radius:4px;
+            ">
+                <p style="margin:0;font-size:15px;">
+                    <strong>Getting Started:</strong>
+                </p>
+                <ul style="margin:10px 0 0 20px;padding:0;font-size:15px;line-height:1.7;">
+                    <li>Log in to your account.</li>
+                    <li>Complete your profile information if needed.</li>
+                    <li>Register a student and we will assign a suitable tutor.</li>
+                    <li>Manage your tutoring sessions and child development through the platform.</li>
+                </ul>
+            </div>
 
-        <hr style="border:none; border-top:1px solid #e5e7eb; margin: 20px 0;">
-        <p style="font-size: 12px; color: #6b7280;">Need help? Contact us at <a href="mailto:support@{{ site_domain }}" style="color: #3b82f6;">support@{{ site_domain }}</a></p>
+            <div style="text-align:center;margin:30px 0;">
+                <a href="{{ login_url }}"
+                   style="
+                        display:inline-block;
+                        padding:12px 28px;
+                        background-color:#4f46e5;
+                        color:#ffffff;
+                        text-decoration:none;
+                        border-radius:6px;
+                        font-weight:600;
+                   ">
+                    Log In to Your Account
+                </a>
+            </div>
+
+            <p style="font-size:15px;line-height:1.6;">
+                If you did not create this account, please contact us immediately.
+            </p>
+
+            <p style="font-size:15px;line-height:1.6;margin-bottom:0;">
+                We appreciate your trust in {{ site_name }} and look forward to supporting your educational journey.
+            </p>
+
+        </div>
+
+        <div style="
+            background-color:#f9fafb;
+            border-top:1px solid #e5e7eb;
+            padding:20px;
+            text-align:center;
+        ">
+
+            <p style="margin:0;font-size:14px;color:#6b7280;">
+                If you have any questions or need assistance, feel free to contact our support team at
+                one of our social media accounts at the bottom of the website.
+            </p>        
+            <p style="margin:10px 0 0 0;font-size:14px;color:#6b7280;">
+                — The {{ site_name }} Team
+            </p>
+        </div>
+
     </div>
+
+</div>
+```
+
 </body>
 </html>
