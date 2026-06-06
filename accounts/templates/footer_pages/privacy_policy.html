@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{# Header selection #}
+{% block header %}
+    {% if request.user.is_authenticated %}
+        {% if request.user.role == "PARENT" %}
+            {% include "ui/parent_header.html" %}
+        {% elif request.user.role == "TUTOR" %}
+            {% include "ui/tutor_header.html" %}
+        {% elif request.user.role == "COMPANY" %}
+            {% include "ui/company_header.html" %}
+        {% endif %}
+    {% else %}
+        {% include "ui/accounts_header.html" %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<section class="relative">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+        <div class="pb-12 pt-32 md:pb-20 md:pt-40">
+            <div class="pb-12 text-left md:pb-16">
+
+```
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Privacy Policy</h1>
+                <p class="text-gray-600 max-w-3xl mx-auto">
+                    EthioAdvance values your privacy and is committed to protecting the personal information entrusted to us.
+                </p>
+            </div>
+
+            <div class="max-w-6xl mx-auto my-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-indigo-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-database text-2xl text-indigo-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Information We Collect</span><br>
+                        We may collect student names, parent or guardian details, contact information, educational preferences, addresses, and information necessary to provide tutoring services.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-emerald-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-gears text-2xl text-emerald-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">How We Use Information</span><br>
+                        Information is used to match students with tutors, coordinate schedules, improve service quality, communicate with users, and manage educational services.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-blue-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-lock text-2xl text-blue-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Data Security</span><br>
+                        We implement reasonable administrative, technical, and organizational safeguards designed to protect personal information from unauthorized access, disclosure, alteration, or destruction.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-yellow-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-share-nodes text-2xl text-yellow-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Information Sharing</span><br>
+                        We do not sell personal information. Information may be shared only when necessary to provide services, comply with legal obligations, or protect legitimate interests.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-red-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-cookie-bite text-2xl text-red-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Cookies & Analytics</span><br>
+                        EthioAdvance may use cookies and similar technologies to improve website functionality, analyze usage patterns, and enhance user experience.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-slate-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-user-check text-2xl text-slate-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">User Rights</span><br>
+                        Users may request correction of inaccurate information or request removal of information that is no longer required for service delivery, subject to applicable legal obligations.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-purple-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-server text-2xl text-purple-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Data Retention</span><br>
+                        Information is retained only for as long as reasonably necessary to provide services, comply with legal requirements, resolve disputes, and maintain business records.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-pink-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-user-shield text-2xl text-pink-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Children's Privacy</span><br>
+                        Because tutoring services involve minors, information is managed through parents or legal guardians whenever possible and handled with additional care and confidentiality.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-gray-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-pen-to-square text-2xl text-gray-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Policy Updates</span><br>
+                        EthioAdvance may update this Privacy Policy periodically. Continued use of the platform following updates constitutes acceptance of the revised policy.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+</section>
+
+{% endblock %}

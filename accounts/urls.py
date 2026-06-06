@@ -4,7 +4,7 @@ from .views.home import Home
 from .views.role_based_login import RoleBasedLoginView
 from .views.otp_verification import OTPVerificationView, OTPResendView
 from .views.password_reset import PasswordResetRequestedView, PasswordResetOTPVerificationView, SetNewPasswordView
-from .views.fotter_pages import AboutView, FAQView
+from .views.fotter_pages import AboutView, FAQView, PrivacyPolicyView, TermsOfServiceView
 from django.contrib.auth.views import LogoutView
 
 
@@ -22,4 +22,6 @@ urlpatterns = [
 
     path("about/", AboutView.as_view(), name="about"),
     path("faq/", FAQView.as_view(), name="faq"),
+    path("privacy-policy/", PrivacyPolicyView.as_view(), name="privacy_policy"),
+    path("terms-of-service/", TermsOfServiceView.as_view(), name="terms_of_service"),
 ]

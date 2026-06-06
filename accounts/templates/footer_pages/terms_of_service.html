@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{# Header selection #}
+{% block header %}
+    {% if request.user.is_authenticated %}
+        {% if request.user.role == "PARENT" %}
+            {% include "ui/parent_header.html" %}
+        {% elif request.user.role == "TUTOR" %}
+            {% include "ui/tutor_header.html" %}
+        {% elif request.user.role == "COMPANY" %}
+            {% include "ui/company_header.html" %}
+        {% endif %}
+    {% else %}
+        {% include "ui/accounts_header.html" %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<section class="relative">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+        <div class="pb-12 pt-32 md:pb-20 md:pt-40">
+            <div class="pb-12 text-left md:pb-16">
+
+```
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Terms of Service</h1>
+                <p class="text-gray-600 max-w-3xl mx-auto">
+                    By using EthioAdvance and receiving tutoring services through our platform, you agree to the following terms and conditions.
+                </p>
+            </div>
+
+            <div class="max-w-6xl mx-auto my-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-indigo-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-file-contract text-2xl text-indigo-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Acceptance of Terms</span><br>
+                        Accessing or using EthioAdvance constitutes acceptance of these Terms of Service. If you do not agree with these terms, please discontinue use of our services.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-emerald-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-user-graduate text-2xl text-emerald-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Tutoring Services</span><br>
+                        EthioAdvance connects students with qualified tutors. Tutor assignments are made based on subject requirements, location, schedule preferences, and tutor availability.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-blue-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-money-bill-wave text-2xl text-blue-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Service Fees</span><br>
+                        Grade 1–4: 500 ETB per 1 hour session.<br>
+                        Grade 5–8: 600 ETB per 1 hour session.<br>
+                        Grade 9–12: 700 ETB per 1 hour session.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-yellow-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-calendar-check text-2xl text-yellow-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Payment Schedule</span><br>
+                        EthioAdvance operates on a post-service payment model. Payment becomes due after services have been provided. Fees for each four-week service period must be settled no later than the end of the fifth week.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-red-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-triangle-exclamation text-2xl text-red-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Late Payment Penalties</span><br>
+                        Outstanding balances not settled by the start of the sixth week will incur a late payment penalty of 500 ETB per week until the outstanding balance is paid in full.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-slate-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-scale-balanced text-2xl text-slate-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Recovery of Unpaid Fees</span><br>
+                        If payment remains outstanding after the eighth week, EthioAdvance may suspend services and pursue lawful recovery of unpaid fees, penalties, and associated costs under applicable Ethiopian laws.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-purple-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-rotate text-2xl text-purple-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Tutor Replacement</span><br>
+                        Families may request a tutor replacement at any time by contacting EthioAdvance through the website feedback feature or official social media channels listed in the website footer.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-pink-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-ban text-2xl text-pink-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Service Misuse</span><br>
+                        Users may not misuse the platform, provide false information, interfere with services, or engage in conduct that negatively affects tutors, students, or EthioAdvance operations.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+                <div class="bg-white relative rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <div class="bg-gray-50 p-4 rounded-xl mb-5">
+                        <i class="fa-solid fa-gavel text-2xl text-gray-600"></i>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <span class="font-semibold text-gray-900">Governing Law</span><br>
+                        These Terms of Service shall be governed and interpreted in accordance with the laws of the Federal Democratic Republic of Ethiopia. Any disputes shall be resolved through the appropriate legal processes within Ethiopia.
+                    </p>
+                    <p class="absolute italic text-sm text-gray-400 right-2 bottom-2">Last updated:June 1, 2026</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+</section>
+
+{% endblock %}
