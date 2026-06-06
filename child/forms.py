@@ -34,27 +34,10 @@ class ChildRegistrationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.parent = kwargs.pop('parent', None)
         super().__init__(*args, **kwargs)
-        
-        # Set date limits for date picker
-        today = timezone.now().date()
-        max_date = today.strftime('%Y-%m-%d')
-        min_date = (today - timezone.timedelta(days=18*365)).strftime('%Y-%m-%d')
-        self.fields['date_of_birth'].widget.attrs.update({
-            'max': max_date,
-            'min': min_date
-        })
 
-    def clean_date_of_birth(self):
-        dob = self.cleaned_data['date_of_birth']
-        today = timezone.now().date()
-        age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-        
-        if age > 18:
-            raise ValidationError("Child must be under 18 years old.")
-        if age < 4:
-            raise ValidationError("Child must be at least 4 years old.")
-            
-        return dob
+        self.fields['date_of_birth'].widget.attrs.update({
+            'max': timezone.now().date().strftime('%Y-%m-%d')
+        })
 
     def save(self, commit=True):
         child = super().save(commit=False)

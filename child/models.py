@@ -26,12 +26,7 @@ class Child(models.Model):
     # Basic info
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    date_of_birth = models.DateField(
-        validators=[
-            MaxValueValidator(limit_value=timezone.now().date()),
-            MinValueValidator(limit_value=timezone.now().date() - timedelta(days=18*365))  # Assuming child is under 18
-        ]
-    )
+    date_of_birth = models.DateField()
     gender = models.CharField(
         max_length=20, 
         choices=User.Gender.choices,  # Reuse the same Gender enum
