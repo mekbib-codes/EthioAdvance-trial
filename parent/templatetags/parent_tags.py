@@ -80,21 +80,17 @@ def parent_payment_info(context, parent_id: int):
     paid_sessions_duration = paid_sessions.aggregate(total=Sum('duration'))['total'] or 0
     unpaid_sessions_duration = unpaid_sessions.aggregate(total=Sum('duration'))['total'] or 0
 
-    # Calculate total_due from unpiad sessions duration
-
-    # 1- First Calculate current hourly rate
-    try:
-        rate = SessionRate.objects.latest("updated_at").current_hourly_rate
-    except SessionRate.DoesNotExist:
-        rate = 0
-        logger.warning("No SessionRate found")
+    # Calculate amount unpaid
+    rate_table = SessionRate.objects.latest("updated_at")
+    total_due = 0
     
-    if unpaid_sessions_duration != 0:
-                # Convert duration to hours
-                total_unpaid_hours = unpaid_sessions_duration.total_seconds() / 3600
-                total_due = round(total_unpaid_hours * float(rate), 2)
-    else:
-        total_due = 0
+    for session in unpaid_sessions:
+        if not session.duration:
+            continue
+
+        rate = rate_table.get_current_hourly_rate(session.child)
+        hours = session.duration.total_seconds() / 3600
+        total_due += round(hours * float(rate), 2)
 
     # Collect data
     payment_data = {

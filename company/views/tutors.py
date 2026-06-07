@@ -46,8 +46,7 @@ class TutorBaseListView(BaseUserListView):
     def calculate_financials(self, tutors):
         if not tutors:
             return tutors
-            
-        rate = self.get_current_rate()
+        
         tutor_ids = [tutor.id for tutor in tutors]
 
         # Payment totals
@@ -76,26 +75,37 @@ class TutorBaseListView(BaseUserListView):
                 child__tutor_id__in=tutor_ids,
                 status=Session.Status.APPROVED,
                 paid_to_tutor=False
-            ).values('child__tutor_id').annotate(
+            )
+            .values('child_id')
+            .annotate(
                 duration_sum=Coalesce(Sum('duration'), timedelta())
-            ).values_list('child__tutor_id', 'duration_sum')
+            )
+            .values_list('child_id', 'duration_sum')
         )
 
+        tutor_rate_table = TutorPayRate.objects.latest("updated_at")
         for tutor in tutors:
             tutor.total_paid = payment_totals.get(tutor.id, Decimal(0))
             tutor.total_requested = requested_totals.get(tutor.id, Decimal(0))
 
-            duration = unpaid_durations.get(tutor.id, timedelta())
-            tutor.total_due = self.calculate_due_amount(duration, rate)
+            total_due = Decimal(0)
+
+            for child in tutor.students.all():
+                duration = unpaid_durations.get(
+                    child.id,
+                    timedelta()
+                )
+
+                rate = tutor_rate_table.get_current_hourly_rate(child)
+
+                total_due += self.calculate_due_amount(
+                    duration,
+                    rate
+                )
+
+            tutor.total_due = total_due
             
         return tutors
-    
-    def get_current_rate(self):
-        try:
-            return Decimal(TutorPayRate.objects.latest("updated_at").current_hourly_rate)
-        except TutorPayRate.DoesNotExist:
-            logger.error("No Session Rate Found")
-            return Decimal(0)
     
     def calculate_due_amount(self, duration, rate):
         if not duration:

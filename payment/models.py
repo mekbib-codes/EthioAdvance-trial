@@ -6,12 +6,24 @@ from session.models import Session
 from tutor.models import Tutor
 
 class SessionRate(models.Model):
-    current_hourly_rate = models.DecimalField(max_digits=8, decimal_places=2, default=400.00)
+    rate_grade_1_4 = models.DecimalField(max_digits=8, decimal_places=2, default=500)
+    rate_grade_5_8 = models.DecimalField(max_digits=8, decimal_places=2, default=600)
+    rate_grade_9_12 = models.DecimalField(max_digits=8, decimal_places=2, default=700)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return f"Rate: {self.current_hourly_rate} ETB (updated {self.updated_at})"
+    def get_current_hourly_rate(self, child):
+        grade = int(child.grade_level)
+
+        if 1 <= grade <= 4:
+            return self.rate_grade_1_4
+        elif 5 <= grade <= 8:
+            return self.rate_grade_5_8
+        elif 9 <= grade <= 12:
+            return self.rate_grade_9_12
+
+        return self.rate_grade_5_8  # fallback
 
     class Meta:
         ordering = ['-updated_at']
@@ -46,10 +58,25 @@ class Payment(models.Model):
         ]
 
 class TutorPayRate(models.Model):
-    current_hourly_rate = models.DecimalField(max_digits=8, decimal_places=2, default=250.00)
+    rate_grade_1_4 = models.DecimalField(max_digits=8, decimal_places=2, default=350)
+    rate_grade_5_8 = models.DecimalField(max_digits=8, decimal_places=2, default=450)
+    rate_grade_9_12 = models.DecimalField(max_digits=8, decimal_places=2, default=550)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def get_current_hourly_rate(self, child):
+        grade = int(child.grade_level)
+
+        if 1 <= grade <= 4:
+            return self.rate_grade_1_4
+        elif 5 <= grade <= 8:
+            return self.rate_grade_5_8
+        elif 9 <= grade <= 12:
+            return self.rate_grade_9_12
+
+        return self.rate_grade_5_8  # fallback
+    
     class Meta:
         ordering = ['-updated_at']
         indexes = [

@@ -6,7 +6,7 @@ def calculate_total_payment(child):
     unpaid_sessions = child.sessions.filter(status=Session.Status.APPROVED, is_paid=False)
     total_duration = sum([s.duration for s in unpaid_sessions if s.duration], start=timedelta())
     total_hours = total_duration.total_seconds() / 3600
-    rate = SessionRate.objects.latest("updated_at").current_hourly_rate
+    rate = SessionRate.objects.latest("updated_at").get_current_hourly_rate(child)
     total_due = round(total_hours * float(rate), 2)
     return total_due, unpaid_sessions
 
@@ -14,5 +14,5 @@ def calculate_tutor_payment(child):
     sessions = child.sessions.filter(status=Session.Status.APPROVED, paid_to_tutor=False)
     total_duration = sum([s.duration for s in sessions if s.duration], start=timedelta())
     total_hours = total_duration.total_seconds() / 3600
-    rate = TutorPayRate.objects.latest("updated_at").current_hourly_rate
+    rate = TutorPayRate.objects.latest("updated_at").get_current_hourly_rate(child)
     return round(total_hours * float(rate), 2), sessions

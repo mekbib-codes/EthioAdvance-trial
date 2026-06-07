@@ -109,8 +109,7 @@ class ChildrenListView(CompanyRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Get rate once for all calculations
-        hourly_rate = Decimal(str(SessionRate.objects.latest("updated_at").current_hourly_rate))
+        rate_table = SessionRate.objects.latest("updated_at")
         
         for child in context['children']:
             # Calculate age (safe, uses model method)
@@ -127,6 +126,7 @@ class ChildrenListView(CompanyRequiredMixin, ListView):
                 0.0
             )
             
+            hourly_rate = Decimal(str(rate_table.get_current_hourly_rate(child)))
             child.total_due = Decimal(total_seconds) / Decimal(3600) * hourly_rate
             child.total_due = child.total_due.quantize(Decimal('0.00'))
             child.unpaid_sessions = unpaid_sessions

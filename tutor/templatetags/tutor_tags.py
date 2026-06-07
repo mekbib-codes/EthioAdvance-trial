@@ -91,18 +91,16 @@ def tutor_payment_info(context, tutor_id: int):
     unpaid_sessions_duration = unpaid_sessions.aggregate(total=Sum('duration'))['total'] or 0
 
     # Calculate amount unpaid
-    try:
-        rate = TutorPayRate.objects.latest("updated_at").current_hourly_rate
-    except TutorPayRate.DoesNotExist:
-        rate = 0
-        logger.warning("No TutorPayRate found")
-    
-    if unpaid_sessions_duration != 0:
-        # Convert duration to hours (assuming duration is in minutes)
-        total_unpaid_hours = unpaid_sessions_duration.total_seconds() / 3600
-        total_unpaid = round(total_unpaid_hours * float(rate), 2)
-    else:
-        total_unpaid = 0
+    rate_table = TutorPayRate.objects.latest("updated_at")
+    total_unpaid = 0
+
+    for session in unpaid_sessions:
+        if not session.duration:
+            continue
+
+        rate = rate_table.get_current_hourly_rate(session.child)
+        hours = session.duration.total_seconds() / 3600
+        total_unpaid += round(hours * float(rate), 2)
 
     payment_data = {'total_earned': total_earned,
                     'total_requested': total_requested,

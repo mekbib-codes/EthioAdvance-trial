@@ -61,30 +61,24 @@ class ParentListBaseView(BaseUserListView):
             ).values_list('parent_id', 'total')
         )
 
-        # Unpaid durations
-        unpaid_durations = dict(
-            Session.objects.filter(
-                child__parent_id__in=parent_ids,
-                status=Session.Status.APPROVED,
-                is_paid=False
-            ).values('child__parent_id').annotate(
-                duration_sum=Coalesce(Sum('duration'), timedelta())
-            ).values_list('child__parent_id', 'duration_sum')
-        )
-
+        unpaid_durations = dict(Session.objects.filter(child__parent_id__in=parent_ids,
+                                                       status=Session.Status.APPROVED,
+                                                       is_paid=False).values('child_id')
+                                                       .annotate(duration_sum=Coalesce(Sum('duration'), timedelta()))
+                                                       .values_list('child_id', 'duration_sum'))
+        rate_table = SessionRate.objects.latest("updated_at")
         for parent in parents:
             parent.total_paid = payment_totals.get(parent.id, Decimal(0))
-            duration = unpaid_durations.get(parent.id, timedelta())
-            parent.total_due = self.calculate_due_amount(duration, rate)
+            total_due = Decimal(0)
+
+            for child in parent.children.all():
+                duration = unpaid_durations.get(child.id,timedelta())
+                rate = rate_table.get_current_hourly_rate(child)
+                total_due += self.calculate_due_amount(duration,rate)
+
+            parent.total_due = total_due
             
         return parents
-
-    def get_current_rate(self):
-        try:
-            return Decimal(SessionRate.objects.latest("updated_at").current_hourly_rate)
-        except SessionRate.DoesNotExist:
-            logger.error("No Session Rate Found")
-            return Decimal(0)
 
     def calculate_due_amount(self, duration, rate):
         if not duration:

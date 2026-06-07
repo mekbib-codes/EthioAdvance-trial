@@ -6,9 +6,9 @@ from .models import SessionRate, Payment, TutorPayRate, TutorPayments
 @admin.register(SessionRate)
 class SessionRateAdmin(admin.ModelAdmin):
     # Display fields in the list view
-    list_display = ('id', 'current_hourly_rate', 'formatted_created_at', 'formatted_updated_at')
+    list_display = ('id', 'rate_grade_1_4', 'rate_grade_5_8', 'rate_grade_9_12', 'formatted_created_at', 'formatted_updated_at')
     list_filter = ('updated_at', 'created_at')
-    search_fields = ('current_hourly_rate',)
+    search_fields = ('rate_grade_1_4', 'rate_grade_5_8', 'rate_grade_9_12')
     ordering = ('-updated_at',)
     readonly_fields = ('created_at', 'updated_at')
 
@@ -20,13 +20,6 @@ class SessionRateAdmin(admin.ModelAdmin):
     def formatted_updated_at(self, obj):
         return obj.updated_at.strftime('%Y-%m-%d %H:%M:%S')
     formatted_updated_at.short_description = 'Updated At'
-
-    # Customize the add/edit form
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        form.base_fields['current_hourly_rate'].help_text = "Enter the hourly rate for sessions (e.g., 400.00 ETB)."
-        return form
-
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
@@ -79,9 +72,9 @@ class PaymentAdmin(admin.ModelAdmin):
 @admin.register(TutorPayRate)
 class TutorPayRateAdmin(admin.ModelAdmin):
     # Display fields in the list view
-    list_display = ('id', 'current_hourly_rate', 'formatted_created_at', 'formatted_updated_at')
+    list_display = ('id', 'rate_grade_1_4', 'rate_grade_5_8', 'rate_grade_9_12', 'formatted_created_at', 'formatted_updated_at')
     list_filter = ('updated_at', 'created_at')
-    search_fields = ('current_hourly_rate',)
+    search_fields = ('rate_grade_1_4', 'rate_grade_5_8', 'rate_grade_9_12')
     ordering = ('-updated_at',)
     readonly_fields = ('created_at', 'updated_at')
 
@@ -93,13 +86,6 @@ class TutorPayRateAdmin(admin.ModelAdmin):
     def formatted_updated_at(self, obj):
         return obj.updated_at.strftime('%Y-%m-%d %H:%M:%S')
     formatted_updated_at.short_description = 'Updated At'
-
-    # Customize the add/edit form
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        form.base_fields['current_hourly_rate'].help_text = "Enter the hourly rate for tutors (e.g., 250.00 ETB)."
-        return form
-
 
 @admin.register(TutorPayments)
 class TutorPaymentsAdmin(admin.ModelAdmin):

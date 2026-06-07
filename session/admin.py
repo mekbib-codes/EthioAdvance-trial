@@ -6,7 +6,7 @@ from .models import Session
 @admin.register(Session)
 class SessionAdmin(admin.ModelAdmin):
     # Display fields in the list view
-    list_display = ('id', 'child_link', 'tutor_link', 'session_subject', 'status', 'formatted_duration', 'is_paid', 'paid_to_tutor', 'overdue', 'created_at')
+    list_display = ('id', 'child_link', 'tutor_link','child__grade_level', 'session_subject', 'status', 'formatted_duration', 'is_paid', 'paid_to_tutor', 'overdue', 'created_at')
     list_filter = ('status', 'is_paid', 'overdue', 'paid_to_tutor', 'created_at', 'updated_at')
     search_fields = ('child__first_name', 'child__last_name', 'tutor__first_name', 'tutor__last_name', 'session_subject')
     list_editable = ('status', 'is_paid', 'paid_to_tutor', 'overdue')
