@@ -100,7 +100,6 @@ def parent_payment_info(context, parent_id: int):
                 'unpaid_sessions': unpaid_sessions.count(),
                 'paid_sessions_duration': paid_sessions_duration,
                 'unpaid_sessions_duration': unpaid_sessions_duration,
-                'hourly_rate': rate  # Include for transparency
             }
     
     return {'request': request, 'payment_data': payment_data}
